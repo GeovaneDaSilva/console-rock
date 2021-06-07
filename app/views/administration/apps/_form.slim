@@ -1,0 +1,89 @@
+meta name="presignUrl" content=uploads_system_hunt_file_uploads_path
+
+div data-controller="upload"
+  = f.text_field :title
+  = f.text_area :description
+  = f.number_field :price, step: "0.01"
+  = f.switch :disabled
+  = f.switch :discreet, label_name: "Private"
+  = f.switch :on_by_default
+  = f.select :report_template, options_for_select(App.report_templates.collect { |k, _| [k.humanize, k]}, f.object.report_template)
+  = f.select :type, options_for_select(["Apps::DeviceApp", "Apps::CloudApp", "Apps::Office365App", "Apps::SentineloneApp", "Apps::WebrootApp", "Apps::CylanceApp", "Apps::CysuranceApp", "Apps::BitdefenderApp", "Apps::IronscalesApp", "Apps::DeepInstinctApp", "Apps::HibpApp", "Apps::DnsFilterApp", "Apps::SophosApp", "Apps::PasslyApp", "Apps::DuoApp", "Apps::CiscoUmbrellaApp"], f.object.type)
+  = f.select :configuration_type, options_for_select(App.configuration_types.collect { |k, _| [k.humanize, k]}, f.object.configuration_type), include_blank: true
+  = f.select :author, options_for_select(App.authors.collect { |k, _| [k.humanize, k]}, f.object.author)
+
+  = f.form_group :configuration_scopes, label: { text: "Configuration Scopes" } do
+    = hidden_field_tag "app[configuration_scopes][]", ""
+    - f.object.class.configuration_scope_flags.each do |configuration_scope|
+      .form-group
+        = f.check_box :configuration_scopes, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false, checked: f.object.send(configuration_scope) }, configuration_scope do
+          i
+          |  #{configuration_scope.to_s.humanize.titlecase }
+
+  = f.form_group :platforms, label: { text: "Platforms" } do
+    = hidden_field_tag "app[platforms][]", ""
+    - f.object.class.platform_flags.each do |platform|
+      .form-group
+        = f.check_box :platforms, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false, checked: f.object.send(platform) }, platform do
+          i
+          |  #{platform.to_s.humanize.titlecase }
+
+  = f.form_group :additional_types, label: { text: "Additional Types" } do
+    = hidden_field_tag "app[additional_types][]", ""
+    - f.object.class.additional_type_flags.each do |additional_type|
+      .form-group
+        = f.check_box :additional_types, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false, checked: f.object.send(additional_type) }, additional_type do
+          i
+          | #{additional_type.to_s.humanize.titlecase}
+
+  = f.hidden_field :upload_id, data: { target: "upload.uploadIdInput"}
+  - %w[malicious suspicious informational].each do |indicator_type|
+    .form-group
+      = f.radio_button :indicator, indicator_type, label: indicator_type.humanize
+
+  .form-group
+    label
+      | Script
+    div data-target="upload.uploadGallery"
+      - if f.object.upload_id.present?
+        figure
+          figcaption = link_to f.object.upload&.filename, f.object.upload.url
+  .form-group
+    label.btn.btn-primary for="upload-input"
+      input.hidden-file-input#upload-input type="file" data-upload="true" data-target="upload.uploadInput"
+      | Upload Script
+
+div data-controller="upload"
+  .form-group
+    label
+      | Display Image (1000x600)
+    div data-target="upload.uploadGallery"
+      - if f.object.display_image_id.present?
+        figure
+          figcaption = link_to f.object.display_image&.filename, f.object.display_image.url
+
+    = f.hidden_field :display_image_id, data: { target: "upload.uploadIdInput"}
+
+  .form-group
+    label.btn.btn-primary for="display-image-input"
+      input.hidden-file-input#display-image-input type="file" data-upload="true" data-target="upload.uploadInput"
+      | Upload Image
+
+div data-controller="upload"
+  .form-group
+    label
+      | Display Image Icon
+    div data-target="upload.uploadGallery"
+      - if f.object.display_image_icon_id.present?
+        figure
+          figcaption = link_to f.object.display_image_icon&.filename, f.object.display_image_icon.url
+
+    = f.hidden_field :display_image_icon_id, data: { target: "upload.uploadIdInput"}
+
+  .form-group
+    label.btn.btn-primary for="display-image-icon-input"
+      input.hidden-file-input#display-image-icon-input type="file" data-upload="true" data-target="upload.uploadInput" accept="image/svg+xml"
+      | Upload Icon
+
+.clearfix
+  = f.submit class: "btn btn-primary pull-right"

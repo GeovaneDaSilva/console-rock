@@ -1,0 +1,69 @@
+h2.mb-5
+  | Data Discovery
+
+.row
+  .col-xs-12
+    h3.mb-0.mt-20.noborder File Details
+    dl.dl-horizontal
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "Owner", value: details.file_owner }
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "File name", value: details.file_name }
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "File path", value: details.file_path }
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "MD5", value: details.md5 }
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "SHA1", value: details.sha1 }
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "SHA2", value: details.sha2 }
+
+      .col-xs-12.col-md-6
+        dl.dl-horizontal
+          = render partial: "devices/r/breaches/dl_detail", locals: { key: "Size", value: details.size }
+          = render partial: "devices/r/breaches/dl_detail", locals: { key: "File attributes", value: details.file_attributes }
+          = render partial: "devices/r/breaches/dl_detail", locals: { key: "File created", value: details.create_time }
+          = render partial: "devices/r/breaches/dl_detail", locals: { key: "File modified", value: details.last_write_time }
+          = render partial: "devices/r/breaches/dl_detail", locals: { key: "File accessed", value: details.last_accessed }
+
+- if details.discoveries.is_a?(Array) && details.discoveries.any?
+  .row
+    .col-xs-12
+      h3.mb-0.mt-20.noborder Discoveries
+      table.table-fixed.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+        - details.discoveries.each do |entry|
+          tr
+            td
+              - if entry.respond_to?(:cc_icon_class)
+                i class=(entry.cc_icon_class)
+                |  #{entry.friendly_name}
+              - else
+                | Unknown
+            td
+              p.bold.mb-0 = entry.masked_value
+              - if entry&.context
+                - if entry.context.dig("pre").present?
+                  p.mb-0
+                    i PRE:
+                    |  #{entry&.context&.dig("pre")}
+                - if entry.context.dig("post").present?
+                  p.mb-0 
+                    i POST:
+                    |  #{entry&.context&.dig("post")}
+
+            - if details.archive?
+              td = entry.path
+
+        - if details.total_discoveries > details.discoveries.size
+          tr
+            td.text-center colspan=(details.archive? ? "3" : "2")
+              | + #{details.total_discoveries - details.discoveries.size} more
+        tr
+          td.text-center colspan=(details.archive? ? "3" : "2")
+            | Discoveries #{details.discoveries.size} of #{details.total_discoveries}
+
+- if details.confidence.is_a?(Hash) && details.confidence.any?
+  .row
+    .col-xs-12
+      h3.mb-0.mt-20.noborder Confidence
+      table.table-fixed.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+        - details.confidence.each do |k, v|
+          tr
+            td
+              = k.titleize
+            td
+              = v.is_a?(Array) ? v.join(", ") : v

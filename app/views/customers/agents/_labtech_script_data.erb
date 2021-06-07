@@ -1,0 +1,36 @@
+<ScriptData>
+    <Scripts>
+    <ExtraDataFields/>
+    <Parameters/>
+    <Globals/>
+    <ScriptVersion>1</ScriptVersion>
+    <ScriptGuid><%= @script_guid %></ScriptGuid>
+  </Scripts>
+  <ScriptSteps>
+    <Action>1</Action>
+    <FunctionId>1</FunctionId>
+    <Param1/>
+    <Param2/>
+    <Param3/>
+    <Param4/>
+    <Param5/>
+    <Sort>0</Sort>
+    <Continue>0</Continue>
+    <OsLimit>0</OsLimit>
+    <Indentation>0</Indentation>
+  </ScriptSteps>
+  <ScriptSteps>
+    <Action>2</Action>
+    <FunctionId>235</FunctionId>
+    <Param1>0</Param1>
+    <Param2><%=raw ERB.new(File.read(Rails.root.join("app", "views", "customers", "agents", "_powershell.ps1.erb"))).result(binding) %>
+</Param2>
+    <Param3/>
+    <Param4>0</Param4>
+    <Param5/>
+    <Sort>0</Sort>
+    <Continue>0</Continue>
+    <OsLimit>0</OsLimit>
+    <Indentation>0</Indentation>
+  </ScriptSteps>
+</ScriptData>

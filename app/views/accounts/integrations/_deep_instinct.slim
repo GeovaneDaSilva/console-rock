@@ -1,0 +1,59 @@
+div data-controller="api-test"
+  = bootstrap_form_tag url: deep_instinct_auth_create_path, method: :post do |f|
+    - credential = account&.deep_instinct_credential
+    - has_credential = account.deep_instinct_credential?
+    p.hidden data-target="api-test.type"
+      | deep_instinct
+    p
+      |
+        For <a href="#{I18n.t('helpdocs.deep_instinct')}">configuration instructions</a>, see the #{I18n.t("application.name")} help docs.
+
+    - if account.deep_instinct_credential?
+      - if request.params[:show_app_id] == app_id.to_s
+        p
+          b
+            |
+              Please set the Deep Instinct tenant mapping to #{I18n.t("application.name")} Customer
+
+      .d-flex.flex-wrap
+        .w-100
+          - tenants = credential&.tenants&.inject({}) { |r, s| r.merge!({s["id"] => s})} || {}
+          - acm = (antivirus_customer_maps || []).inject({}) { |r, s| r.merge!({s["antivirus_id"] => s})}
+          - if tenants.present?
+            table.table.fullwidth id="tbl_mapping"
+              thead
+                tr
+                  td = "Deep Instinct tenant Id"
+                  td = "tenant Name"
+                  td = "Customer"
+                  td
+              tbody
+                - tenants.each do |id, c|
+                  tr data-target="tbl-row-editor.row" data-controller="tbl-row-editor"
+                    td
+                      input type='text' name="map[#{id}][tenant_id]" value="#{c["id"]}" readonly=true data-target="tbl-row-editor.text"
+                    td
+                      input type='text' name="map[#{id}][tenant_name]" value="#{c["name"]}" readonly=true data-target="tbl-row-editor.text"
+                    td
+                      = select_tag "map[#{id}][account_id]", options_for_select((current_account.self_and_all_descendant_customers.collect { |a| [a.name, a.id] }), acm&.dig(id.to_s)&.account_id), class: "form-control", include_blank: true
+                    td
+                      a href="#" data-action="click->tbl-row-editor#del"
+                        i.fa.fa-trash
+
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.text_field :access_token, label: "Enter your Deep Instinct access token", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.accessToken" }, value: integrations_mask(credential&.access_token), readonly: has_credential
+      .w-50.pr-5
+        = f.text_field :base_url, label: "Enter your Deep Instinct URL", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.url" }, placeholder: "https://partner1.poc.deepinstinctweb.com", pattern: 'https://.*[^/]', value: credential&.base_url, readonly: has_credential
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+
+    p.padding-10 data-target="api-test.outputDisplay"
+
+    .w-100.text-right.padding-10
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#"
+        | Credential Test
+      - if has_credential
+        = f.submit value: "Save Map", class: "btn btn-primary margin-right-10"
+        = link_to "Clear Existing Credential", deep_instinct_auth_destroy_path(customer_id: account.id), class: "btn btn-primary", :method => :delete
+      - else
+        = f.submit value: "Authenticate", class: "btn btn-primary"

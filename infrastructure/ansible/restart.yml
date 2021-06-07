@@ -1,0 +1,11 @@
+---
+- hosts: all
+  serial: "25%"
+  tasks:
+  - name: Restart Sidekiq
+    service: name=sidekiq state=restarted
+    ignore_errors: true
+
+  - name: Restart Puma
+    service: name=puma state=restarted
+    ignore_errors: true

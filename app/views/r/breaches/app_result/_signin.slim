@@ -1,0 +1,38 @@
+tr
+  td
+    - if app_result.malicious?
+      span.text-danger title="Malicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.suspicious?
+      span.text-warning title="Suspicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.informational?
+      span.text-informational title="Informational"
+        i.fa.fa-exclamation-triangle
+
+    | &nbsp;
+    = l app_result.detection_date, format: :digital
+
+  - if app_result.details.is_a?(Hash)
+    td = app_result.details.dig("user", "principalName") || "-"
+    td = app_result.details.dig("location", "city") || "-"
+    td
+      - detections = app_result.details.dig("threat_detail", "detections") || 0
+      - 8.times do |i|
+        span.stoplight class=("malicious" if i <= (detections - 1))
+        | &nbsp;
+    td = app_result.details.dig("user", "loginAttempt") || "-"
+  - elsif app_result.details.is_a?(TestResults::BaseJson)
+    td = app_result.details.username || "-"
+    td = app_result.details.city_state_country || "-"
+    td
+      - detections = app_result.details.detection_count.to_i
+      - 8.times do |i|
+        span.stoplight class=("malicious" if i <= (detections - 1))
+        | &nbsp;
+    td = app_result.details.login_attempt || "-"
+  - else
+    td -
+    td -
+    td -
+    td -

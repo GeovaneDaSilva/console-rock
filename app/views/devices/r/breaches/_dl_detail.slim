@@ -1,0 +1,15 @@
+- if value.present?
+  dt.text-left.opacity-8 = key
+  - if value.is_a?(Time)
+    dd.mb-0 = l value.in_time_zone(current_user.timezone), format: :digital
+  - elsif key =~ /md5|sha1|sha2|filecontenthash/i
+    dd.mb-0
+      span data-controller="external-intel" data-external-intel-type="hash" data-external-intel-value=value = value
+  - elsif key =~ /ip$|remote_address/i
+    dd.mb-0
+      span data-controller="external-intel" data-external-intel-type="ip" data-external-intel-value=value  = value
+  - elsif key =~ /message/
+    dd.mb-0
+      pre.nomargin = value
+  - else
+    dd.mb-0 = value

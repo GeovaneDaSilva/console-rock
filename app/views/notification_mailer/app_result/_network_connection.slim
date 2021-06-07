@@ -1,0 +1,22 @@
+table.table.fullwidth
+  thead.bg-transparent
+    tr
+      th Verdict
+      th Detected
+      th.customer Customer
+      th.device Device
+      th Local Address
+      th Remote Address
+      th Service
+      th.pr-0
+  tbody
+    - similar_detections.each do |app_result|
+      tr.align-center
+        td = app_result.verdict
+        td = l app_result.detection_date, format: :digital
+        td.customer = link_to app_result.customer.name, account_triage_url(app_result.customer, query_params.merge(switch_account_id: app_result.customer.id)), target: "_blank", title: "Triage this App for #{app_result.customer.name}"
+        td.device = link_to app_result.device.hostname, device_triage_url(app_result.device, query_params), target: "_blank"
+        td = [app_result.details.local_address, app_result.details.local_port].join(":").presence || sanitize("<i>None</i>")
+        td
+           span data-controller="external-intel" data-external-intel-type="ip" data-external-intel-value=app_result.details.remote_address = [app_result.details.remote_address, app_result.details.remote_port].join(":").presence || sanitize("<i>None</i>")
+        td = app_result.details.service_name || sanitize("<i>None</i>")

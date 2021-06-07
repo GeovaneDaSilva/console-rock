@@ -1,0 +1,11 @@
+.show-empty {
+  display: none;
+}
+
+.empty .show-empty {
+  display: unset;
+}
+
+#aside nav ul li a svg .fillable {
+  fill: #c2c9c9;
+}

@@ -1,0 +1,16 @@
+- self.message.from = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+
+h1 New Account Created
+
+ul
+  li Name: #{@account.name}
+  li Type: #{@account.type}
+  - unless @account.root?
+    li Parent Account: #{@account.root&.name}
+
+  - if @account.provider? && I18n.locale == :en
+    li
+      = link_to "View Details", provider_url(@account)
+  - elsif @account.customer? && I18n.locale == :en
+    li
+      = link_to "View Details", customer_url(@account)

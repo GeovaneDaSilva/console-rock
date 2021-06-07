@@ -1,0 +1,34 @@
+.mb-5 Enabled Services
+.d-flex.flex-wrap
+  - config.dig("enabled_services").each_slice(2).each do |group|
+    - group.each do |service|
+      .w-50.pr-5
+        = render partial: "apps/configs/additional_attribute", locals: { f: f, input_name: "config[enabled_services][#{service[0]}]", value: service[1]}
+        = f.switch "config[enabled_services][#{service[0]}][enabled]", { label_name: service[1]["service_name"], checked: config.dig("enabled_services", service[0], "enabled") == true }, "true", "false"
+        .mb-5
+          = service[1]["description"]
+
+.d-flex.flex-wrap
+  .w-50.pr-5
+    = f.text_area "config[excluded_ips_to_array]", label: "Excluded IP Addresses", value: config.fetch("excluded_ips", APP_CONFIGS[:suspicious_network_services][:excluded_ips]).join("\n"), help: "One IP per line", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+  .w-50
+    = f.text_area "config[process_exclusions_to_array]", label: "Excluded Processes", value: config.fetch("process_exclusions", APP_CONFIGS[:cyberterrorist_network_connection][:process_exclusions]).join("\n"), help: "One CLI command per line", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: %(%SystemRoot%\\System32\\curl.exe)
+
+div data-controller="toggler"
+  .mb-5
+    .btn.btn-link.pl-0.toggler data-action="click->toggler#toggle"
+      i.fa.fa-plus-square-o
+      i.fa.fa-minus-square-o
+      |  Add a Custom Suspicious Network Service
+  .d-flex.flex-wrap.collapse data-target="toggler.collapseable"
+    = f.hidden_field "custom[suspicious_network_service][enabled]", value: true
+    .w-50.pr-5
+      = f.text_field "custom[suspicious_network_service][ports]", label: "Ports", data: { required: true }, placeholder: "21", help: "Separate multiple ports with a comma", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+    .w-50
+      = f.select "custom[suspicious_network_service][protocol]", options_for_select(%w(* tcp udp)), include_blank: true, label: "Protocol", data: { required: true }, autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+    .w-50.pr-5
+      = f.select "custom[suspicious_network_service][direction]", options_for_select(%w(* inbound outbound)), include_blank: true, label: "Traffic Direction", data: { required: true }
+    .w-50
+      = f.text_field "custom[suspicious_network_service][service_name]", label: "Service Name", data: { required: true }, placeholder: "FTP", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+    .w-100
+      = f.text_field "custom[suspicious_network_service][description]", label: "Description", data: { required: true }, placeholder: "FTP is an unencrypted file transfer service.", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"

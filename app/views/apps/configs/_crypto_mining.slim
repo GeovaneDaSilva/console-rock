@@ -1,0 +1,16 @@
+.mb-5 Enabled Ports
+.d-flex.flex-wrap
+  - APP_CONFIGS[:crypto_mining][:enabled_interesting_ports].each_slice(2).each do |group|
+    - group.each do |port|
+      .w-50
+        = render partial: "apps/configs/additional_attribute", locals: { f: f, input_name: "config[enabled_interesting_ports][#{port[0]}]", value: port[1]}
+
+        = f.switch "config[enabled_interesting_ports][#{port[0]}][enabled]", { label_name: port[1]["service_name"], checked: config.dig("enabled_interesting_ports", port[0], "enabled") == true }, "true", "false"
+
+.d-flex.flex-wrap
+  .w-50.pr-5
+    = f.text_area "config[enabled_miner_domains]", label: "Enabled Miner Domains", value: (config.dig("enabled_miner_domains") || APP_CONFIGS[:crypto_mining][:enabled_miner_domains]), help: "One domain per line", placeholder: "*://*.ivuovhsn.ru/*", rows: "20", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+  .w-50.pr-5
+    = f.text_area "config[excluded_domains]", label: "Excluded Miner Domains", value: (config.dig("excluded_domains") || APP_CONFIGS[:crypto_mining][:excluded_domains]), help: "One domain per line", placeholder: "*://*.example.com/*", rows: "20", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+  .w-100
+    = f.text_area "config[excluded_ips_to_array]", label: "Excluded IP Addresses", value: config.fetch("excluded_ips", APP_CONFIGS[:crypto_mining][:excluded_ips]).join("\n"), help: "One IP per line", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"

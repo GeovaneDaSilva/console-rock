@@ -1,0 +1,4 @@
+#!/bin/bash
+
+pkill -9 puma
+bundle exec puma -p 3001

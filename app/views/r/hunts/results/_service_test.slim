@@ -1,0 +1,5 @@
+= render partial: "hunts/tests/#{test_result.test.class.name.demodulize.underscore}", locals: { test: test_result.test }
+
+- unless test_result.negative?
+  hr
+  = render partial: "r/hunts/results/result", locals: { title: nil, details: test_result.details }

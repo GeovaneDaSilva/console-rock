@@ -1,0 +1,217 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    - if policy(current_account).can_manage_apps?
+      .dropdown
+        a.dropdown-toggle data-toggle="dropdown" title="Windows Defender Actions"
+          i.fa.fa-windows
+          '  Settings
+          i.fa.fa-angle-down
+        ul.dropdown-menu style="right: 0; left: unset;"
+          li.btn-padding
+            = button_to account_defender_update_path(current_account), form_class: "btn btn-link", remote: true do
+              i.fa.fa-refresh
+              |  Update Signatures
+          li.btn-padding
+            = button_to account_defender_scan_path(current_account), form_class: "btn btn-link", remote: true, params: { scan_type: "quick" } do
+              i.fa.fa-fighter-jet
+              |  Quick Scan
+
+          li.btn-padding
+            = button_to account_defender_scan_path(current_account), form_class: "btn btn-link", remote: true, params: { scan_type: "full" } do
+              i.fa.fa-battery-full
+              |  Full Scan
+          li.btn-padding
+            a.nopadding href="#" data-toggle="modal" data-target="#config-#{app.id}"
+              i.fa.fa-gear
+              |  Configure
+
+  = page_header("Defender Manager", [current_account.name])
+
+- if policy(current_account).defender_enabled?
+  .row data-controller="account-defender" data-account-defender-account-id=(current_account.id)
+    .d-flex.flex-wrap
+      .w-50.col-xs-6
+        .panel.panel-default.h-100.nomargin
+          .panel-heading.text-center
+            strong Defender Health
+          .panel-body data-target="account-defender.devices"
+            .show-empty
+              h3.text-muted.text-center.nomargin No Devices
+          .panel-footer.text-muted.text-center Across All Devices
+
+      .w-50.col-xs-6
+        .panel.panel-default.h-100.nomargin
+          .panel-heading.text-center
+            strong Detection Summary
+          .panel-body data-target="account-defender.detections"
+            .show-empty
+              h3.text-muted.text-center.nomargin No Detections
+          .panel-footer.text-muted.text-center Across All Devices
+
+  .row.margin-top-20
+    .col-xs-12
+      .panel.panel-default
+        .panel-heading
+          strong Devices at Risk
+          ul.options.pull-right.relative.list-unstyled
+            li
+              form.fancy-form.margin-right-6 action=account_defender_path(current_account) method="get"
+                - params.permit!.except(:action, :controller, :at_risk_filter).each do |k, v|
+                  = hidden_field_tag k, v
+                .input-group style="width: 200px"
+                  input.form-control.nomargin type="search" name="at_risk_filter" placeholder="Filter" value=params[:at_risk_filter]
+                  .input-group-btn
+                    button.btn.btn-primary.btn-sm
+                      i.fa.fa-filter.nomargin.nopadding
+
+        .panel-body
+          table.fullwidth.table.m-0
+            thead.bg-white
+              tr
+                th = sortable "Hostname", :at_risk_devices, :hostname
+                th = sortable "IP", :at_risk_devices, "ipv4_address::inet"
+                - if current_account.provider?
+                  th.hidden-sm.hidden-xs = sortable "Customer", :at_risk_devices, "accounts.name"
+                th.hidden-xs = sortable "OS", :at_risk_devices, "version"
+                th.hidden-xs Detections
+                th &nbsp;
+            tbody
+              - if @devices_with_app_results.any?
+                - @devices_with_app_results.each do |device|
+                  tr.device data-controller="device-status" data-device-status-id=(device.id)
+                    td
+                      span data-target="device-status.indicator"
+                        .indicator class=(device.connectivity)
+                      |  #{device.hostname}
+                    td = device.ipv4_address
+                    - if current_account.provider?
+                      td.hidden-sm.hidden-xs = link_to device.customer.name, account_current_path(device.customer), method: :post
+                    td.hidden-xs = link_to device.family_version_edition, searches_path(query: device.family_version_edition)
+                    td.hidden-xs
+                      span.text-danger title="Malicious"
+                        |  #{device.app_results.select { |app_result| app_result.malicious? }.size}
+                      '  /
+                      span.text-warning title="Suspicious"
+                        |  #{device.app_results.select { |app_result| app_result.suspicious? }.size}
+                      '  /
+                      span.text-info title="Informational"
+                        |  #{device.app_results.select { |app_result| app_result.informational? }.size}
+                    td.text-right = link_to "Details", device_path(device, anchor: "defender")
+              - else
+                tr
+                  td.text-center colspan="5" No Devices
+
+          - if @at_risk_devices_pagination.pages > 1
+            .text-center
+              == pagy_bootstrap_nav @at_risk_devices_pagination
+
+  .row.margin-top-20
+    .col-xs-12
+      .panel.panel-default
+        .panel-heading
+          strong Devices with Poor Defender Health
+          ul.options.pull-right.relative.list-unstyled
+            li
+              form.fancy-form.margin-right-6 action=account_defender_path(current_account) method="get"
+                - params.permit!.except(:action, :controller, :unhealthy_filter).each do |k, v|
+                  = hidden_field_tag k, v
+                .input-group style="width: 200px"
+                  input.form-control.nomargin type="search" name="unhealthy_filter" placeholder="Filter" value=params[:unhealthy_filter]
+                  .input-group-btn
+                    button.btn.btn-primary.btn-sm
+                      i.fa.fa-filter.nomargin.nopadding
+
+        .panel-body
+          table.fullwidth.table.m-0
+            thead.bg-white
+              tr
+                th = sortable "Hostname", :unhealthy_devices, :hostname
+                th = sortable "IP", :unhealthy_devices, "ipv4_address::inet"
+                - if current_account.provider?
+                  th.hidden-sm.hidden-xs = sortable "Customer", :unhealthy_devices, "accounts.name"
+                th.hidden-xs = sortable "OS", :unhealthy_devices, "version"
+                th.hidden-xs = sortable "Defender Health Status", :unhealthy_devices, "defender_health_status"
+                th &nbsp;
+            tbody
+              - if @unhealthy_devices.any?
+                - @unhealthy_devices.each do |device|
+                  tr.device data-controller="device-status" data-device-status-id=(device.id)
+                    td
+                      span data-target="device-status.indicator"
+                        .indicator class=(device.connectivity)
+                      |  #{device.hostname}
+                    td = device.ipv4_address
+                    - if current_account.provider?
+                      td.hidden-sm.hidden-xs = link_to device.customer.name, account_current_path(device.customer), method: :post
+                    td.hidden-xs = link_to device.family_version_edition, searches_path(query: device.family_version_edition)
+                    td = device.defender_health_status.humanize
+                    td.text-right = link_to "Details", device_path(device, anchor: "defender")
+              - else
+                tr
+                  td.text-center colspan="5" No Devices
+
+          - if @unhealthy_devices_pagination.pages > 1
+            .text-center
+              == pagy_bootstrap_nav @unhealthy_devices_pagination
+
+  .row.margin-top-20
+    .col-xs-12
+      .panel.panel-default
+        .panel-heading
+          strong Devices with Unsupported/Unknown Health Status
+          ul.options.pull-right.relative.list-unstyled
+            li
+              form.fancy-form.margin-right-6 action=account_defender_path(current_account) method="get"
+                - params.permit!.except(:action, :controller, :unknown_health_filter).each do |k, v|
+                  = hidden_field_tag k, v
+                .input-group style="width: 200px"
+                  input.form-control.nomargin type="search" name="unknown_health_filter" placeholder="Filter" value=params[:unknown_health_filter]
+                  .input-group-btn
+                    button.btn.btn-primary.btn-sm
+                      i.fa.fa-filter.nomargin.nopadding
+
+        .panel-body
+          table.fullwidth.table.m-0
+            thead.bg-white
+              tr
+                th = sortable "Hostname", :unknown_health_devices, :hostname
+                th = sortable "IP", :unknown_health_devices, "ipv4_address::inet"
+                - if current_account.provider?
+                  th.hidden-sm.hidden-xs = sortable "Customer", :unknown_health_devices, "accounts.name"
+                th.hidden-xs = sortable "OS", :unknown_health_devices, "version"
+                th.hidden-xs = sortable "Defender Health Status", :unknown_health_devices, "defender_health_status"
+                th &nbsp;
+            tbody
+              - if @unknown_health_devices.any?
+                - @unknown_health_devices.each do |device|
+                  tr.device data-controller="device-status" data-device-status-id=(device.id)
+                    td
+                      span data-target="device-status.indicator"
+                        .indicator class=(device.connectivity)
+                      |  #{device.hostname}
+                    td = device.ipv4_address
+                    - if current_account.provider?
+                      td.hidden-sm.hidden-xs = link_to device.customer.name, account_current_path(device.customer), method: :post
+                    td.hidden-xs = link_to device.family_version_edition, searches_path(query: device.family_version_edition)
+                    td = device.defender_health_status.humanize
+                    td.text-right = link_to "Details", device_path(device, anchor: "defender")
+              - else
+                tr
+                  td.text-center colspan="5" No Devices
+
+          - if @unknown_health_devices_pagination.pages > 1
+            .text-center
+              == pagy_bootstrap_nav @unknown_health_devices_pagination
+
+  - content_for :modals do
+    = render partial: "accounts/apps/configuration_modal", locals: { account: current_account, app: app }
+
+- else
+  .row
+    .col-xs-12
+      .alert.alert-info.margin-bottom-30
+        h4 Defender Manager Not Enabled
+        p
+          ' The Defender Manager App is not enabled for #{current_account.name}. Enable it
+          = link_to "here", account_apps_path(current_account)
+          | .

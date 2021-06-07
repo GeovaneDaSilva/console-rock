@@ -1,0 +1,16 @@
+- if analysis.analyzed?
+  - if analysis.clear?
+    img src=asset_url("check-02b700.png")
+    |  Threat Found: none
+  - else
+    img src=asset_url("exclamation-triangle-ffdd00.png")
+    |  Threat Found: #{analysis.threat_name}
+
+- elsif analysis.abandoned?
+  | We gave up on this analysis. Try again later.
+- elsif analysis.submitted?
+  = inline_loader
+  |  Analyzing the File. This may take some time, we'll email you the results.
+- else
+  = inline_loader
+  |  Analyzing the File.

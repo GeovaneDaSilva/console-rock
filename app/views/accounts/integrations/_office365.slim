@@ -1,0 +1,19 @@
+.d-flex.flex-wrap
+  .w-100.bg-white
+    table.table.fullwidth.table-striped
+      thead
+        tr
+          th = "ID"
+          th = "Name"
+          th
+      tbody
+        - accounts = account.customer? ? [account] : account.all_descendant_customers.order("name")
+        - accounts.each do |customer|
+          tr
+            td = customer.id
+            td = customer.name.titleize
+            td
+              - if customer.ms_credential?
+                = link_to "Remove linked Microsoft account from this customer", ms_graph_auth_signout_path(customer_id: customer.id), :class => "btn btn-primary btn-sm"
+              - else
+                = link_to "Log in to Microsoft Account", ms_graph_auth_signin_path(customer_id: customer.id), :class => "btn btn-primary btn-sm"

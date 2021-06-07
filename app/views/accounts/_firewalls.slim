@@ -1,0 +1,22 @@
+- if loading
+  - firewalls = 0
+- else
+  - firewalls = current_account.all_descendant_billable_instances.firewall.active.size
+
+div
+  .d-inline-block.pr-15.informational
+    = inline_svg_tag "firewall-app-icon.svg", style: "width: auto; height: 70px; margin: 5px 0;"
+
+.d-flex.flex-column.w-100
+  div
+    - if loading
+      h4.d-inline-block.nomargin.text-center.display-4
+        = inline_loader
+    - else
+      h4.d-inline-block.nomargin.display-4
+        = firewalls.to_s(:delimited)
+  .mt-10.black
+    = link_to devices_path(firewalls_only: true), class: "black" do
+      ' Network #{"Device".pluralize(firewalls)}
+      small
+        i.fa.fa-info-circle

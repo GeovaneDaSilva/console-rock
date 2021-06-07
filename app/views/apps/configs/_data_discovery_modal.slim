@@ -1,0 +1,38 @@
+.modal.fade id="#{id}" tabindex="2" role="dialog" aria-labelledby="config-key-value-modal-label" aria-hidden="true" data-controller="config-key-value"
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        button type="button" class="close" data-dismiss="modal" aria-label="Close"
+          span aria-hidden="true" &times;
+        h4#config-key-value-modal-label.nomargin  #{title.titleize}
+        h5.text-muted.nomargin
+          | #{description&.titleize}
+      .modal-body
+        .w-100.mb-5
+          = label_tag "scan_type", scan_type&.dig("name")
+        .w-100.mb-5
+          - options = { data: { required: true, target: "config-key-value.labelData" }, placeholder: "", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100" }
+          - options[:readOnly] = true if button_text == "Update"
+          = hidden_field_tag "scan_type", scan_type&.dig("name"), { data: { target: "config-key-value.scanTypeData"  }}
+          = text_field_tag "label", scan_type&.dig("label"), options
+
+        .w-100.mb-5
+          = label_tag "regex", "Regex Expression"
+        .w-100.mb-5
+          = text_area_tag "regex", scan_type&.dig("regex"), data: { required: true, target: "config-key-value.regexData" }, placeholder: "", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100", rows: "10"
+
+        .w-100.mb-5
+          = label_tag "reporting_threshold", "Reporting Threshold"
+        .w-100.mb-5
+          = number_field_tag "reporting_threshold", scan_type&.dig("reporting_threshold"), class: "w-100", label: "Score Reporting Threshold (percentage)", min: 0, max: 100, data: { target: "config-key-value.reportingThresholdData" }
+
+        .w-100.mb-5
+          = label_tag "keywords", "Contextual Keywords"
+        .w-100.mb-5
+          = text_area_tag "keywords", scan_type&.dig("keywords")&.join("\r\n"), class: "w-100", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", help: "Enter keywords that should be present when data is detected. Helps reduce false detections", data: { target: "config-key-value.keywordsData" }
+
+        = hidden_field_tag "config_key", target[:config_key], data: { target: "config-key-value.configKey" }
+
+      .modal-footer.text-right
+        button.btn.btn-primary.disabled data-action="click->config-key-value#add" data-value="run-manually" data-target_data_id="#{target[:id]}" data-dismiss="modal" data-target="config-key-value.createButton"
+          | #{button_text}

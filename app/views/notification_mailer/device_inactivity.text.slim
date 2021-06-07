@@ -1,0 +1,4 @@
+- self.message.from = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+- self.message.reply_to = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+
+= @body[:text]

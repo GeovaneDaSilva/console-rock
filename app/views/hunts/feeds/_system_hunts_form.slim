@@ -1,0 +1,25 @@
+h3.nomargin #{I18n.t('application.name')} Threat Intelligence
+
+= bootstrap_form_for feed do |f|
+  = f.hidden_field :source
+  = f.select :group_id, options_from_collection_for_select(groups, :id, :name)
+
+  - SystemHunts::Category.all.each do |category|
+    - if category.hunts.any?
+      .hunt-category id="category-#{category.id}"
+        .pull-right
+          a.btn.btn-link data-controller="select-all" data-action="select-all#toggle" data-select-all-parent="#category-#{category.id} input[type='checkbox']" data-select-all-checked="true" Select All
+        h4.nomargin = category.name
+        p = category.description
+        = f.collection_check_boxes_without_bootstrap :system_hunts, category.hunts.enabled, :id, :name do |b|
+          .row
+            .col-xs-2
+              = b.label(class: "switch switch-success switch-inverted") do
+                = b.check_box
+                span.switch-label data-on="OFF" data-off="ON"
+            .col-xs-10
+              strong = b.text
+              p = b.object.description
+          hr
+
+  = f.submit class: "btn btn-primary", disabled: groups.blank?

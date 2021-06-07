@@ -1,0 +1,195 @@
+- disabled_enabled_audit_options = [ ["Disabled", 0], ["Enabled", 1], ["Audit", 2]]
+- clean_quarrantine_remove_options = [ ["Clean", 1], ["Quarantine", 2], ["Remove", 3]]
+
+/ General
+/ Real-time Protection
+/ Scans
+/ Advanced - MSFT Active Protection Service Settings
+/ Exclusions
+
+
+ul.nav.nav-tabs
+  li.active
+    a href="#general" data-toggle="tab" aria-expanded="true" General
+  li
+    a href="#real-time-protection" data-toggle="tab" aria-expanded="false" Real-time Protection
+  li
+    a href="#cloud-protection" data-toggle="tab" aria-expanded="false" Cloud Protection
+  li
+    a href="#scans" data-toggle="tab" aria-expanded="false" Scans
+  li
+    a href="#threat-actions" data-toggle="tab" aria-expanded="false" Threat Actions
+  li
+    a href="#advanced" data-toggle="tab" aria-expanded="false" Advanced
+  li
+    a href="#exclusions" data-toggle="tab" aria-expanded="false" Exclusions
+
+.tab-content.border.border-top-none.padding-15.margin-bottom-5
+  #general.tab-pane.active
+    .d-flex.flex-wrap
+      .w-100
+        = f.switch "config[enabled]", { label_name: "Enable Windows Defender", checked: config.fetch("enabled", APP_CONFIGS[:defender]["enabled"]), on: "ON", off: "OFF" }
+
+      .w-100.pt-15
+        h4 Notifications and UI
+      .w-50
+        = f.switch "config[DisableNotifications]", { label_name: "Disable Security Center Notifications", checked: config.fetch("DisableNotifications", APP_CONFIGS[:defender]["DisableNotifications"]), help: "Disable Windows Defender notifications in the Security Center UI.", yes: "Yes", no: "No"}
+      .w-50
+        = f.switch "config[UILockdown]", { label_name: "Disable Windows Defender UI", checked: config.fetch("UILockdown", APP_CONFIGS[:defender]["UILockdown"]), help: "Disable the Windows Defender UI.", yes: "Yes", no: "No"}
+      .w-50.pt-15
+        = f.switch "config[Notification_Suppress]", { label_name: "Disable Windows Defender Notifications", checked: config.fetch("Notification_Suppress", APP_CONFIGS[:defender]["Notification_Suppress"]), help: "Use this setting to specify if you want Windows Defender Antivirus notifications to display on clients.", yes: "Yes", no: "No"}
+      .w-50.pt-15
+        = f.switch "config[DisableDefenderEnhancedNotifications]", { label_name: "Disable Windows Defender Enhanced Notifications", checked: config.fetch("DisableDefenderEnhancedNotifications", APP_CONFIGS[:defender]["DisableDefenderEnhancedNotifications"]), yes: "Yes", no: "No"}
+
+      .w-100
+        h4 Signatures
+      .w-100
+        = f.number_field "config[SignatureUpdateInterval]", label: "Update Signatures Every (hours)", help: "Specifies the interval, in hours, at which to check for definition updates.", min: 1, max: 24, value: config.fetch("SignatureUpdateInterval", APP_CONFIGS[:defender]["SignatureUpdateInterval"])
+
+      .w-100
+        = f.switch "config[CheckForSignaturesBeforeRunningScan]", { label_name: "Check For Signature Update Before Running Scan", checked: config.fetch("CheckForSignaturesBeforeRunningScan", APP_CONFIGS[:defender]["CheckForSignaturesBeforeRunningScan"]), help: "Configures whether to check for new virus and spyware definitions before Windows Defender runs a scan. This option applies to scheduled scans and to scans that you start from the command line, but it does not affect scans that you start from the user interface."}
+
+  #cloud-protection.tab-pane
+    .d-flex.flex-wrap
+      .w-100
+        h4 Microsoft Defender Active Protection Service Settings
+      .w-100
+        = f.switch "config[DisableBlockAtFirstSeen]", { label_name: "Block At First Sight", checked: !config.fetch("DisableBlockAtFirstSeen", APP_CONFIGS[:defender]["DisableBlockAtFirstSeen"]), help: "When Windows Defender Antivirus encounters a suspicious but undetected file, it queries our cloud protection backend. The cloud backend applies heuristics, machine learning, and automated analysis of the file to determine whether the files are malicious or clean.", on: "ON", off: "OFF" }, "false", "true"
+      .w-100.pt-15
+        - spy_net_reporting_options = [ ["Disabled", 0], ["Basic membership", 1], ["Advanced membership", 2]]
+        = f.select "config[SpyNetReporting]", options_for_select(spy_net_reporting_options, config.fetch("SpyNetReporting", APP_CONFIGS[:defender]["SpyNetReporting"])), label: "Reporting Level", help: "Specifies the type of membership in Microsoft Active Protection Service. Microsoft Active Protection Service is an online community that helps you choose how to respond to potential threats. The community also helps prevent the spread of new malicious software."
+      .w-50.pt-15.pr-5
+        - submit_samples_options = [ ["Always prompt", 0], ["Send safe samples automatically", 1], ["Never send", 2], ["Send all samples automatically", 3]]
+        = f.select "config[SubmitSamplesConsent]", options_for_select(submit_samples_options, config.fetch("SubmitSamplesConsent", APP_CONFIGS[:defender]["SubmitSamplesConsent"])), label: "Automatic Sample Submission", help: "Specifies how Windows Defender checks for user consent for certain samples. If consent has previously been granted, Windows Defender submits the samples. Otherwise, if the MAPSReporting parameter does not have a value of Disabled, Windows Defender prompts the user for consent."
+      .w-50.pt-15.pr-5
+        = f.select "config[PUAProtection]", options_for_select(disabled_enabled_audit_options, config.fetch("PUAProtection", APP_CONFIGS[:defender]["PUAProtection"])), label: "PUA Protection", help: "The potentially unwanted application (PUA) protection feature in Windows Defender Antivirus can detect and block PUAs on endpoints in your network. These applications are not considered viruses, malware, or other types of threats, but might perform actions on endpoints that adversely affect their performance or use. PUA can also refer to applications that are considered to have poor reputation."
+
+  #real-time-protection.tab-pane
+    .d-flex.flex-wrap
+      .w-50
+        = f.switch "config[DisableRealTimeMonitoring]", { label_name: "Real-Time Monitoring", checked: !config.fetch("DisableRealTimeMonitoring", APP_CONFIGS[:defender]["DisableRealTimeMonitoring"]), help: "The Windows Defender Antivirus engine makes note of any file changes (file writes, such as moves, copies, or modifications) and general program activity (programs that are opened or running and that cause other programs to run)", on: "ON", off: "OFF" }, "false", "true"
+      .w-50
+        = f.switch "config[DisableBehaviorMonitoring]", { label_name: "Behavioral Monitoring", checked: !config.fetch("DisableBehaviorMonitoring", APP_CONFIGS[:defender]["DisableBehaviorMonitoring"]), help: "The Defender AV engine will monitor file processes, file and registry changes, and other events on your endpoints for suspicious and known malicious activity", on: "ON", off: "OFF" }, "false", "true"
+      .w-50.pt-15
+        = f.switch "config[DisableIOAVProtection]", { label_name: "Scan All Downloaded Files and Attachments", checked: !config.fetch("DisableIOAVProtection", APP_CONFIGS[:defender]["DisableIOAVProtection"]), help: "Configures whether Windows Defender scans all downloaded files and attachments", on: "ON", off: "OFF" }, "false", "true"
+
+      .w-50.pt-15
+        = f.switch "config[DisableScriptScanning]", { label_name: "Script Scanning", checked: !config.fetch("DisableScriptScanning", APP_CONFIGS[:defender]["DisableScriptScanning"]), help: "Configures whether to disable the scanning of scripts during malware scans and in RealTime.", on: "ON", off: "OFF" }, "false", "true"
+
+      .w-100.pt-15
+        - realtime_scan_direction_options = [ ["Scan both incoming and outgoing files", 0], ["Scan incoming files only", 1], ["Scan outgoing files only", 2]]
+        = f.select "config[RealTimeScanDirection]", options_for_select(realtime_scan_direction_options, config.fetch("RealTimeScanDirection", APP_CONFIGS[:defender]["RealTimeScanDirection"])), label: "NTFS File Direction Scanning", help: "Configures scanning for incoming and outgoing files on NTFS volumes. Specify a value for this parameter to enhance performance on servers which have a large number of file transfers, but need scanning for either incoming or outgoing files. Evaluate this configuration based on the server role. For non-NTFS volumes, Windows Defender performs full monitoring of file and program activity."
+
+  #scans.tab-pane
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.switch "config[ScanOnlyIfIdle]", { label_name: "Only Scan When Idle", checked: config.fetch("ScanOnlyIfIdle", APP_CONFIGS[:defender]["ScanOnlyIfIdle"]), help: "Configures whether to start scheduled scans only when the computer is not in use."}
+      .w-50.pr-5
+        = f.switch "config[DisableEmailScanning]", { label_name: "Email Scanning", checked: !config.fetch("DisableEmailScanning", APP_CONFIGS[:defender]["DisableEmailScanning"]), help: "Configures whether Windows Defender parses the mailbox and mail files, according to their specific format, in order to analyze mail bodies and attachments. Windows Defender supports several formats, including .pst, .dbx, .mbx, .mime, and .binhex.", on: "ON", off: "OFF" }, "false", "true"
+      .w-50.pt-15.pr-5
+        = f.switch "config[DisableCatchupQuickScan]", { label_name: "Perform Catchup Quick Scans", checked: !config.fetch("DisableCatchupQuickScan", APP_CONFIGS[:defender]["DisableCatchupQuickScan"]), help: "Configures whether Windows Defender runs catch-up scans for scheduled quick scans. A computer can miss a scheduled scan, usually because the computer is off at the scheduled time. If you specify a value of Enabled, after the computer misses two scheduled quick scans, Windows Defender runs a catch-up scan the next time someone logs onto the computer. If you specify a value of Disabled or do not specify a value, the computer does not run catch-up scans for scheduled quick scans.", on: "ON", off: "OFF" }, "false", "true"
+      .w-50.pt-15.pr-5
+        = f.switch "config[DisableCatchupFullScan]", { label_name: "Perform Catchup Full Scans", checked: !config.fetch("DisableCatchupFullScan", APP_CONFIGS[:defender]["DisableCatchupFullScan"]), help: "Configures whether Windows Defender runs catch-up scans for scheduled full scans. A computer can miss a scheduled scan, usually because the computer is off at the scheduled time. If you specify a value of Enabled, after the computer misses two scheduled quick scans, Windows Defender runs a catch-up scan the next time someone logs onto the computer. If you specify a value of Disabled or do not specify a value, the computer does not run catch-up scans for scheduled quick scans.", on: "ON", off: "OFF" }, "false", "true"
+      .w-50.pt-15.pr-5
+        = f.switch "config[DisableRemoveableDriveScanning]", { label_name: "Scan Removable Drives", checked: !config.fetch("DisableRemoveableDriveScanning", APP_CONFIGS[:defender]["DisableRemoveableDriveScanning"]), help: "Configures whether to scan for malicious and unwanted software in removable drives, such as flash drives, during a full scan. If you specify a value of $True, Windows Defender scans removable drives during any type of scan. If you specify a value of $False or do not specify a value, Windows Defender does not scan removable drives during a full scan. Windows Defender can still scan removable drives during quick scans or custom scans.", on: "ON", off: "OFF" }, "false", "true"
+      .w-50.pt-15.pr-5
+        = f.switch "config[DisableRestorePoint]", { label_name: "Scan Restore Points", checked: !config.fetch("DisableRestorePoint", APP_CONFIGS[:defender]["DisableRestorePoint"]), help: "Configures whether to enable scanning of restore points.", on: "ON", off: "OFF" }, "false", "true"
+      .w-50.pt-15.pr-5
+        = f.switch "config[DisableScanningMappedNetworkDrivesForFullScan]", { label_name: "Scan Mapped Network Drives For Full Scan", checked: !config.fetch("DisableScanningMappedNetworkDrivesForFullScan", APP_CONFIGS[:defender]["DisableScanningMappedNetworkDrivesForFullScan"]), help: "Configures whether to scan mapped network drives during a full scan.", on: "ON", off: "OFF" }, "false", "true"
+      .w-50.pt-15.pr-5
+        = f.switch "config[DisableScanningNetworkFiles]", { label_name: "Scan Network Files", checked: !config.fetch("DisableScanningNetworkFiles", APP_CONFIGS[:defender]["DisableScanningNetworkFiles"]), help: "Configures whether to scan for network files. If you specify a value of Enabled, Windows Defender scans network files. If you specify a value of Disabled or do not specify a value, Windows Defender does not scan network files. We do not recommend that you scan network files.", on: "ON", off: "OFF" }, "false", "true"
+      .w-50.pt-15.pr-5
+        = f.switch "config[DisableArchiveScanning]", { label_name: "Scan Archive Files", checked: !config.fetch("DisableArchiveScanning", APP_CONFIGS[:defender]["DisableArchiveScanning"]), help: "Configures whether to scan archive files, such as .zip and .cab files, for malicious and unwanted software. If you specify a value of Enabled or do not specify a value, Windows Defender scans archive files.", on: "ON", off: "OFF" }, "false", "true"
+      .w-50.pt-15.pr-5
+        = f.number_field "config[PurgeItemsAfterDelay]", label: "Remove Quarantine Items After (Days)", help: "Specifies the number of days to keep items in the Quarantine folder. If you specify a value of zero or do not specify a value for this parameter, items stay in the Quarantine folder indefinitely.", min: 0, value: config.fetch("PurgeItemsAfterDelay", APP_CONFIGS[:defender]["PurgeItemsAfterDelay"])
+      .w-50.pt-15.pr-5
+        = f.number_field "config[AvgCPULoadFactor]", label: "Average CPU Load Factor", help: "Specifies the maximum percentage CPU usage for a scan. The acceptable values for this parameter are: integers from 5 through 100, and the value 0, which disables CPU throttling. Windows Defender does not exceed the percentage of CPU usage that you specify.", min: 0, max: 100, value: config.fetch("AvgCPULoadFactor", APP_CONFIGS[:defender]["AvgCPULoadFactor"])
+      .w-50.pt-15.pr-5
+        - scan_parameters_options = [ ["Full scan", 2], ["Quick scan", 1]]
+        = f.select "config[ScanParameters]", options_for_select(scan_parameters_options, config.fetch("ScanParameters", APP_CONFIGS[:defender]["ScanParameters"])), label: "Scheduled Scan Type", help: "Specifies the scan type to use during a scheduled scan."
+      .w-50.pt-15.pr-5
+        - schedule_day_options = [ ["Everyday", 0], ["Sunday", 1], ["Monday", 2], ["Tuesday", 3], ["Wednesday", 4], ["Thursday", 5], ["Friday", 6], ["Saturday", 7], ["Never", 8]]
+        = f.select "config[ScheduleDay]", options_for_select(schedule_day_options, config.fetch("ScheduleDay", APP_CONFIGS[:defender]["ScheduleDay"])), label: "Scheduled Scan Day of Week", help: "Specifies the day of the week on which to perform a scheduled scan. Alternatively, specify Everyday for a scheduled scan or Never."
+      .w-50.pt-15.pr-5
+        = f.number_field "config[ScheduleTime]", label: "Scheduled Scan Time of Day", help: "Specifies the time of day, as the number of minutes after midnight, to perform a scheduled scan. The time refers to the local time on the computer.", min: 0, max: 1439, value: config.fetch("ScheduleTime", APP_CONFIGS[:defender]["ScheduleTime"])
+      .w-100.pt-15
+        = f.switch "config[RandomizeScheduleTaskTimes]", { label_name: "Randomize Scheduled Scan Times", checked: config.fetch("RandomizeScheduleTaskTimes", APP_CONFIGS[:defender]["RandomizeScheduleTaskTimes"]), help: "Configures whether to select a random time for the scheduled start and scheduled update for definitions. If you specify a value of Enabled, scheduled tasks begin within 30 minutes, before or after, the scheduled time. If you randomize the start times, it can distribute the impact of scanning. For example, if several virtual machines share the same host, randomized start times prevents all the hosts from starting the scheduled tasks at the same time."}
+
+  #threat-actions.tab-pane
+    .d-flex.flex-wrap
+      .w-100.pt-15
+        h4 Default Threat Actions
+      .w-100
+        = f.select "config[unknown_threat_default_action]", options_for_select(clean_quarrantine_remove_options, config.fetch("unknown_threat_default_action", APP_CONFIGS[:defender]["unknown_threat_default_action"])), label: "Unknown Threat Default Action", help: "Specifies which automatic remediation action to take for a Unknown level threat."
+      .w-50.pt-15.pr-5
+        = f.select "config[low_threat_default_action]", options_for_select(clean_quarrantine_remove_options, config.fetch("low_threat_default_action", APP_CONFIGS[:defender]["low_threat_default_action"])), label: "Low Threat Default Action", help: "Specifies which automatic remediation action to take for a Low level threat."
+      .w-50.pt-15.pr-5
+        = f.select "config[moderate_threat_default_action]", options_for_select(clean_quarrantine_remove_options, config.fetch("moderate_threat_default_action", APP_CONFIGS[:defender]["moderate_threat_default_action"])), label: "Moderate Threat Default Action", help: "Specifies which automatic remediation action to take for a Moderate level threat."
+      .w-50.pt-15.pr-5
+        = f.select "config[high_threat_default_action]", options_for_select(clean_quarrantine_remove_options, config.fetch("high_threat_default_action", APP_CONFIGS[:defender]["high_threat_default_action"])), label: "High Threat Default Action", help: "Specifies which automatic remediation action to take for a High level threat."
+      .w-50.pt-15.pr-5
+        = f.select "config[severe_threat_default_action]", options_for_select(clean_quarrantine_remove_options, config.fetch("severe_threat_default_action", APP_CONFIGS[:defender]["severe_threat_default_action"])), label: "Severe Threat Default Action", help: "Specifies which automatic remediation action to take for a Severe level threat."
+
+  #advanced.tab-pane
+    .d-flex.flex-wrap
+      .w-100.pt-15
+        h4 Microsoft Defender Attack Surface Reduction
+        .alert.alert-warning
+          strong
+            i.fa.fa-exclamation-triangle
+            |  Warning
+          p
+            | Modification of these settings can generate a high volume of detections. This may result in in interruption of functionality for your users. Before changing a setting to Block you should first run it in Audit mode to determine what actions Defender might take. Review the resulting detections and whitelist any normal operations that should be allowed.
+      .w-50.pr-5
+        = f.select "config[block_email_executable_content]", options_for_select(disabled_enabled_audit_options, config.fetch("block_email_executable_content", APP_CONFIGS[:defender]["block_email_executable_content"])), label: "Block Executable Content From Email and Webmail"
+      .w-50.pr-5
+        = f.select "config[block_office_child_processes]", options_for_select(disabled_enabled_audit_options, config.fetch("block_office_child_processes", APP_CONFIGS[:defender]["block_office_child_processes"])), label: "Block Office Applications From Creating Child Processes"
+      .w-50.pt-15.pr-5
+        = f.select "config[block_office_creating_executable_content]", options_for_select(disabled_enabled_audit_options, config.fetch("block_office_creating_executable_content", APP_CONFIGS[:defender]["block_office_creating_executable_content"])), label: "Block Office Applications From Creating Executable Content"
+      .w-50.pt-15.pr-5
+        = f.select "config[block_office_inject_other_process]", options_for_select(disabled_enabled_audit_options, config.fetch("block_office_inject_other_process", APP_CONFIGS[:defender]["block_office_inject_other_process"])), label: "Block Office Applications From Injecting Into Other Processes"
+      .w-50.pt-15.pr-5
+        = f.select "config[prevent_js_and_vb_launch_exe]", options_for_select(disabled_enabled_audit_options, config.fetch("prevent_js_and_vb_launch_exe", APP_CONFIGS[:defender]["prevent_js_and_vb_launch_exe"])), label: "Prevent Javascript and VBScript From Launching Executables"
+      .w-50.pt-15.pr-5
+        = f.select "config[block_execution_of_obfuscated_scripts]", options_for_select(disabled_enabled_audit_options, config.fetch("block_execution_of_obfuscated_scripts", APP_CONFIGS[:defender]["block_execution_of_obfuscated_scripts"])), label: "Block Execution of Potentially Obfuscated Scripts"
+      .w-50.pt-15.pr-5
+        = f.select "config[block_macro_code_win32_imports]", options_for_select(disabled_enabled_audit_options, config.fetch("block_macro_code_win32_imports", APP_CONFIGS[:defender]["block_macro_code_win32_imports"])), label: "Block Win32 Imports From Macro Code In Office Applications<br><br>".html_safe
+      .w-50.pt-15.pr-5
+        = f.select "config[block_executables_prevalance]", options_for_select(disabled_enabled_audit_options, config.fetch("block_executables_prevalance", APP_CONFIGS[:defender]["block_executables_prevalance"])), label: "Block Executables From Running Unless They Meet A Prevalance, Age or Trusted List Criteria"
+      .w-50.pt-15.pr-5
+        = f.select "config[block_lsass_credential_stealing]", options_for_select(disabled_enabled_audit_options, config.fetch("block_lsass_credential_stealing", APP_CONFIGS[:defender]["block_lsass_credential_stealing"])), label: "Block Credential Stealing From The Windows Local Security Authority Subsystem (lsass.exe)"
+      .w-50.pt-15.pr-5
+        = f.select "config[block_process_created_psexec_wmi]", options_for_select(disabled_enabled_audit_options, config.fetch("block_process_created_psexec_wmi", APP_CONFIGS[:defender]["block_process_created_psexec_wmi"])), label: "Block Process Creation Originating From PsExec and WMI commands"
+      .w-50.pt-15.pr-5
+        = f.select "config[block_untrusted_unsigned_from_usb]", options_for_select(disabled_enabled_audit_options, config.fetch("block_untrusted_unsigned_from_usb", APP_CONFIGS[:defender]["block_untrusted_unsigned_from_usb"])), label: "Block Untrusted and Unsigned Processes That Run From USB"
+      .w-50.pt-15.pr-5
+        = f.select "config[advanced_protection_against_ransomware]", options_for_select(disabled_enabled_audit_options, config.fetch("advanced_protection_against_ransomware", APP_CONFIGS[:defender]["advanced_protection_against_ransomware"])), label: "Use Advanced Protection Against Ransomware"
+      .w-50.pt-15.pr-5
+        = f.select "config[block_office_comms_child_processes]", options_for_select(disabled_enabled_audit_options, config.fetch("block_office_comms_child_processes", APP_CONFIGS[:defender]["block_office_comms_child_processes"])), label: "Block Only Office Communications Applications From Creating Child Processes"
+      .w-50.pt-15.pr-5
+        = f.select "config[block_adobe_reader_child_processes]", options_for_select(disabled_enabled_audit_options, config.fetch("block_adobe_reader_child_processes", APP_CONFIGS[:defender]["block_adobe_reader_child_processes"])), label: "Block Adobe Reader From Creating Child Processes<br><br>".html_safe
+      .w-50.pt-15.pr-5
+        = f.select "config[EnableNetworkProtection]", options_for_select(disabled_enabled_audit_options, config.fetch("EnableNetworkProtection", APP_CONFIGS[:defender]["EnableNetworkProtection"])), label: "Network Protection", help: "Network protection helps reduce the attack surface of your devices from Internet-based events. It prevents employees from using any application to access dangerous domains that may host phishing scams, exploits, and other malicious content on the Internet."
+      .w-50.pt-15.pr-5
+        = f.select "config[block_persistence_through_wmi_event_subscription]", options_for_select(disabled_enabled_audit_options, config.fetch("block_persistence_through_wmi_event_subscription", APP_CONFIGS[:defender]["block_persistence_through_wmi_event_subscription"])), label: "Block Persistence through WMI Event Subscription", help: "Fileless threats employ various tactics to stay hidden, to avoid being seen in the file system, and to gain periodic execution control. Some threats can abuse the WMI repository and event model to stay hidden. With this rule, admins can prevent threats that abuse WMI to persist and stay hidden in WMI repository."
+
+      .w-100.pt-15
+        h4 Folder Access
+      .w-100
+        = f.select "config[EnableControlledFolderAccess]", options_for_select(disabled_enabled_audit_options, config.fetch("EnableControlledFolderAccess", APP_CONFIGS[:defender]["EnableControlledFolderAccess"])), label: "Enable Controlled Folder Access", help: "Controlled folder access helps you protect valuable data from malicious apps and threats, such as ransomware. Controlled folder access is supported on Windows Server 2019 as well as Windows 10 clients. Controlled folder access works best with Microsoft Defender Attack Surface Reduction, which gives you detailed reporting into controlled folder access events and blocks as part of the usual alert investigation scenarios."
+
+      .w-50.pr-5.pt-15
+          = f.text_area "config[protected_folders_to_array]", label: "Protected Folders", value: config.fetch("protected_folders", APP_CONFIGS[:defender][:protected_folders]).join("\n"), help: "Protect valuable data from malicious apps and threats, such as ransomware by specifying folders which should only be accessed by trusted exectuables.", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "C:\\Program Files\\ThreatMonitorAgent\\"
+      .w-50.pr-5.pt-15
+          = f.text_area "config[controlled_folder_allowed_applications_to_array]", label: "Trusted EXEs", value: config.fetch("controlled_folder_allowed_applications", APP_CONFIGS[:defender][:controlled_folder_allowed_applications]).join("\n"), help: "This is a list of trusted exe's that are allowed to access and modify data in the protected folders list.", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "C:\\Program Files\\ThreatMonitorAgent\\agent-x64.exe"
+
+  #exclusions.tab-pane
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.text_area "config[process_exclusions_to_array]", label: "Process Exclusions", value: config.fetch("process_exclusions", APP_CONFIGS[:defender][:process_exclusions]).join("\n"), help: "Process names to exclude any files opened by the processes that you specify from scheduled and real-time scanning. Specifying this parameter excludes files opened by executable programs only. One process name per line.", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "agent-x64.exe"
+      .w-50.pr-5
+        = f.text_area "config[path_exclusions_to_array]", label: "Path Exclusions", value: config.fetch("path_exclusions", APP_CONFIGS[:defender][:path_exclusions]).join("\n"), help: "File paths to exclude from scheduled and real-time scanning. You can specify a folder to exclude all the files under the folder. One path per line.", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "C:\\Users\\User1\\Desktop"
+      .w-50.pr-5
+        = f.text_area "config[extension_exclusions_to_array]", label: "Extension Exclusions", value: config.fetch("extension_exclusions", APP_CONFIGS[:defender][:extension_exclusions]).join("\n"), help: "File name extensions, such as obj or lib, to exclude from scheduled, custom, and real-time scanning. One extension per line.", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "lua\nppt\npdf"
+      .w-50.pr-5
+        = f.text_area "config[asr_exclusions_to_array]", label: "Attack Surface Reduction Exclusions", value: config.fetch("asr_exclusions", APP_CONFIGS[:defender][:asr_exclusions]).join("\n"), help: "<a target='_blank', rel='nofollow' href='https://docs.microsoft.com/en-us/windows/security/threat-protection/windows-defender-antivirus/configure-extension-file-exclusions-windows-defender-antivirus'>Exclude files and paths</a> from Attack Surface Reduction (ASR) rules. Specify the folders or files and resources that should be excluded from Attack Surace Reduction rules in the Advanced Tab.".html_safe, rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "C:\\Program Files\\ThreatMonitorAgent\\agent-x64.exe"

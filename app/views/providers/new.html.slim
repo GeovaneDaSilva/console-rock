@@ -1,0 +1,11 @@
+- content_for(:page_header) do
+  = page_header("Add an MSP sub-account", ["New"])
+
+.row
+  .col-xs-12.col-md-8.col-md-offset-2
+    .panel.panel-default
+      .panel-heading
+        span.title.elipsis
+          strong Add a new MSP sub-account
+      .panel-body
+        = render partial: "details_and_settings_form", locals: { provider: @provider }

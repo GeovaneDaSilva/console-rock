@@ -1,0 +1,11 @@
+table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+  tbody
+    tr
+    - device.inventory.fetch("defender_firewall_state",{}).each do |key, value|
+      tr
+        td <b>#{key.capitalize} Profile</b>
+      tr
+        - value.each do | att, val |
+          td #{att} : #{val}
+          tr
+

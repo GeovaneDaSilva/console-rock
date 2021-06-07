@@ -1,0 +1,10 @@
+#!/bin/bash
+if [ -z $1 ]; then
+  echo "Error: Environment argument not specified. Exiting"
+  exit 1
+fi
+
+export AWS_ACCESS_KEY_ID=`ansible-vault view infrastructure/vars/$1/aws.yml --vault-password-file $1-vault-password.txt | shyaml get-value AWS_ACCESS_KEY_ID`
+export AWS_SECRET_ACCESS_KEY=`ansible-vault view infrastructure/vars/$1/aws.yml --vault-password-file $1-vault-password.txt | shyaml get-value AWS_SECRET_ACCESS_KEY`
+
+ansible-playbook -s --limit=tag_env_$1  -e "env=$1" -u ubuntu -i infrastructure/ansible/ec2.py infrastructure/ansible/restart.yml --vault-password-file $1-vault-password.txt

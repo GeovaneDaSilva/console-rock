@@ -1,0 +1,19 @@
+- @inventory.each do |category, subs|
+  div.padding-10
+    strong
+      | #{category.to_s.underscore.titleize.upcase}:
+  - subs.each do |key, values|
+    div.padding-20
+      strong
+        |   #{key.to_s.underscore.titleize.upcase}:
+    pre.nomargin
+      - if values.is_a? Array
+        - values.each do |v|
+          - if v.is_a? Hash
+            - v.each do |k, v|
+              span = "#{k} : #{v}"
+              br
+      - if values.is_a? Hash
+        - values.each do |k, v|
+          span = "#{k} : #{v}"
+          br

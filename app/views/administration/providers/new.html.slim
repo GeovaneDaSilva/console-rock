@@ -1,0 +1,32 @@
+- content_for(:page_header) do
+  = page_header("Provision a new Provider", [link_to("Providers", administration_providers_path), "New"])
+
+#provision.row
+  .col-md-12
+    .panel.panel-default
+      .panel-heading
+        span.title.elipsis
+          strong Provision a new provider
+      .panel-body
+        p
+          ' Create a new provider.
+          strong Demo customer data will take some time to generate.
+        = bootstrap_form_tag url: administration_providers_path, method: :post do |f|
+          = f.text_field :provider_name, required: true
+
+          = f.form_group :owner do
+            strong Owner Information
+            .row.margin-bottom-0.margin-top-10
+              .col-sm-6
+                = f.text_field :first_name, required: true
+              .col-sm-6
+                = f.text_field :last_name, required: true
+
+            = f.email_field :email, required: true
+            p
+              = f.switch :add_demo_customer_data?
+            p
+              = f.switch :send_invitation_email?, checked: true
+
+          .pull-right
+            = f.submit "Provision", class: "btn btn-primary"

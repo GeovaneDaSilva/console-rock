@@ -1,0 +1,17 @@
+$('body').append('<%= render(partial: "triage/whitelists/whitelist_modal", locals: { id: @job_id }).squish.html_safe %>');
+var $modal = $('#<%= @job_id %>');
+
+$modal.modal('show');
+
+var purgeInterval = setInterval(function() {
+  $.ajax({
+      url: '<%= polled_task_path(@job_id) %>'
+    }).done(function (data, status) {
+      if (data["url"] && data["url"].length > 1) {
+        $modal.modal('hide');
+
+        clearInterval(purgeInterval);
+        Turbolinks.visit('<%= @result_path %>', { action: 'replace' })
+      };
+    });
+}, 1000);

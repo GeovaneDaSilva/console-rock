@@ -1,0 +1,127 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+  = page_header("Office 365 Manager", [current_account.name])
+
+.row data-controller="cloud-app" data-cloud-app-account-id=(current_account.id) data-cloud-app-seed-data=(@graph_json)
+  .d-flex.flex-wrap
+    .w-50.col-xs-6
+      .panel.panel-default.h-100.nomargin
+        .panel-heading.text-center
+          strong Office 365 Secure Score
+        .panel-body data-target="cloud-app.customers"
+          .show-empty
+            h3.text-muted.text-center.nomargin No Customers
+    .w-50.col-xs-6
+      .panel.panel-default.h-100.nomargin
+        .panel-heading
+          strong Monitored Account List (#{@total_users} Accounts)
+        .panel-body
+          .pull-left
+            = link_to "Download 2FA Report", account_office365_export_path(params: params.permit.merge({ type: "csv" })), remote: true, data: { confirm: "This list is based on MFA Registration.  If you have not enforced MFA by policy, this list will only tell you which users have MFA configured." }
+          .pull-right
+            = button_to account_office365_user_path, form_class: "btn btn-primary", method: :get do
+              |  Change which accounts are monitored
+
+          table.fullwidth.table.m-0 title="This list is based on MFA Registration.  If you have not enforced MFA by policy, this list will only tell you which users have MFA configured."
+            thead.bg-white
+              tr
+                th.text-center
+                  | 2FA&nbsp;
+                  span.badge.bg-success BETA
+                th ID
+                th Licenses
+            tbody
+              - if @user_list.any?
+                - @user_list.each do |result|
+                  tr
+                    td.text-center
+                      - if result.details.dig("mfa_status")
+                        span.label.label-success
+                          = "Y"
+                    td = result.external_id
+                    td = result.details.dig("licenses")&.join(", ")
+              - else
+                tr
+                  td.text-center colspan="5" No Users
+
+          - if @user_list_pagination.pages > 1
+            .text-center
+              == pagy_bootstrap_nav @user_list_pagination
+
+
+.row.margin-top-20
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Secure Score To-Do (By Control)
+
+      .panel-body
+        table.fullwidth.table.m-0
+          thead.bg-white
+            tr
+              th Max Score
+              th Control
+              th Affected Customers
+              th Description
+              th &nbsp;
+          tbody
+            - if @ref_scores.any?
+              - cache ["v1/ref-secure-scores", current_account, @ref_scores], expires_in: 1.hour do
+                - @ref_scores.each do |result|
+                  - if result.app_results.any?
+                    tr
+                      td = result.max_score
+                      td = result.id
+                      td = affected_customers(result)
+                      td = result.app_results.first.details.dig("description")
+                      td = link_to "Details", "#ref-result-#{result.id}-detail", class: "", data: { toggler: "hidden", turbolinks: false }
+                    tr.app-result-detail.breezy-pdf-remove hidden=!rendered_for_pdf? id="ref-result-#{result.id}-detail"
+                      td colspan="10"
+                        - cache ["v1/office365s/dashboard/ref_scores", result, current_user&.timezone] do
+                          = render partial: "office365s/secure_score_detail", locals: { result: result }
+            - else
+              tr
+                td.text-center colspan="5" No Results
+
+        - if @ref_scores_pagination.pages > 1
+          .text-center
+            == pagy_bootstrap_nav @ref_scores_pagination
+
+.row.margin-top-20
+   .col-xs-12
+     .panel.panel-default
+      .panel-heading
+        strong Secure Score To-Do (Split Out By Customer)
+      .panel-body
+        table.fullwidth.table.m-0
+          thead.bg-white
+            tr
+              th Current Score
+              th Max Score
+              th Control
+              - if current_account.provider?
+                th.hidden-sm.hidden-xs = "Customer"
+              th Description
+              th &nbsp;
+          tbody
+            - if @secure_score_results.any?
+              - cache ["v1/ref-secure-scores", current_account, @secure_score_results], expires_in: 1.hour do
+                - @secure_score_results.each do |result|
+                  tr
+                    td = result.details.dig("score")
+                    td = result.ref_secure_scores.max_score
+                    td = result.value
+                    - if current_account.provider?
+                      td.hidden-sm.hidden-xs = link_to result.customer.name, account_current_path(result.customer), method: :post
+                    td = result.details.dig("description")
+                    td = link_to "Details", "#app-result-#{result.id}-detail", class: "", data: { toggler: "hidden", turbolinks: false }
+                  tr.app-result-detail.breezy-pdf-remove hidden=!rendered_for_pdf? id="app-result-#{result.id}-detail"
+                    td colspan="10"
+                      - cache ["v1/office365s/dashboard/secure_score", result, current_user&.timezone] do
+                        = render partial: "office365s/secure_score_detail", locals: { result: result.ref_secure_scores }
+            - else
+              tr
+                td.text-center colspan="5" No Results
+        - if @secure_score_results_pagination.pages > 1
+          .text-center
+            == pagy_bootstrap_nav @secure_score_results_pagination

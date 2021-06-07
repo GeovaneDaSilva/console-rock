@@ -1,0 +1,17 @@
+nav#current_provider_nav {
+  ul.dropdown-menu {
+    ul {
+      padding-left: 0;
+      li {
+        list-style-type: none;
+        a {
+          padding-left: 34px;
+          width: 100%;
+        }
+        &:hover {
+          background: #f5f5f5;
+        }
+      }
+    }
+  }
+}

@@ -1,0 +1,5 @@
+table.table.fullwidth data-controller="checkbox-selectable"
+  thead.bg-transparent
+    = render partial: "shared/app_results/ironscales_header", locals: { show_checkbox: true, show_details: true }
+  tbody
+    = render partial: "shared/app_results/ironscales_row", collection: app_results, as: :app_result, locals: { show_checkbox: true, show_details: true, query_params: query_params }, cache: proc { |ar| ["v1", ar, current_user&.timezone] }

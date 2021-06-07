@@ -1,0 +1,17 @@
+:queues:
+  - [ui, 5]
+  - [pushed-tasks, 4]
+  - [polled-tasks, 4]
+  - [default, 3]
+  - [reporting, 2]
+  - [log, 2]
+  - [mailers, 2]
+  - [billing, 1]
+  - [utility, 1]
+  - [ip_info, 1]
+  - [threat_evaluation, 1]
+  - [maintenance, 1]
+
+
+# -- the numbers are not priorities, they are weights.
+# So UI is 5x more likely than utility to run

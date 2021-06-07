@@ -1,0 +1,27 @@
+- unless @user_role.persisted?
+  = f.fields_for :user, @user_role.user do |ff|
+    = ff.hidden_field :session_timeout, value: @account.setting.user_session_timeout
+    .field-group
+      .row
+        .col-md-6
+          = ff.text_field :first_name
+        .col-md-6
+          = ff.text_field :last_name
+
+    .field-group
+      = ff.text_field :email
+
+.field-group
+  - if current_user.admin?
+    = f.select :role, UserRole.roles.keys.reject{ |u| (u == "report_viewer")}.collect { |key| [key.humanize, key] }
+  - else 
+    = f.select :role, UserRole.roles.keys.reject{ |u| (u == "report_viewer" || u == "distributor_billing")}.collect { |key| [key.humanize, key] }
+
+.pull-right
+  button.btn.btn-primary type="submit"
+    - if f.object.persisted?
+      | Update
+    - else
+      |Save
+  | &nbsp;
+  button.btn.btn-default type="reset" Reset

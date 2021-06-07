@@ -1,0 +1,45 @@
+- if detail.is_a?(TestResults::BaseJson)
+  .size-18.margin-top-20 #{prefix} #{detail.type.underscore.humanize.capitalize.titleize}
+  ul.list-unstyled
+    - detail.attributes.each do |key, value|
+      li.list-item class=("pl-5" if value.is_a?(TestResults::BaseJson))
+        - if value.is_a?(TestResults::BaseJson)
+          = render partial: "r/hunts/results/detail", locals: { detail: value, prefix: key.to_s.humanize }
+        - elsif value.is_a?(Hash)
+          strong #{key.to_s.humanize.upcase}:
+          ul
+            - value.each do |k, v|
+              li.list-item
+                strong #{k.to_s.humanize.upcase}:
+                |  #{v}
+        - elsif value.is_a?(Time)
+          strong #{key.to_s.humanize.upcase}:
+          |  #{l value, format: :digital}
+        - elsif value.blank?
+        - elsif key.to_s.match(/_url/)
+          strong #{key.to_s.humanize.upcase}:
+          = link_url(value)
+        - else
+          strong #{key.to_s.humanize.upcase}:
+          |  #{value.to_s.gsub(/\r\n/, "<br>").html_safe}
+- elsif detail.is_a?(Hash)
+  ul.list-unstyled
+    - detail.each do |key, value|
+       li.list-item
+        -if value.is_a?(Hash)
+          strong #{key.to_s.humanize.upcase}:
+          ul
+            - value.each do |k, v|
+              li.list-item
+                strong #{k.to_s.humanize.upcase}:
+                |  #{v}
+        - elsif value.is_a?(Time)
+          strong #{key.to_s.humanize.upcase}:
+          |  #{l value, format: :digital}
+        - elsif value.blank?
+        - elsif key.to_s.match(/_url/)
+          strong #{key.to_s.humanize.upcase}:
+          = link_url(value)
+        - else
+          strong #{key.to_s.humanize.upcase}:
+          |  #{value}

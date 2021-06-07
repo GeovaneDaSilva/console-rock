@@ -1,0 +1,6 @@
+h1.mb-5.mt-10 = details.type.underscore.humanize.capitalize.titleize
+ul.list-unstyled.p-10.m-0.darker
+  - details.attributes.each do |key, value|
+    - unless value.blank?
+      li.list-item.pl-5
+        = render partial: "devices/r/breaches/details", locals: { details: value, key: key }

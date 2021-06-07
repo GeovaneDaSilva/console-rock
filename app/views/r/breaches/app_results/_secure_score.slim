@@ -1,0 +1,9 @@
+table.table-fixed.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+  thead
+    = render partial: "shared/app_results/secure_score_header", locals: { show_for_reporting: true }
+  tbody
+    = render partial: "shared/app_results/secure_score_row", collection: app_results, as: :app_result, cache: proc { |ar| ["v1", ar, current_user&.timezone] }, locals: { show_for_reporting: true }
+
+    - if app_results.size.zero?
+      tr
+        td.text-center colspan="4" No results

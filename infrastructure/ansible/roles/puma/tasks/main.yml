@@ -1,0 +1,14 @@
+---
+- name: Configure puma
+  template: src=puma.rb.j2 dest={{ puma_config_path }}
+
+- name: Install puma
+  shell: /bin/bash -l -c 'gem install puma --no-ri --no-rdoc' chdir={{ app_path }}
+  become: yes
+  become_user: "{{ ruby_user_name }}"
+
+- name: Create systemd config
+  template: src=systemd.j2 dest=/lib/systemd/system/puma.service
+
+- name: Install new config
+  shell: systemctl daemon-reload && systemctl enable puma.service

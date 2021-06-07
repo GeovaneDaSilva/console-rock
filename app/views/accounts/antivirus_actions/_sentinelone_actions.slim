@@ -1,0 +1,22 @@
+.d-flex.flex-wrap
+  .w-100
+    .field-group
+      = f.select "actions[analyst_verdict]", %w[undefined true_positive false_positive suspicious], { selected: app_result&.details&.analystverdict, label: "Analyst Verdict", include_blank: true }
+
+
+hr
+
+.d-flex.flex-wrap
+  .w-100
+    - if app_result.present?
+      .field-group
+        = f.text_area :blah, { value: app_result&.details&.mitigationreport&.map{ |k, v| "#{k}: #{v['status'] || '-'}" unless v['status'].nil? }&.compact&.join("\n"), label: "Current status of mitigations", disabled: true, rows: 6 }
+    .field-group
+      = f.select "actions[mitigation_action]", %w[kill quarantine remediate rollback disconnectFromNetwork], { label: "Mitigation action to take", include_blank: true }
+
+hr
+
+.d-flex.flex-wrap
+  .w-100
+    .field-group
+      = f.select "actions[whitelist]", { "by file hash" => app_result&.details&.filecontenthash }.to_a, { label: "Whitelisting", include_blank: true }

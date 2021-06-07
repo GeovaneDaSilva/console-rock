@@ -1,0 +1,79 @@
+$backgroundColor: rgba(0,0,0,0.05);
+$borderColor: rgba(0,0,0,0.1);
+$textColor: #414141;
+$rcGreen: #8ab933;
+
+body, html {
+  margin: 0;
+  text-color: $textColor;
+}
+
+a {
+  color: #0088CE;
+  text-decoration: none;
+
+  &:hover {
+    text-decoration: none;
+  }
+}
+
+header {
+  padding: 25px 0;
+  background-color: $backgroundColor;
+  text-align: center;
+  border-top: 1px solid $borderColor;
+  border-bottom: 1px solid $borderColor;
+
+  img {
+    max-width: 152px;
+  }
+}
+
+body > section {
+  padding: 0 10px;
+}
+
+body > section, footer > section {
+  margin: 0 auto;
+  max-width: 600px;
+}
+
+footer {
+  border-top: 1px solid $borderColor;
+  border-bottom: 1px solid $borderColor;
+  background-color: $backgroundColor;
+  padding: 5px 0;
+  text-align: center;
+}
+
+table {
+  width: 100%;
+}
+
+.text-right {
+  text-align: right;
+}
+
+.text-center {
+  text-align: center;
+}
+
+.underline {
+  border-bottom: 1px solid $textColor;
+}
+
+.btn {
+  display: inline-block;
+  border-radius: 3px;
+  background: #333;
+  color: #FFF;
+  padding: 6px 12px;
+  line-height: 26px;
+  margin: 5px 8px;
+  transition: all 0.3s ease;
+  font-size: 14px;
+}
+
+.border-top {
+  border-top: 1px solid $borderColor;
+}

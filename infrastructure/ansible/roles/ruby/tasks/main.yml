@@ -1,0 +1,13 @@
+---
+- include: rbenv.yml
+  when: ruby_install == 'rbenv'
+
+- name: Install bundler
+  shell: /bin/bash -l -c 'gem install bundler --no-ri --no-rdoc'
+  become: yes
+  become_user: "{{ ruby_user_name }}"
+
+- name: Set Bundler Jobs
+  shell: /bin/bash -l -c 'bundle config --global jobs 4'
+  become: yes
+  become_user: "{{ ruby_user_name }}"

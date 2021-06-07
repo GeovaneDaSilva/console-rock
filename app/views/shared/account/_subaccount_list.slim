@@ -1,0 +1,42 @@
+- with_stimulus_controller('partial-shared-account-subaccount-list') do
+  .d-flex.flex-wrap(data-controller=stimulus_controller data-app-id=app_id)
+    .pr-5.pl-25
+      label.switch.switch-rounded
+        input(type="checkbox" value="false" name="show_all_customers" id="show_all_customers" data-target=stimulus_target("showAll") data-action=stimulus_action("change", "onToggleShowAll"))
+        span.switch-label(data-on="YES" data-off="NO")
+        span Show all customers
+
+      div(class="sub-account-list__add-customer" data-target=stimulus_target('selectCustomersContainer'))
+        details.accordion.panel-group.mb-10.sub-account-list__add-customer__container
+          summary.sub-account-list__add-customer__summary Add more customers...
+          .panel.panel-default.no-box-shadow.no-radius
+            - sub_accounts.each do |account|
+              - checked = map.dig(account.id).present?
+              - name = "select_customer[#{app_id}][#{account.id}]"
+
+              .form-group
+                .checkbox
+                  = label_tag(name)
+                    = check_box_tag(name, 1, checked, { class: "sub-account-list__add-customer__checkbox", "data-account-id": account.id })
+                    | &nbsp;
+                    = account.name
+                  br
+
+      table.table
+        thead.bg-transparent
+          tr
+            th Customer
+            th(colspan=2) ID (from integration)
+        tbody
+          - sub_accounts.each do |acc|
+            - value = map.dig(acc.id)
+            - classes = ['sub-account-list__row']
+            - hidden = value.blank?
+
+            tr(class=classes.join(' ') data-target=stimulus_target('customerIntegrationContainer') data-account-id=acc.id hidden=hidden)
+              td.sub-account-list__td = acc.name
+              td.sub-account-list__td = text_field_tag "map[#{acc.id}][integration_id]", value, { class: "sub-account-list__customer-integration__value-input", autocomplete: "off", autocorrect: "off", autocapitalize: "off", 'data-account-id': acc.id, 'data-original-value': value }
+              td.sub-account-list__td
+                button.btn.btn-secondary.sub-account-list__remove-integration-button(data-account-id=acc.id)
+                  span.glyphicon.glyphicon-remove(aria-hidden=true)
+                  span.sr-only Remove customer integration

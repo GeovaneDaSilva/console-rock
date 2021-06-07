@@ -1,0 +1,23 @@
+- self.message.from = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+- self.message.reply_to = [ENV.fetch(I18n.t("application.noreply_email"), 'no-reply')]
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong
+          = @incident.title
+      .panel-body
+        .mb-10
+          p = @incident.description
+        .mb-10
+          strong Remediation Steps
+          p = @incident.remediation
+          p = link_to "View on Platform", account_apps_incident_url(@account, @incident, switch_account_id: @account.id, host: ENV[I18n.t('application.host')], protocol: 'https').remove(/:\d+/)
+          p
+            | Detection times are in UTC (GMT)
+        - @incident.results.apps.each do |app|
+          h4.mb-5 = app.title
+          p = app.description
+          - app_results = @incident.results.where(app: app)
+          = render partial: "triage/incidents/app_result/#{app.report_template}", locals: { app_results: app_results, params: { active_incident: true}, query_params: { app_id: app.id } }

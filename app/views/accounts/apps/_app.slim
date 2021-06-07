@@ -1,0 +1,39 @@
+- unless current_account.billing_account.plan&.hide_unassigned_apps && !current_account.billing_account.plan&.apps&.include?(app)
+  .col-xs-12.col-sm-6.col-md-4.app-card.d-flex.d-flex-safari-fix
+    .panel.panel-default class=("warning-border" if app.discreet?)
+      - display_image_url = app.display_image ? app.display_image.url : asset_path("default-app-display-image.jpg")
+      .display-image-wrapper
+        img.display-image src=display_image_url alt=app.title
+        - if app.display_image_icon
+          .display-image-icon
+            = raw app.display_image_icon.as_data
+      .panel-body
+        .row.app-title
+          .col-xs-12
+            h3.nomargin = app.title.upcase
+        .row.app-description
+          .col-xs-12
+            = app.description
+
+        .row
+          .col-xs-6.pull-right
+            .pull-right.mt-7.text-right
+              - account_app = current_account.account_apps.find_or_create_by(app: app)
+
+              - if Accounts::AppPolicy.new(current_account, app).can_enable?
+                = bootstrap_form_for account_app, url: account_app_path(current_account, account_app), remote: true do |f|
+                  label.switch.switch-success.switch-round.nopadding data-controller="submit-on-change"
+                    input type="checkbox" name="enabled" checked=(account_app.enabled?)
+                    span.switch-label data-on="ON" data-off="OFF"
+
+              - if Accounts::AppPolicy.new(current_account, app).inherited?
+                label.switch.switch-success.switch-round.nopadding data-controller="submit-on-change"
+                  input type="checkbox" name="enabled" checked=(Accounts::AppPolicy.new(current_account, app).runnable?) disabled=true
+                  span.switch-label data-on="ON" data-off="OFF"
+                .text-muted Inherited
+
+        - if app.platforms.any?
+          .row.app-platforms
+            .col-xs-12.text-right
+              - app.platforms.each do |platform|
+                = icon_for_platform(platform, "pl-5 size-20")

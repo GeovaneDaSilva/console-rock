@@ -1,0 +1,23 @@
+.row
+  .col-xs-5.text-left
+    | When:
+  .col-xs-7
+    = l app_result.detection_date, format: :digital
+.row
+  .col-xs-5.text-left
+    | Finding:
+  .col-xs-7
+    = app_result.value
+.row
+  .col-xs-5.text-left
+    | Firewall:
+  .col-xs-7
+    = app_result.details.fw_mac_add || '-'
+.row
+  .col-xs-5.text-left
+    | Country:
+  .col-xs-7
+    - if app_result.details.country
+       = image_tag "flags/#{app_result.details.country.downcase}.png", title: COUNTRIES[app_result.details.country].dig("full_name")
+    - else
+      '  -

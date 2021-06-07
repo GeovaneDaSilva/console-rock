@@ -1,0 +1,33 @@
+.row
+  .col-xs-5.text-left
+    | When:
+  .col-xs-7
+    = l app_result.detection_date, format: :digital
+.row
+  .col-xs-5.text-left
+    | Local Address:
+  .col-xs-7
+    = app_result.details.local_address
+.row
+  .col-xs-5.text-left
+    | Local Port:
+  .col-xs-7
+    = app_result.details.local_port
+.row
+  .col-xs-5.text-left
+    | Remote Address:
+  .col-xs-7
+    = app_result.details.remote_address
+.row
+  .col-xs-5.text-left
+    | Remote Port:
+  .col-xs-7
+    = app_result.details.remote_port
+.row
+  .col-xs-5.text-left
+    | Country:
+  .col-xs-7
+    - if app_result.details.country
+      = image_tag "flags/#{app_result.details.country.downcase}.png", alt: app_result.details.country
+    - else
+      '  -

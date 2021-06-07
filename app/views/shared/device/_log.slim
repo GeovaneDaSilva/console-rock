@@ -1,0 +1,5 @@
+li.message data-order=(log.created_at.to_f) data-log-id=(log.id)
+  | [#{log.created_at.in_time_zone(device.timezone).strftime("%b %d, %Y %H:%M:%S:%L %Z")}] (
+  span datetime=(log.created_at) data-controller="datetime"
+  ') --
+  ' #{log.payload}

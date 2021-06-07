@@ -1,0 +1,10 @@
+.app-panel-wrapper
+  - sorted_apps = apps.group_by { |a| Accounts::AppPolicy.new(current_account, a).runnable? }
+
+  - [true, false].each do |bit|
+    - sorted_apps[bit].to_a.each do |app|
+      = render partial: "devices/app", locals: { app: app }
+
+  - discreet_apps.each do |app|
+    - if Accounts::AppPolicy.new(current_account, app).runnable?
+       = render partial: "devices/app", locals: { app: app }

@@ -1,0 +1,4 @@
+- if account.provider?
+  = link_to "Modify Settings", provider_path(account), class: "btn btn-primary"
+- elsif account.customer?
+  = render partial: "customers/actions", locals: { customer: account }

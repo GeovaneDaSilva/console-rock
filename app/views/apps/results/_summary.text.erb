@@ -1,0 +1,22 @@
+<% if app_result.is_a?(Apps::DeviceResult) %>
+  <% if app_result.ttp? %>
+    <% ttp = TTP.find(app_result.details.ttp_id) %>
+    Tactic: <%= ttp.tactic %>
+    Technique: <%= ttp.technique %>
+
+  <% end %>
+<% end %>
+
+<%= app_result.app.title %>
+
+<%= app_result.app.description %>
+
+Customer: <%= app_result.customer&.name %> Device: <%= app_result.is_a?(Apps::DeviceResult) ? app_result.device.hostname  : "--" %>
+
+On <%= app_result.is_a?(Apps::DeviceResult) ? (l app_result.detection_date.in_time_zone(app_result.device.timezone), format: :full) : (l app_result.detection_date.in_time_zone(UserRole.where(account: app_result.customer&.self_and_all_ancestors).first&.user&.timezone), format: :full) %> <%= app_result.app.title %> detected an incident that <%= app_result.malicious? ? " indicates malicious activity." : " indicates suspicious activity." %>
+
+<% if app_result.is_a?(Apps::DeviceResult) %>
+  <%= device_r_breach_url(app_result.device, host: ENV.fetch("HOST", "example.com"), switch_account_id: app_result.customer&.id) %>
+<% else %>
+  <%= r_breaches_url(host: ENV.fetch("HOST", "example.com"), switch_account_id: app_result.customer&.id) %>
+<% end %>

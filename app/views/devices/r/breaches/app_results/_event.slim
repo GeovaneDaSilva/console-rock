@@ -1,0 +1,15 @@
+table.table.fullwidth.table-bordered.table-vertical-middle.margin-bottom-0.bg-white.collapsable-rows
+  thead
+    tr
+      th
+      th Date/Time
+      th Event ID
+      th Category
+      th Source
+      th.breezy-pdf-remove
+  tbody
+    = render partial: "devices/r/breaches/app_result/event", collection: app_results, as: :app_result, locals: { app: app },  cache: proc { |app_result| ["v1", app_result, current_user&.timezone, policy(device).destroy?]}
+
+    - if app_results.size.zero?
+      tr
+        td.text-center colspan="7" No results

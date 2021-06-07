@@ -1,0 +1,3 @@
+.d-flex.flex-wrap
+  .w-100
+    = f.text_area "config[excluded_cli_commands_to_array]", label: "Excluded CLI Commands", value: config.fetch("excluded_cli_commands", APP_CONFIGS[:system_process_verifier][:excluded_cli_commands]).join("\n"), help: "One CLI command per line", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"

@@ -1,0 +1,85 @@
+---
+- include_vars: "../vars/{{ env }}/github_ssh_key.yml"
+- name: Update apt cache
+  apt:
+    update_cache: yes
+    cache_valid_time: 3600
+
+
+- name: Install apt dependencies
+  apt: name={{ item }}
+  with_items:
+    - autoconf
+    - bison
+    - build-essential
+    - libssl-dev
+    - libyaml-dev
+    - libreadline6-dev
+    - zlib1g-dev
+    - libncurses5-dev
+    - nodejs
+    - python-pip
+    - python-dev
+    - htop
+    - git
+    - libgmp-dev
+    - libpq-dev
+    - postgresql-client
+    - libcurl4-openssl-dev
+    - libsqlite3-dev
+
+- name: Create application group
+  group: name={{ group_name }}
+
+- name: Create application user
+  user: name={{ user_name }} group={{ group_name }} shell=/bin/bash home={{ user_home_path }}
+
+- name: Ensure .ssh directory exists.
+  file:
+    dest: "/home/{{ user_name }}/.ssh/"
+    mode: 0700
+    owner: "{{ user_name }}"
+    state: directory
+
+- name: Install Github SSH key
+  copy:
+    content: "{{ ssh_key }}"
+    dest: "/home/{{ user_name }}/.ssh/github_key"
+    mode: 0600
+    owner: "{{ user_name }}"
+
+- name: ssh_config
+  template: src=ssh_config.j2 dest={{ user_home_path }}/.ssh/config owner={{ user_name }} group={{ group_name }}
+
+- name: Copy authorized keys for direct authentication
+  copy:
+    remote_src: true
+    src: "/home/ubuntu/.ssh/authorized_keys"
+    dest: "/home/{{ user_name }}/.ssh/authorized_keys"
+    mode: 0600
+    owner: "{{ user_name }}"
+
+- name: Setup script to read application environment
+  template: src=read_environment.sh.j2 dest=/etc/profile.d/read_environment.sh
+
+- name: Create directories
+  file: path={{ item }} state=directory owner={{ user_name }} group={{ group_name }}
+  with_items:
+    - '{{ path }}'
+    - '{{ releases_path }}'
+    - '{{ shared_path }}'
+    - '{{ shared_path }}/tmp'
+    - '{{ shared_path }}/log'
+    - '{{ shared_path }}/oval'
+    - '{{ shared_path }}/config'
+    - '{{ shared_path }}/vendor'
+    - '{{ shared_path }}/vendor/bundle'
+    - '{{ app_temp_path }}'
+    - '{{ app_temp_path }}/pids'
+    - '{{ app_temp_path }}/sockets'
+
+- name: Create profile.d directory
+  file: path={{ profile_d_path }} state=directory owner={{ user_name }} group={{ group_name }}
+
+- name: Create ~/.bash_profile which loads all from ~/profile.d
+  template: src=bash_profile.j2 dest={{ user_home_path }}/.bash_profile owner={{ user_name }} group={{ group_name }}

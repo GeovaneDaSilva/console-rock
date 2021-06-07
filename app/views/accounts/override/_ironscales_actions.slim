@@ -1,0 +1,4 @@
+.d-flex.flex-wrap
+  .w-100
+    .field-group
+      = f.select "actions[details][attributes][classification]", Apps::IronscalesResult.classifications.collect { |k, _v| [k.titleize, k] }, { selected: app_result.details&.classification&.parameterize(separator: "_"), label: "Classification Type", include_blank: true }

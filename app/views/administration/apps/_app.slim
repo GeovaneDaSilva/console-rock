@@ -1,0 +1,13 @@
+tr
+  td = app.title
+  td.truncate = truncate app.description, length: 70
+  td = app.display_type
+  td
+    - if app.free?
+      | Free
+    - else
+      = humanized_money_with_symbol app.price
+  td = l app.updated_at, format: :digital
+  td = app.on_by_default ? "On by default" : ""
+  td.text-right
+    = link_to "Details", administration_app_path(app)

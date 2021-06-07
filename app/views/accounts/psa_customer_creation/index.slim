@@ -1,0 +1,12 @@
+- if psa_config.companies.nil?
+  .row
+    .col-xs-12
+      .alert.alert-warning.drop-shadow.margin-bottom-30
+        strong.size-18 No companies available to import
+        p
+          | Either this means you have already imported all companies in your PSA, or there has been a problem with your PSA integration.
+-else
+  h3 Select which PSA accounts you would like to create as #{I18n.t("application.name")} customers
+
+  = form_tag account_psa_customer_creation_index_path(current_account), method: :post do
+    = render partial: "shared/dual_list_box", locals: { collection_name: "Companies", collection: new_companies }

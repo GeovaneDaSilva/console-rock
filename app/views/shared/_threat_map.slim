@@ -1,0 +1,13 @@
+#threat-map data-controller="geocoded-threats threat-map" data-geocoded-threats-id=current_account.id data-threat-map-config=(render partial: "shared/threats/map_config") data-threat-map-seed=(render partial: "shared/threats/threats", locals: { threats: threats, egreess_ips: egress_ips }) data-action="resize@window->threat-map#resize orientationchange@window->threat-map#resize" class=current_account.class.name.parameterize
+  span.title
+    = current_account.name
+    br
+    small
+      | Threat
+      span.text-rcgreen
+        |  Map
+
+  span.fullscreen data-action="click->threat-map#fullscreen"
+    i.fa.fa-arrows-alt
+
+  #threat-map-feed data-target="threat-map.feed"

@@ -1,0 +1,88 @@
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-body.p-0
+        ul.nav.nav-tabs
+          li.active
+            a href="#general" data-toggle="tab" aria-expanded="true"
+              i.fa.fa-bars
+              |  General Account Information
+          li
+            a href="#stale" data-toggle="tab" aria-expanded="false"
+              i.fa.fa-bar-chart
+              |  Stale Accounts
+
+        .tab-content.border.border-top-none.padding-15.margin-bottom-5
+          #general.tab-pane.active
+            - keys = sales_general.keys
+            div
+              ul.nav.nav-tabs
+                - keys.each do |category|
+                  li class="#{keys[0] == category ? 'active' : ''}"
+                    a href="##{category}" data-toggle="tab" aria-expanded="true"
+                      | #{category.to_s.titleize}
+
+            div
+              .tab-content.border.border-top-none.padding-15.margin-bottom-5
+                - sales_general.except(:billing_info).each do |category, accounts|
+                  .tab-pane id="#{category}" class="#{keys[0] == category ? 'active' : ''}"
+                    .d-flex.flex-wrap
+                      table.table-striped.table-hover
+                        thead
+                          tr
+                            th.padding-10 Account
+                            th.padding-10 All Money Ever Paid
+                            th.padding-10 Last Bill Amount
+                            th.padding-10 Three months % change month-over-month
+                            th.padding-10 Plan
+                            th.padding-10 Paid Thru
+                            th.padding-10 Total Device count
+                            th.padding-10 Customer count
+                            th.padding-10 Agent Release Group
+                        tbody
+                          - accounts.each do |account|
+                            - billing_info = sales_general[:billing_info]
+                            tr
+                              - a_info = billing_info[account.id]
+                              td.padding-10 #{account.name}
+                              td.padding-10 #{a_info[:all]}
+                              td.padding-10 #{(a_info[:last_bill]&.amount_cents || 0)}
+                              td.padding-10 #{a_info[:month_over_month][account.id]}
+                              td.padding-10 #{account.plan.name}
+                              td.padding-10 #{l account.paid_thru, format: :long}
+                              td.padding-10 #{number_with_delimiter Device.where(customer: account.self_and_all_descendants).size}
+                              td.padding-10 #{account.all_descendant_customers.size}
+                              td.padding-10 #{account.agent_release_group.humanize}
+
+          #stale.tab-pane
+            - keys = sales_stale.keys
+            div
+              ul.nav.nav-tabs
+                - keys.each do |category|
+                  li class="#{keys[0] == category ? 'active' : ''}"
+                    a href="##{category}" data-toggle="tab" aria-expanded="true"
+                      | #{category.to_s.titleize}
+
+            div
+              .tab-content.border.border-top-none.padding-15.margin-bottom-5
+                - sales_stale.each do |category, accounts|
+                  .tab-pane id="#{category}" class="#{keys[0] == category ? 'active' : ''}"
+                    .d-flex.flex-wrap
+                      table.table-striped.table-hover
+                        thead
+                          tr
+                            th.padding-10 Account
+                            th.padding-10 Plan
+                            th.padding-10 Paid Thru
+                            th.padding-10 Total Device count
+                            th.padding-10 Customer count
+                            th.padding-10 Agent Release Group
+                        tbody
+                          - accounts.each do |account|
+                            tr
+                              td.padding-10 #{account.name}
+                              td.padding-10 #{account.plan.name}
+                              td.padding-10 #{l account.paid_thru, format: :long}
+                              td.padding-10 #{number_with_delimiter Device.where(customer: account.self_and_all_descendants).size}
+                              td.padding-10 #{account.all_descendant_customers.size}
+                              td.padding-10 #{account.agent_release_group.humanize}

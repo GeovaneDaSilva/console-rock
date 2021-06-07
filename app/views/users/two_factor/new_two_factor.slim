@@ -1,0 +1,25 @@
+- if !current_user.otp_secret_key.nil? && current_user.otp_backup_codes.blank? && !current_user.otp_backup_codes.nil?
+  .row
+    .col-md-6
+      .panel-body
+        h4 Recovery Codes
+        p Keep these codes in a safe place.  If you lose all 2FA-enabled devices, these codes may be used in place of your authentication code.  Note that each code may only be used once before it is invalidated.
+        p Once your codes are recovery codes are safe, please click the button below to log out so that you can start using 2FA immediately!
+        span.input-group.codes
+      section.panel data-controller="clipboard"
+        .input-group.w-100
+          textarea.onboarding id="2fa-codes" readonly=true
+            - fill_backup_codes.each do |item|
+                = item.to_s + "\r\n"
+          span.input
+            .col-md-6
+              button.btn.btn-default data-action="click->clipboard#copy" data-value="2fa-codes"
+                i.fa.fa-clipboard
+                | Copy
+            .col-md-6
+              = link_to destroy_user_session_path, method: :delete do
+                i.fa.fa-power-off
+                |  Log Out
+- else
+  h4 ERROR
+  p There has been an error in activation.  2FA is not enabled.

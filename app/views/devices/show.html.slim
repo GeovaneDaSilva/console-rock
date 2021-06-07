@@ -1,0 +1,328 @@
+- content_for(:page_header) do
+  = page_header(device.hostname, [link_to(device.customer.name, account_current_path(device.customer, switch_account_id: device.customer.id), method: :post), link_to("Devices", devices_path), device.hostname])
+div data-controller="device-status" data-device-status-id=(device.id)
+  = render partial: "details", locals: { device: device }
+
+  .row
+    .col-xs-12
+      .navbar.navbar-default.bg-white.drop-shadow
+        ul.nav.navbar-nav.mr-0.ml-0
+          li.active
+            a href="#overview"  data-turbolinks="false"
+              i.fa.fa-eye
+              |  Overview
+          - unless device.inventory_last_updated_at.blank?
+            li
+              a href="#inventory" data-turbolinks="false"
+                i.fa.fa-archive
+                |  Inventory
+          li
+            a href="#apps" data-turbolinks="false"
+              i
+                = inline_svg_tag "app-store.svg", style: "width: 20px; height: auto; margin: -5px 0;"
+              |  Apps
+          li
+            a href="#hunts" data-turbolinks="false"
+              i.fa.fa-crosshairs
+              |  Hunts
+
+          li
+            a href="#logs" data-turbolinks="false"
+              i.fa.fa-file-text-o
+              |  Logs
+
+          - if policy(device).defender_enabled?
+            li
+              a href="#defender" data-turbolinks="false"
+                = inline_svg_tag "defender-manager.svg", style: "width: 18px; height: auto; margin: -2px 0;"
+                |  Defender
+
+        - if policy(current_account).editor?
+          ul.nav.navbar-nav.navbar-right.mr-0.ml-0
+            li.dropdown
+              a.dropdown-toggle data-toggle="dropdown" title="Settings"
+                i.fa.fa-gear
+                | &nbsp;
+                i.fa.fa-angle-down
+              ul#device-actions.dropdown-menu style="right: 0; left: unset;"
+                li.btn-padding
+                  = button_to device_restarts_path(@device), form_class: "btn btn-link", remote: true do
+                    i.fa.fa-refresh
+                    |  Restart Agent
+
+                li.btn-padding
+                  = button_to device_updates_path(device), form_class: "btn btn-link", remote: true do
+                    i.fa.fa-wrench
+                    |  Check for Updates
+                li.btn-padding
+                  = button_to device_uninstalls_path(device), form_class: "btn btn-link", remote: true do
+                    i.fa.fa-times
+                    |  Uninstall Agent
+                li.btn-padding
+                  = button_to device_inventories_path(device), form_class: "btn btn-link", remote: true do
+                    i.fa.fa-archive
+                    |  Update Inventory
+                li.btn-padding
+                  = button_to device_agent_logs_path(device), form_class: "btn btn-link", remote: true do
+                    i.fa.fa-file-text-o
+                    |  Upload Agent Log
+                - if policy(device).agent_triage?
+                  li.btn-padding
+                    = button_to device_agent_triages_path(device), form_class: "btn btn-link", remote: true do
+                      i.fa.fa-stethoscope
+                      |  Agent Triage
+                - if policy(current_account).manage_device_isolation?
+                  li.btn-padding
+                    = button_to device_isolation_path(device), form_class: "btn btn-link", method: :put, data: { method: :put, confirm: 'Are you sure?' }, name: "isolate", remote: true do
+                      i.fa.fa-stethoscope
+                      |  Disconnect from Network
+                - if policy(current_account).manage_device_isolation?
+                  li.btn-padding
+                    = button_to device_isolation_path(device), form_class: "btn btn-link", method: :put, name: "restore", remote: true do
+                      i.fa.fa-stethoscope
+                      |  Reconnect to Network
+                - if policy(device).memory_dump?
+                  li.btn-padding
+                    = button_to device_memory_dumps_path(device), form_class: "btn btn-link", remote: true do
+                      i.fa.fa-truck
+                      |  Memory Dump
+                - if policy(device).purge?
+                  li.btn-padding
+                    = button_to device_purges_path(device), form_class: "btn btn-link text-danger", data: { confirm: "Are you sure you would like to delete all app results, geocoded threats, and hunt results for this device?" }, remote: true do
+                      i.fa.fa-eraser
+                      |  Purge Device
+                - if policy(device).destroy?
+                  li.btn-padding
+                    = button_to device_path(device), form_class: "btn btn-link text-danger", remote: true, method: :delete, data: { method: :delete, confirm: 'Are you sure?' } do
+                      i.fa.fa-trash
+                      |  Delete Device
+
+  .row data-controller="tab-contents"
+    #overview.col-xs-12 data-target="tab-contents.tabs"
+      - cache ["v5/overview", "device", device, device.inventory_last_updated_at] do
+        .panel.panel-default
+          .panel-body
+            .row
+              .col-xs-12.col-md-8.pt-30
+                dl.dl-horizontal
+                  dt IP Address
+                  dd.mb-10 = device.ipv4_address
+                  dt Network
+                  dd.mb-10 = link_to device.network, searches_path(query: device.network)
+                  dt MAC Address
+                  dd.mb-10 = device.mac_address
+                  dt Username
+                  dd.mb-10 = device.username
+                  dt Operating System
+                  dd.mb-10 = link_to device.os, searches_path(query: device.os)
+                  dt Fingerprint
+                  dd.mb-10 = device.id.upcase
+                  dt Agent Version
+                  dd.mb-10 = device.agent_version
+                  dt Timezone
+                  dd.mb-10 = device.timezone
+
+                - unless device.windows? && device.inventory_last_updated_at.blank?
+                  dl.dl-horizontal.border-top.pt-30
+                    - if device.inventory.dig("computer_system", "Manufacturer").present?
+                      dt Manufacturer/Model
+                      dd.mb-10
+                        | #{device.inventory.dig("computer_system", "Manufacturer").presence || 'Unknown'}/#{device.inventory.dig("computer_system", "Model").presence || 'Unknown'}
+
+                    - if device.inventory.dig("computer_system", "SystemSKUNumber").present? && device.inventory.dig("computer_system", "SystemSKUNumber") != "Undefined"
+                      dt SKU
+                      dd.mb-10
+                        | #{device.inventory.dig("computer_system", "SystemSKUNumber").presence || 'Unknown'}
+
+                    - if device.inventory.dig("processor").present?
+                      dt Processor
+                      dd.mb-10
+                        - processor_names = device.inventory.dig("processor").collect { |processor| processor["Name"] }.uniq
+                        = processor_names.to_sentence
+
+                        - if device.inventory.dig("computer_system", "NumberOfProcessors")
+                          br
+                          span.small
+                            |  #{device.inventory.dig("computer_system", "NumberOfProcessors")} #{"Processor".pluralize(device.inventory.dig("computer_system", "NumberOfProcessors"))}
+
+                        - if device.inventory.dig("computer_system", "NumberOfLogicalProcessors")
+                          span.small
+                            |  #{device.inventory.dig("computer_system", "NumberOfLogicalProcessors")} #{"Logical Core".pluralize(device.inventory.dig("computer_system", "NumberOfLogicalProcessors"))}
+
+                    - if device.inventory.dig("computer_system", "TotalPhysicalMemory").present?
+                      dt RAM
+                      dd.mb-10 = device.inventory.dig("computer_system", "TotalPhysicalMemory").to_i.to_s(:human_size)
+
+              .col-xs-12.col-md-4.pt-30
+                .dashboard-card.dashboard-card-type-3
+                  .dashboard-inner.clearfix
+                    .dashboard-card-icon
+                      i.fa.fa-bullseye
+                    .dashboard-card-body
+                      h5 data-target="device-status.maliciousIndicators" = inline_loader
+                      h6 Malicious Detections
+
+                .dashboard-card.dashboard-card-type-5
+                  .dashboard-inner.clearfix
+                    .dashboard-card-icon
+                      i.fa.fa-user-secret
+                    .dashboard-card-body
+                      h5 data-target="device-status.suspiciousIndicators" = inline_loader
+                      h6 Suspicious Detections
+
+                .dashboard-card.dashboard-card-type-4
+                  .dashboard-inner.clearfix
+                    .dashboard-card-icon
+                      i.fa.fa-info
+                    .dashboard-card-body
+                      h5 data-target="device-status.informationalIndicators" = inline_loader
+                      h6 Informational Detections
+
+                .text-center.pt-10
+                  = link_to device_r_breach_path(device), "data-turbolinks": false, target: "_blank" do
+                    ' #{device.hostname} Breach Report
+                    i.fa.fa-chevron-right
+
+                  - if device.app_results.any?
+                    br
+                    = link_to device_r_timeline_path(device), "data-turbolinks": false, target: "_blank" do
+                      ' #{device.hostname} Attack Timeline
+                      i.fa.fa-chevron-right
+
+                    - if policy(current_account).triage?
+                      br
+                      = link_to device_triage_path(device) do
+                        ' #{device.hostname} App Review
+                        i.fa.fa-chevron-right
+
+    #apps data-target="tab-contents.tabs"
+      = render partial: "apps"
+
+    #hunts.col-xs-12 data-target="tab-contents.tabs"
+      .panel.panel-default
+        .panel-heading
+          strong Hunts
+          ul.options.pull-right.relative.list-unstyled
+            li = link_to "Add Hunt", new_hunt_path
+            - if device.hunt_results.any?
+              li = link_to "All Device Hunts", device_hunts_path(device)
+
+        - if manual_hunts.any?
+          .hunt-section.open data-controller="toggler"
+            h5 data-action="click->toggler#toggle"
+              | Ad-Hoc Hunts
+              .pull-right
+                i.fa.fa-caret-right
+
+            table.fullwidth data-target="toggler.collapseable"
+              - manual_hunts.each do |hunt|
+                = render partial: "hunt", locals: { device: device, hunt: hunt }
+
+        - if feed_hunts.any?
+          .hunt-section.open data-controller="toggler"
+            h5 data-action="click->toggler#toggle"
+              | Threat Intel Hunts
+              .pull-right
+                i.fa.fa-caret-right
+
+            table.fullwidth data-target="toggler.collapseable"
+              - feed_hunts.each do |hunt|
+                = render partial: "hunt", locals: { device: device, hunt: hunt }
+
+
+        - if continuous_hunts.any?
+          .hunt-section.open data-controller="toggler"
+            h5 data-action="click->toggler#toggle"
+              | Continuous Hunts
+              .pull-right
+                i.fa.fa-caret-right
+
+            table.fullwidth data-target="toggler.collapseable"
+              - continuous_hunts.each do |hunt|
+                = render partial: "hunt", locals: { device: device, hunt: hunt }
+
+        - if manual_hunts.none? && feed_hunts.none? && continuous_hunts.none?
+          .text-center.padding-10 No Threat Hunts yet.
+
+    #logs.col-xs-12 data-target="tab-contents.tabs"
+      .panel.panel-default
+        .panel-heading
+          strong Logs
+        .panel-body
+          - if policy(device).realtime_logs?
+            .row.mb-10
+              .col-xs-12
+                strong Realtime Device Log
+                .pull-right
+                  = inline_loader
+                  |  Waiting for log messages...
+              .col-xs-12.mt-5
+                ol.log-messages-console data-controller="device-logs" data-device-logs-id=device.id
+
+                button.btn.btn-default#copy-console
+                  i.fa.fa-clipboard
+                  | Copy
+
+          .row
+            .col-xs-12.mt-5
+              - if agent_logs.any?
+                - cache ["v1", agent_logs], expires_in: 60.minutes do
+                  table.full-width.table
+                    thead
+                      tr
+                        th Filename
+                        th Size
+                        th Uploaded
+                        th &nbsp;
+                    tbody
+                      - @agent_logs.each do |agent_log|
+                        tr
+                          td = agent_log.upload.filename
+                          td = number_to_human_size agent_log.upload.size
+                          td data-controller="datetime" datetime=(agent_log.created_at)
+                          td.text-right = link_to "View", agent_log.upload.url
+                          td.text-right
+                            = link_to device_agent_log_path(device, agent_log), method: :delete, class: "text-danger", data: { confirm: "Are you sure?" } do
+                              i.fa.fa-trash
+                              |  Delete
+
+                - if @agent_logs_pagination.pages > 1
+                  == pagy_bootstrap_nav @agent_logs_pagination
+
+              - else
+                .text-center
+                  p.nomargin No log files yet.
+                  = button_to device_agent_logs_path(device), form_class: "btn btn-link", remote: true do
+                    i.fa.fa-file-text-o
+                    |  Request Agent Log
+
+
+    - unless device.inventory_last_updated_at.blank?
+      #inventory.col-xs-12 data-target="tab-contents.tabs"
+        .panel.panel-default
+          .panel-body
+            = render partial: "inventory"
+
+    #defender.col-xs-12 data-target="tab-contents.tabs"
+      .panel.panel-default
+        .panel-body
+          = render partial: "defender", locals: { device: device, status: device.defender_status.first, payload: device.defender_status.first&.payload.to_h }
+
+          - if device.app_results.joins(:app).where(apps: { configuration_type: :defender }).pre_action.any?
+            #defender-detection.accordion.panel-group.margin-top-20
+              = render partial: "defender_detection", as: :app_result, collection: device.app_results.pre_action.joins(:app).where(apps: { configuration_type: :defender }).order(detection_date: :desc).limit(100), locals: { scope: "defender-detection" }
+
+          - if device.app_results.joins(:app).where(apps: { configuration_type: :defender }).with_action.any?
+            h5.margin-top-20.mb-5 Past detections
+            #defender-detection-history.accordion.panel-group
+              = render partial: "defender_detection", as: :app_result, collection: device.app_results.with_action.joins(:app).where(apps: { configuration_type: :defender }).order(detection_date: :desc).limit(100), locals: { scope: "defender-detection-history" }
+
+javascript:
+  new Clipboard('#copy-console', {
+    text: function(trigger) {
+      var messages = document.querySelectorAll('ol.log-messages-console li.message');
+      return [].reduce.call(messages, function(txt, message) {
+        return txt + message.innerText + '\r\n';
+      }, '');
+    }
+  });

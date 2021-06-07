@@ -1,0 +1,57 @@
+-- hunt_<%= hunt.id %>_<%= revision %>.lua
+
+local hunt_results = { test_results={} }
+local hunt_id = <%= hunt.id %>
+local hunt_revision = <%= revision %>
+local wait_time = .5
+
+local include_path=agent_options.base_url
+
+if hunter.is_windows_os() then
+  hunter.require(agent_options.base_url.."/core.bin",agent_options.license_key,agent_options.proxy)
+end
+
+if hunter.is_mac_os() then
+  hunter.require(agent_options.base_url.."/core-mac-x64.bin",agent_options.license_key,agent_options.proxy)
+end
+
+function tablelength(T)
+  local count = 0
+  for _ in pairs(T) do count = count + 1 end
+  return count
+end
+
+function split(str,pat)
+  local tbl={}
+  str:gsub(pat,function(x) tbl[#tbl+1]=x end)
+  return tbl
+end
+
+<% hunt.tests.pluck(:type).uniq.each do |type| -%>
+<%= render(partial: "api/v1/devices/hunts/shared/process_tests") if type.match(/Process/i) -%>
+<%= render(partial: "api/v1/devices/hunts/shared/file_tests") if type.match(/::File/i) -%>
+<%= render(partial: "api/v1/devices/hunts/shared/event_tests") if type.match(/Event/i) -%>
+<%= render(partial: "api/v1/devices/hunts/shared/driver_tests") if type.match(/Driver/i) -%>
+<% end -%>
+
+<%= render partial: "api/v1/devices/hunts/shared", as: :type, collection: hunt.tests.pluck(:type).uniq, cache: proc { |type| ["v1", type.parameterize] } %>
+
+<% hunt.tests_for_revision(revision).includes(:conditions).limit(100).each do |test| -%>
+-- Test <%= test.class.name.demodulize.underscore.humanize %>, ID: <%= test.id %>
+<% if hunt.account_app -%>
+<% cache ["v2/inline-lua", hunt.account_app.app.upload] do -%>
+<%= Uploads::Downloader.new(hunt.account_app.app.upload).call.read %>
+<% end -%>
+<%= render partial: "api/v1/devices/hunts/tests/override/#{test.class.name.demodulize.underscore}", locals: { test: test } %>
+<% elsif test.script_override? -%>
+<% cache ["v2/inline-lua", test.lua_script_upload] do -%>
+<%= Uploads::Downloader.new(test.lua_script_upload).call.read %>
+<% end -%>
+<%= render partial: "api/v1/devices/hunts/tests/override/#{test.class.name.demodulize.underscore}", locals: { test: test } %>
+<% else -%>
+<%= render partial: "api/v1/devices/hunts/tests/#{test.class.name.demodulize.underscore}", locals: { test: test } %>
+<% end -%>
+<% end -%>
+
+local upload_result =  upload_hunt_results(hunt_id,hunt_revision,"success",hunt_results)
+hunter.log("hunt - <%= hunt.id %>_<%= revision %> completed",hunter.LOG_LEVEL_INFO)

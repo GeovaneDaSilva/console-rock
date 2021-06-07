@@ -1,0 +1,37 @@
+- if hunt_result.ttp?
+  - hunt_result.test_results.ttp.each do |ttp_test_result|
+    h4.border-bottom-0
+      - if hunt_result.hunt.malicious?
+        i.fa.fa-exclamation-triangle.text-danger
+      - elsif hunt_result.hunt.suspicious?
+        i.fa.fa-exclamation-triangle.text-warning
+      - else
+        i.fa.fa-exclamation-triangle.text-muted
+      |  #{ttp_test_result.ttp.technique} - #{ttp_test_result.ttp.tactic}
+    p.newline-wrap
+      = ttp_test_result.ttp.description
+      br
+      br
+      a href=ttp_test_result.ttp.url target="_blank" rel="noopener noreferrer" = ttp_test_result.ttp.url
+- else
+  h4.border-bottom-0
+    - if hunt_result.hunt.malicious?
+      i.fa.fa-exclamation-triangle.text-danger
+    - elsif hunt_result.hunt.suspicious?
+      i.fa.fa-exclamation-triangle.text-warning
+    - else
+      i.fa.fa-exclamation-triangle.text-muted
+    |  #{hunt_result.hunt.name}
+  - unless hunt_result.hunt.description.blank?
+    p.newline-wrap
+      = hunt_result.hunt.description
+p.nomargin
+  | This hunt was executed on #{device.hostname} @ #{l hunt_result.created_at, format: :full} approximately #{distance_of_time_in_words(hunt_result.hunt.updated_at, hunt_result.hunt.created_at)} after its creation. The hunt consisted of #{hunt_result.hunt.tests_for_revision.size} #{"test".pluralize(hunt_result.hunt.tests_for_revision.size)}.
+
+  - if hunt_result.hunt.revision > 1
+    |  This hunt has undergone #{hunt_result.hunt.revision} revisions since its creation. The last revision was created on #{l hunt_result.hunt.updated_at, format: :full}.
+
+  - if hunt_result.hunt.feed?
+    |  This hunt was automatically created on #{l hunt_result.hunt.created_at, format: :full} via the configured #{hunt_result.hunt.feed.source.humanize} feed targeting the #{hunt_result.hunt.group.name} group.
+  - else
+    |  This hunt was manually created on #{l hunt_result.hunt.created_at, format: :full} targeting the group "#{hunt_result.hunt.group.name}".

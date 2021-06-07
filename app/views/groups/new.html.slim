@@ -1,0 +1,34 @@
+- content_for(:page_header) do
+  = page_header("New Group", [link_to_current_account(current_account.name), link_to("Groups", groups_path), "New Group"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Create a new group
+      .panel-body
+        .row.nomargin
+          .col-md-4
+            = bootstrap_form_for @group, url: groups_path, data: { onChangeSubmitPath: new_group_path } do |f|
+              = render partial: "form", locals: { f: f }
+
+              .pull-right
+                = f.submit "Save", class: "btn btn-primary"
+
+          .col-md-8
+            h3 New group devices
+            table.table
+              thead
+                tr
+                  td Hostname
+                  td IP Address
+                  td.hidden-sm.hidden-xs Network
+                  td.hidden-xs Operating System
+                  td.hidden-md.hidden-sm.hidden.xs MAC Address
+                  td &nbsp;
+              tbody
+                = render partial: "devices/device", collection: @devices, cache: true
+
+            - if @pagination.pages > 1
+              .margin-top-20.text-center
+                == pagy_bootstrap_nav @pagination

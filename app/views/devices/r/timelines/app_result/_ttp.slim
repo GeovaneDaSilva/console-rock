@@ -1,0 +1,20 @@
+.row
+  .col-xs-5.text-left
+    | When:
+  .col-xs-7
+    = l app_result.detection_date, format: :digital
+.row
+  .col-xs-5.text-left
+    | File Name:
+  .col-xs-7
+    = app_result.details.file_name || app_result.details.process.try(:file_name) || "-"
+.row
+  .col-xs-5.text-left
+    | Attack Tactic:
+  .col-xs-7
+    = ttp&.tactic
+.row
+  .col-xs-5.text-left
+    | Attack Technique:
+  .col-xs-7
+    = ttp&.technique

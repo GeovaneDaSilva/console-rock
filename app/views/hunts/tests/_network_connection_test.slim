@@ -1,0 +1,14 @@
+- if test.script_override?
+  p.nomargin
+    ' Test for a
+    strong Network Connection
+    |  #{test.lua_script_description}
+- else
+  - test.conditions.each do |condition|
+    p.nomargin
+      ' Test for a
+      strong Network Connection
+      - if condition.exists?
+        |  to #{condition.condition_to_sentence}.
+      - else
+        |  no connection to #{condition.condition_to_sentence}.

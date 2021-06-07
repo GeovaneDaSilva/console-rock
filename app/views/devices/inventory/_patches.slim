@@ -1,0 +1,46 @@
+h3.nomargin.mb-10 Missing Updates
+table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+  thead
+    tr
+      th KB
+      th Severity
+      th Title
+      th Release Date
+  tbody
+    - if device.inventory["missing_updates"].is_a?(Array)
+      - device.inventory.fetch("missing_updates", []).each do |update|
+        tr
+          td
+            - update.fetch("kb_articles", []).each do |kb|
+              a target="_blank" rel="nofollow" href="https://support.microsoft.com/en-us/help/#{kb}/"
+                ' KB#{kb}
+                i.fa.fa-external-link
+          td = update.fetch("severity", "N/A").presence || "N/A"
+          td = update.fetch("title", "N/A")
+          td = update.fetch("release_date", "N/A")
+
+    - if device.inventory.fetch("missing_updates", []).blank?
+      tr
+        td.text-center colspan="4" No pending updates
+
+h3.nomargin.mb-10 Installed Updates
+table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+  thead
+    tr
+      th KB
+      th Title
+      th Install Date
+  tbody
+    - if device.inventory["installed_updates"].is_a?(Array)
+      - device.inventory.fetch("installed_updates", []).each do |update|
+        tr
+          td
+            - kb = update.fetch("title", "N/A").match(/KB(\d+)/).try(:[], 1)
+            - if kb
+              a target="_blank" rel="nofollow" href="https://support.microsoft.com/en-us/help/#{kb}/"
+                ' KB#{kb}
+                i.fa.fa-external-link
+            - else
+              | N/A
+          td = update.fetch("title", "N/A")
+          td = update.fetch("install_date", "N/A")

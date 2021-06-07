@@ -1,0 +1,40 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    - if policy(@group).edit?
+      = link_to edit_group_path(@group), class: "btn btn-primary" do
+        i.fa.fa-pencil
+        | Edit
+    - if policy(@group).destroy?
+      | &nbsp;
+      = link_to group_path(@group), method: :delete, class: "btn btn-danger" do
+        i.fa.fa-trash
+        | Delete
+
+  = page_header(@group.name, [link_to_current_account(current_account.name), link_to("Groups", groups_path), @group.name])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Devices
+        |  #{@pagination.count} results found
+        ul.options.pull-right.relative.list-unstyled
+          li.text-muted
+            i.fa.fa-cloud-download
+            = link_to "CSV", group_path(@group, params: { type: "csv" }), remote: true
+      .panel-body
+        table.table
+          thead
+            tr
+              td Hostname
+              td IP Address
+              td.hidden-sm.hidden-xs Network
+              td.hidden-xs Operating System
+              td.hidden-md.hidden-sm.hidden.xs MAC Address
+              td &nbsp;
+          tbody
+            = render partial: "devices/device", collection: @devices, cache: true
+
+        - if @pagination.pages > 1
+          .margin-top-20.text-center
+            == pagy_bootstrap_nav @pagination

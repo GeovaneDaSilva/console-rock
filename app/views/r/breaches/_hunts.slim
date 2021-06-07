@@ -1,0 +1,11 @@
+- cache ["v2/breaches/hunt_results", hunt_results, current_user&.timezone] do
+  table.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+    thead
+      tr
+        th Host
+        th Date/Time
+        th Name
+        th Source
+        th.breezy-pdf-remove &nbsp;
+    tbody
+      = render partial: "r/breaches/hunt", as: :hunt_result, collection: hunt_results, cache: proc { |hr| ["v1", hr, current_user&.timezone] }

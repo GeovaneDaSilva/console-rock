@@ -1,0 +1,9 @@
+- if current_account.customer?
+  = render partial: "shared/account/dropdowns/customer"
+- if current_account.provider?
+  - if current_account&.root? && current_account.distributor?
+    = render partial: "shared/account/dropdowns/distributor"
+  - elsif !current_account&.root?
+    = render partial: "shared/account/dropdowns/midlevel"
+  - else
+    = render partial: "shared/account/dropdowns/independent_provider"

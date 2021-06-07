@@ -1,0 +1,11 @@
+- self.message.from = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+- self.message.reply_to = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+
+p
+  | Welcome
+  = @email
+  | !
+p
+  | You can confirm your account email through the link below:
+p
+  = link_to 'Confirm my account', confirmation_url(@resource, confirmation_token: @token, host: ENV[I18n.t('application.host')], protocol: 'https')

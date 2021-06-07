@@ -1,0 +1,34 @@
+- hunt_results = device.hunt_results.unarchived.includes(hunt: [:feed, :group])
+
+.avoid-page-break-inside id=device.id
+  div.margin-bottom-10 title=device.id
+    - if device.malicious_count.positive?
+      span.text-danger title="Malicious"
+        i.fa.fa-exclamation-triangle
+    - elsif device.suspicious_count.positive?
+      span.text-warning title="Suspicious"
+        i.fa.fa-exclamation-triangle
+    - else
+      span.text-informational title="Informational"
+        i.fa.fa-exclamation-triangle
+
+    span.bold.size-16
+      |  #{device.hostname}
+      - if current_account != device.customer
+        |  - #{device.customer.name}
+    .pull-right.breezy-pdf-remove
+      = link_to device_url(device), data: { turbolink: false } do
+        | View Device
+
+  .row.nomargin
+    .col-xs-6.nopadding
+      ul.list-unstyled.margin-bottom-10
+        li.list-item
+          strong IP Address
+          |  #{device.ipv4_address}
+        li.list-item
+          strong MAC Address
+          |  #{device.mac_address}
+        li.list-item
+          strong Operating System
+          |  #{device.platform_family_and_version}

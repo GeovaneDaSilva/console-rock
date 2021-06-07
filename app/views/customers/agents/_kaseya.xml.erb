@@ -1,0 +1,100 @@
+<?xml version="1.0" encoding="utf-8"?>
+<ScriptExport xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance" xmlns:xsd="http://www.w3.org/2001/XMLSchema" xmlns="http://www.kaseya.com/vsa/2008/12/Scripting">
+  <Procedure name="<%= I18n.t("agent.display_name") %> Agent Deployment - <%= customer.name %>">
+    <Body description="">
+      <Statement description="<%= I18n.t("agent.display_name") %> Agent Deployment Procedure" name="GetVariable" continueOnFail="false">
+        <Parameter xsi:type="EnumParameter" name="VariableType" value="ConstantValue" />
+        <Parameter xsi:type="StringParameter" name="SourceContent" value="<%= request.host %>" />
+        <Parameter xsi:type="StringParameter" name="VariableName" value="base_url" />
+      </Statement>
+      <Statement name="GetVariable" continueOnFail="false">
+        <Parameter xsi:type="EnumParameter" name="VariableType" value="ConstantValue" />
+        <Parameter xsi:type="StringParameter" name="SourceContent" value="<%= customer.license_key %>" />
+        <Parameter xsi:type="StringParameter" name="VariableName" value="license_key" />
+      </Statement>
+      <If description="">
+        <Condition name="CheckVariable">
+          <Parameter xsi:type="StringParameter" name="VariableName" value="#license_key#" />
+          <Parameter xsi:type="EnumParameter" name="Condition" value="Equals" />
+          <Parameter xsi:type="StringParameter" name="Value" value="" />
+        </Condition>
+        <Then>
+          <Statement name="WriteScriptLogEntry" continueOnFail="false" osType="Windows">
+            <Parameter xsi:type="StringParameter" name="Comment" value="license_key variable cannot be empty" />
+          </Statement>
+        </Then>
+        <Else>
+          <If description="">
+            <Condition name="TestRegistryKey">
+              <Parameter xsi:type="StringParameter" name="Path" value="HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\<%=I18n.t('agent.service_name')%>" />
+              <Parameter xsi:type="EnumParameter" name="Condition" value="NotExists" />
+            </Condition>
+            <Then>
+              <Statement name="WriteScriptLogEntry" continueOnFail="false" osType="Windows">
+                <Parameter xsi:type="StringParameter" name="Comment" value="<%=I18n.t('agent.service_name')%> service not found" />
+              </Statement>
+              <Statement name="GetURL" continueOnFail="false" osType="Windows">
+                <Parameter xsi:type="StringParameter" name="URL" value="<%= api_customer_support_url(customer.license_key, I18n.t('agent.installer_name')) %>" />
+                <Parameter xsi:type="StringParameter" name="ResponseFileName" value="#vagentconfiguration.agenttempdir#\<%=I18n.t('agent.installer_name')%>" />
+                <Parameter xsi:type="BooleanParameter" name="WaitComplete" value="True" />
+              </Statement>
+              <If description="">
+                <Condition name="TestFile">
+                  <Parameter xsi:type="StringParameter" name="Path" value="#vagentconfiguration.agenttempdir#\<%=I18n.t('agent.installer_name')%>" />
+                  <Parameter xsi:type="EnumParameter" name="Condition" value="Exists" />
+                  <Parameter xsi:type="StringParameter" name="Value" value="" />
+                </Condition>
+                <Then>
+                  <Statement name="WriteScriptLogEntry" continueOnFail="false" osType="Windows">
+                    <Parameter xsi:type="StringParameter" name="Comment" value="agent setup successfully downloaded" />
+                  </Statement>
+                  <Statement name="ExecuteFile" continueOnFail="false">
+                    <Parameter xsi:type="StringParameter" name="Path" value="#vagentconfiguration.agenttempdir#\<%=I18n.t('agent.installer_name')%>" />
+                    <Parameter xsi:type="StringParameter" name="Arguments" value="/S /license_key #license_key# /url #base_url#" />
+                    <Parameter xsi:type="EnumParameter" name="ExecuteAccount" value="System" />
+                    <Parameter xsi:type="BooleanParameter" name="WaitComplete" value="True" />
+                  </Statement>
+                  <Statement name="WriteScriptLogEntry" continueOnFail="false" osType="Windows">
+                    <Parameter xsi:type="StringParameter" name="Comment" value="Installation completed" />
+                  </Statement>
+                  <If description="Make sure the service installed">
+                    <Condition name="TestRegistryKey">
+                      <Parameter xsi:type="StringParameter" name="Path" value="HKEY_LOCAL_MACHINE\SYSTEM\CurrentControlSet\services\<%=I18n.t('agent.service_name')%>" />
+                      <Parameter xsi:type="EnumParameter" name="Condition" value="Exists" />
+                    </Condition>
+                    <Then>
+                      <Statement name="WriteScriptLogEntry" continueOnFail="false" osType="Windows">
+                        <Parameter xsi:type="StringParameter" name="Comment" value="<%=I18n.t('agent.display_name')%> installed successfully!" />
+                      </Statement>
+                    </Then>
+                    <Else>
+                      <Statement name="WriteScriptLogEntry" continueOnFail="false" osType="Windows">
+                        <Parameter xsi:type="StringParameter" name="Comment" value="could not find <%=I18n.t('agent.service_name')%> service in registry." />
+                      </Statement>
+                    </Else>
+                  </If>
+                  <Statement name="WriteScriptLogEntry" continueOnFail="false">
+                    <Parameter xsi:type="StringParameter" name="Comment" value="Removing downloaded agent installer" />
+                  </Statement>
+                  <Statement name="DeleteFile" continueOnFail="false">
+                    <Parameter xsi:type="StringParameter" name="Path" value="#vagentconfiguration.agenttempdir#\<%=I18n.t('agent.installer_name')%>" />
+                  </Statement>
+                </Then>
+                <Else>
+                  <Statement name="WriteScriptLogEntry" continueOnFail="false" osType="Windows">
+                    <Parameter xsi:type="StringParameter" name="Comment" value="Error: Unable to download <%=I18n.t('agent.installer_name')%>" />
+                  </Statement>
+                </Else>
+              </If>
+            </Then>
+            <Else>
+              <Statement name="WriteScriptLogEntry" continueOnFail="false" osType="Windows">
+                <Parameter xsi:type="StringParameter" name="Comment" value="<%=I18n.t('agent.display_name')%> agent previously installed." />
+              </Statement>
+            </Else>
+          </If>
+        </Else>
+      </If>
+    </Body>
+  </Procedure>
+</ScriptExport>

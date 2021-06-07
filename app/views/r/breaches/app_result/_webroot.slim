@@ -1,0 +1,21 @@
+tr
+  td
+    - if app_result.malicious?
+      span.text-danger title="Malicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.suspicious?
+      span.text-warning title="Suspicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.informational?
+      span.text-informational title="Informational"
+        i.fa.fa-exclamation-triangle
+
+    | &nbsp;
+  td = l app_result.detection_date, format: :digital
+  - if app_result.customer.nil?
+    td
+  - else
+    td.customer = link_to app_result.customer.name, account_triage_url(app_result.customer, (query_params || {}).merge(switch_account_id: app_result.customer.id)), target: "_blank", title: "Triage this App for #{app_result.customer.name}"
+  td = app_result.details&.hostname
+  td = app_result.details&.filename
+  td = app_result.details&.malwaregroup

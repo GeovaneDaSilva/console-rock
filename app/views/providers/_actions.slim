@@ -1,0 +1,2 @@
+- if policy(provider).make_current? && current_provider != provider
+  = link_to_unless_current "Make Current Provider", account_current_path(provider), method: :post, class: "btn btn-primary"

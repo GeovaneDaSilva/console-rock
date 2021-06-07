@@ -1,0 +1,81 @@
+- persisted = credential&.persisted?
+- url = persisted ? account_credential_path(account, credential) : account_credentials_path(account)
+= bootstrap_form_for(credential, url: url, data: { controller: "api-test" }) do |f|
+  h2
+    | Syncro&nbsp;
+    - if persisted
+      - time_ago = time_ago_in_words(credential.updated_at.to_i)
+      - if credential.is_working
+        span.text-success style="font-size:.5em"
+          i.fa.fa-plus-circle
+            | &nbsp;updated: #{time_ago}
+      - else
+        span.text-warning style="font-size:.5em"
+          i.fa.fa-minus-circle
+            | &nbsp;updated: #{time_ago}
+
+  = render partial: "accounts/integrations/job_statuses", locals: { psa_type: "syncro" }
+
+  p
+    | Create Syncro tickets when #{I18n.t("application.name")} events are triggered.  <a href="#{I18n.t('helpdocs.syncro_psa')}">Configuration instructions</a>
+
+  p.hidden data-target="api-test.type"
+    | syncro
+
+  = f.hidden_field :type, value: "Credentials::Syncro"
+
+  .d-flex.flex-wrap
+    .w-50.pr-5
+      = f.text_field :base_url, required: true, label: "Syncro URL", data: { target: "api-test.subdomain" }, value: credential&.base_url, readonly: persisted, placeholder: "use full URL - e.g 'https://rocketcyberdev.syncromsp.com'", type: "url"
+    .w-50.pr-5
+      = f.text_field :syncro_api_key, required: true, label: "Syncro API Key", data: { target: "api-test.apiKey" }, value: integrations_mask(credential&.syncro_api_key), readonly: persisted
+      = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+    .w-50.pr-5
+      label.switch.switch-rounded
+        / Manually build switch markup so that the hidden field isn't present. See check_box api docs gotcha.
+        input type="checkbox" value="true" name="import_customers" id="import_customers"
+        span.switch-label data-on="YES" data-off="NO"
+        span Import Customers from PSA
+      label.switch.switch-rounded
+        / Manually build switch markup so that the hidden field isn't present. See check_box api docs gotcha.
+        input type="checkbox" value="true" name="re_sync" id="re_sync"
+        span.switch-label data-on="YES" data-off="NO"
+        span Re-Sync Basic PSA Data
+
+  - if persisted && credential.type.include?(psa_config&.psa_type || "")
+    .d-flex.flex-wrap
+      .w-100.pr-5
+        span Ticket Type for #{I18n.t("application.name")} Incidents
+        br
+        = select_tag :board, options_for_select(psa_config.board_options || [], psa_config&.board), label: "Board to Put New Tickets On", include_blank: true
+
+    .d-flex.flex-wrap
+      .w-25.pr-5
+        span Status for Newly Created Tickets
+        br
+        = select_tag :new_ticket_code, options_for_select(psa_config.status_codes || [], psa_config.new_ticket_code), include_blank: true
+      .w-25.pr-5
+        span Status for Updated Tickets
+        br
+        = select_tag :in_progress_ticket_code, options_for_select(psa_config.status_codes || [], psa_config.in_progress_ticket_code), include_blank: true
+      .w-25.pr-5
+        span Status for Closed Tickets
+        br
+        = select_tag :closed_ticket_code, options_for_select(psa_config.status_codes || [], psa_config.closed_ticket_code), include_blank: true
+
+  br
+
+  p.padding-10 data-target="api-test.outputDisplay"
+
+  .clearfix.margin-top-20
+    .pull-right
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#"
+        | Credential Test
+      - if persisted
+        = link_to account_psa_customer_map_index_path(current_account), class: "btn btn-primary margin-right-10"
+          | Syncro-#{I18n.t("application.name")} Customer Map
+        = f.submit "Update Syncro Integration", class: "btn btn-primary margin-right-10"
+        = link_to account_credential_path(account, credential), method: :delete, class: "btn btn-default margin-right-10" do
+          |  Delete
+      - else
+        = f.submit "Create Syncro Integration", class: "btn btn-primary margin-right-10"

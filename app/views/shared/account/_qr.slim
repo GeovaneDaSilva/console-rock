@@ -1,0 +1,51 @@
+- content_for(:page_header) do
+  = page_header("Enable Two Factor Authentication")
+.row
+  .col-md-8.col-lg-12
+    section.panel
+      .panel-body.noradius.padding-10
+        = raw fill_qr!
+        css:
+          table {
+            border-width: 10;
+            border-style: none;
+            border-color: #000000;
+            transform: scale(0.75);
+          }
+
+          td {
+            border-left: solid 10px #000;
+            padding: 0;
+            margin: 0;
+            width: 0px;
+            height: 10px;
+          }
+
+          td.black { border-color: #000; }
+          td.white { border-color: #fff; }
+
+      - if session[:require_two_factor].present?
+        p
+          h4 Notice: Account 2FA Requirement.
+          | 2FA is required for all users of this account. Please enable your two factor authentication.
+      h4 Directions
+      ol
+        li Download Authy (<a href="https://authy.com/download/">iOS</a>/<a href="https://play.google.com/store/apps/details?id=com.authy.authy">Android</a>) or Google Authenticator (<a href="https://apps.apple.com/us/app/google-authenticator/id388497605">iOS</a>/<a href="https://play.google.com/store/apps/details?id=com.google.android.apps.authenticator2">Android</a>) to your phone from the app store
+        li Open the app and add a new account.  You should be prompted to scan a QR barcode
+        li Scan the QR code to the left (If using Google Authenticator be aware that QR scans can take up to three seconds)
+        li You're done!  Whenever this site asks for a login password, open your app and select our account.  The 2FA password will automatically display.
+
+      - if current_user.otp_backup_codes.nil?
+        h4 Set up your authenticator app and enter the code in the box below to enable two factor and receive recovery codes.  <b><u>This is required to activate 2FA.</u></b>
+
+        h4.authy Authentication Code
+        = form_with(url: qr_path, :method => :post) do |f|
+          = f.text_field :code, id: "code", autocomplete: "off"
+          = f.submit "Submit", class: "btn btn-primary"
+
+        h5 NOTE
+        p If you visit this page again, it will display the same QR code.  This will allow you to add this account on a different phone later if needed.
+      - else
+        p
+          i
+            | If you need to add a new device, revisit this page.  The QR code will remain the same.

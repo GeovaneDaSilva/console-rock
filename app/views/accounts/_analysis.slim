@@ -1,0 +1,25 @@
+.col-md-12.col-lg-6
+  .panel.panel-default
+    .panel-heading
+      strong
+        i.fa.fa-puzzle-piece.text-warning
+        |  On-Demand File Analysis
+      / ul.nav.nav-tabs.pull-right
+      /   - first_taken = false
+      /   - Plan.values_for_on_demand_analysis_types.each do |type|
+      /     - if policy(current_account).send("can_on_demand_analyze_#{type}?")
+      /       li class=("active" unless first_taken)
+      /         a href="##{type}-analysis-tab" data-toggle="tab" = prettify type.to_s.humanize
+      /       - first_taken = true
+
+    .panel-body
+      - if policy(current_account).send("can_on_demand_analyze_file?")
+        #file-analysis-tab
+          = render partial: "analysis/files/form", locals: { analysis: Analysis::File.new }
+      / .tab-content.transparent
+        / - first_taken = false
+        / - Plan.values_for_on_demand_analysis_types.each do |type|
+        /   - if policy(current_account).send("can_on_demand_analyze_#{type}?")
+        /     .tab-pane id="#{type}-analysis-tab" class=("active" unless first_taken)
+        /       = render partial: "analysis/#{type.to_s.pluralize}/form", locals: { analysis: "Analysis::#{type.to_s.camelcase}".constantize.new }
+        /     - first_taken = true

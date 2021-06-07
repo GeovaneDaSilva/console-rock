@@ -1,0 +1,14 @@
+- if test.script_override?
+  p.nomargin
+    ' Test for an
+    strong Event
+    |  #{test.lua_script_description}
+- else
+  p.nomargin
+    ' Test for an
+    strong Event
+    '  in the #{test.conditions.first.condition_to_sentence} event log with a
+    strong Source
+    '  of #{test.conditions[1].condition_to_sentence} and a
+    strong Message
+    |  that #{test.conditions.last.operator.to_s.humanize.downcase} #{test.conditions.last.condition_to_sentence}

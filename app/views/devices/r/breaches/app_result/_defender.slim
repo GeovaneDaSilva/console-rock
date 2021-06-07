@@ -1,0 +1,25 @@
+tr id="app-result-#{app_result.id}"
+  td.text-center
+    - if app_result.malicious?
+      span.text-danger title="Malicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.suspicious?
+      span.text-warning title="Suspicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.informational?
+      span.text-informational title="Informational"
+        i.fa.fa-exclamation-triangle
+
+  td = l app_result.detection_date, format: :digital
+  td = app_result.details.threat_name
+  td = app_result.details.severity
+  td.text-center.breezy-pdf-remove
+    = link_to "Details", "#app-result-#{app_result.id}-detail", class: "", data: { toggler: "hidden", turbolinks: false }
+    - if policy(device).destroy?
+      = link_to device_app_result_path(device, app, app_result), class: "pl-5", method: :delete, remote: true, data: { confirm: "Are you sure?" } do
+        i.fa.fa-trash.text-danger
+
+tr.app-result-detail.breezy-pdf-remove hidden=!rendered_for_pdf? id="app-result-#{app_result.id}-detail"
+  td colspan="7"
+    - cache ["v1/devices/r/breach/detail", app_result, current_user&.timezone] do
+      = render partial: "details", locals: { details: app_result.details }

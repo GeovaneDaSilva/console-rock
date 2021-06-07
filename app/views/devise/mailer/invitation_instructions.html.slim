@@ -1,0 +1,15 @@
+- self.message.from = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+- self.message.reply_to = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+
+p
+  | Please click the button below to validate your email address, create your password, and begin your #{I18n.t('application.name', default: 'ACME, Inc')} Managed SOC trial.
+
+
+- if I18n.locale == :barracudamsp || I18n.locale == :ngrok
+  p.text-center
+    = link_to "Complete Your Trial Activation", accept_invitation_url(@resource, invitation_token: @token, host: ENV[I18n.t('application.host')], protocol: 'https'), class: "btn btn-primary"
+  p
+    | To help you get started, here’s the #{link_to " Get Started Guide ", I18n.t('helpdocs.base')} for #{I18n.t('application.name', default: 'ACME, Inc')} Managed SOC. If you have any questions as you work through the trial, please reach out to #{mail_to ENV.fetch(I18n.t("application.support_email"), "support@console.test")}.
+- else
+  p.text-center
+    = link_to "Complete Your Trial Activation", accept_invitation_url(@resource, invitation_token: @token), class: "btn btn-primary"

@@ -1,0 +1,7 @@
+- if result.searchable.present? && !result.searchable.marked_for_deletion?
+  .result
+    h5
+      = result.searchable.provider? ? "#{result.auto_complete_description} - MSP" : result.auto_complete_description
+      .pull-right
+        = link_to account_current_path(result.searchable_id), method: :post, class: "btn btn-xs btn-link" do
+          | Make current

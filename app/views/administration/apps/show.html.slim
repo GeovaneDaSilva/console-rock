@@ -1,0 +1,62 @@
+- content_for(:page_header) do
+  - if policy(:administration).manage_apps?
+    .action-links.pull-right.margin-top-5
+      = link_to "Edit", edit_administration_app_path(app), class: "btn btn-link"
+
+      = link_to administration_app_path(app), method: :delete, class: "btn btn-danger", data: { confirm: "Are you sure?" } do
+        i.fa.fa-trash
+        | Delete
+
+  = page_header("App", [link_to("Apps", administration_apps_path)])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong = app.title
+      .panel-body.nopadding.show-app-card
+        p.padding-15.nomargin.newline-wrap
+          strong Updated:
+          br
+          = l app.updated_at, format: :digital
+
+        p.padding-15.pt-0.nomargin
+          strong Display Image:
+          br
+          - display_image_url = app.display_image ? app.display_image.url : asset_path("default-app-display-image.jpg")
+          img.display-block src=display_image_url
+        - if app.display_image_icon
+          p.padding-15.pt-0.nomargin
+            strong Display Image Icon:
+            br
+            img.display-block src=app.display_image_icon.url
+        p.padding-15.pt-0.nomargin.newline-wrap
+          strong Description:
+          br
+          = app.description
+          br
+        p.padding-15.pt-0.nomargin
+          strong On by default?
+          br
+          = yesno app.on_by_default
+        p.padding-15.pt-0.nomargin
+          strong Price:
+          br
+          - if app.free?
+            | Free
+          - else
+            = humanized_money_with_symbol app.price
+        p.padding-15.pt-0.nomargin
+          strong Report Template:
+          br
+          | #{app.report_template.humanize}
+        - if app.configuration_type?
+          p.padding-15.pt-0.nomargin
+            strong Configuration Type:
+            br
+            | #{app.configuration_type.humanize}
+        - if app.upload
+          p.padding-15.pt-0.nomargin
+            strong Script:
+            br
+            = link_to app.upload.filename, app.upload.url

@@ -1,0 +1,34 @@
+.threat-summary.clearfix.flash data-controller="class-remove-on-render" data-class-remove-on-render-class="flash" data-detection-date=threat.detection_date.to_f
+  .half.pull-right.text-right
+    - if threat.threatable.is_a?(Apps::Result)
+      = l threat.threatable.detection_date, format: :digital
+      div title=(threat.threatable.details.reputation.to_h.fetch("threats_found", "Unknown Reputation"))
+        - detections = threat.threatable.details.detection_count.to_i
+        - 8.times do |i|
+          span.stoplight class=("malicious" if i <= (detections - 1))
+          | &nbsp;
+    - elsif threat.threatable.nil?
+      = l threat.detection_date || threat.updated_at, format: :digital
+      div title="Unknown Reputation"
+        - 8.times do |i|
+          span.stoplight
+          | &nbsp;
+  .half.pull-left
+    img src=asset_url("flags/#{threat.country.downcase}.png") alt=(COUNTRIES[threat.country.upcase]&.dig("full_name"))
+    |  #{threat.value}
+  - if threat.threatable.is_a?(Apps::DeviceResult)
+    .device-details
+      | #{threat.threatable.device.hostname}
+      span.customer-name
+        |  - #{threat.threatable.customer.name}
+  - elsif threat.threatable.is_a?(Apps::Office365Result)
+    .device-details
+      | #{ }
+      span.customer-name
+        |  - #{threat.threatable.customer.name}
+  - if threat.threatable.is_a?(Apps::DeviceResult)
+    .text-right
+      = link_to "Details", device_r_breach_url(threat.threatable.device, anchor: "app-result-#{threat.threatable.id}"), target: "_blank"
+  - elsif threat.threatable.is_a?(Apps::Office365Result)
+    .text-right
+      = link_to "Details", r_breaches_url(anchor: "app-result-#{threat.threatable.id}"), target: "_blank"

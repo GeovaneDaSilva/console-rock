@@ -1,0 +1,9 @@
+table.table-fixed.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+  thead
+    = render partial: "shared/app_results/ess_header", locals: { show_for_reporting: true }
+  tbody
+    = render partial: "shared/app_results/ess_row", collection: app_results, as: :app_result, locals: { show_for_reporting: true }
+
+    - if app_results.size.zero?
+      tr
+        td.text-center colspan="5" No results

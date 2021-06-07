@@ -1,0 +1,28 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    - if policy(@hunt).destroy?
+      = link_to hunt_path(@hunt), method: :delete, class: "btn btn-danger", data: { confirm: "Are you sure?" } do
+        i.fa.fa-trash
+        | Delete
+
+  = page_header(@hunt.name, [link_to_current_account(current_account.name), link_to("Hunts", hunts_path)])
+
+#hunt.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-body.nopadding
+        .row
+          #conditions.col-sm-4
+            = bootstrap_form_for @hunt, html: { class: "padding-10" } do |f|
+              = render partial: "form", locals: { f: f, hunt: @hunt, groups: @groups }
+
+          #results.col-sm-8
+            table.table
+              tbody
+                = render partial: "device", collection: @devices, locals: { hunt: @hunt, revision: @hunt.revision + 1 }
+
+            - if @pagination.pages > 1
+              .margin-top-20.text-center
+                == pagy_bootstrap_nav @pagination
+
+= yield :templates

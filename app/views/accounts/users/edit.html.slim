@@ -1,0 +1,12 @@
+- content_for(:page_header) do
+  = page_header("Add a User", [link_to_account(@account.name, @account), @user_role.user.short_name])
+
+.row
+  .col-md-6
+    section.panel.panel-default
+      .panel-heading
+        span.title.elipsis
+          strong Update #{@user_role.user.name}'s permissions
+      .panel-body.noradius.padding-10
+        = bootstrap_form_for(@user_role, url: account_user_path(@account, @user_role)) do |f|
+          = render partial: "form", locals: { f: f }

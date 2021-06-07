@@ -1,0 +1,12 @@
+- if policy(current_account).show?
+  li.border-bottom
+    = link_to account_current_path(current_account), method: :post, class: "pt-5 pb-5 provider" do
+      i.fa class=(icon_for_account(current_account))
+      |  #{current_account.name}
+
+- current_account.descendants.providers.order_by_ids(recent_accounts).limit(10).each do |provider|
+  - if policy(provider).show?
+    li
+      = link_to account_current_path(provider), method: :post, class: "pt-5 pb-5 provider" do
+        i.fa class=(icon_for_account(provider))
+        |  #{provider.name} - MSP

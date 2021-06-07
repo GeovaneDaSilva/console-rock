@@ -1,0 +1,77 @@
+.row
+  .col-xs-12
+    .panel.panel-default data-controller="toggler"
+      .panel-heading.no-height.border-bottom-0
+        a data-action="click->toggler#toggle"
+          strong Firewalls
+        ul.options.pull-right.relative.list-unstyled
+          li
+            form.fancy-form.margin-right-6 action=devices_path method="get"
+
+              - params.permit!.except(:action, :controller, :filter, :firewall_filter).each do |k, v|
+                = hidden_field_tag k, v
+              .input-group style="width: 200px"
+                input.form-control.nomargin type="search" name="firewall_filter" placeholder="Filter" value=params[:firewall_filter]
+                .input-group-btn
+                  button.btn.btn-primary.btn-sm
+                    i.fa.fa-filter.nomargin.nopadding
+
+          li.text-muted.hidden-xs
+            i.fa.fa-cloud-download.margin-left-6
+            = link_to "CSV", devices_export_path(params: { type: "csv", firewall: true }.merge(params)), remote: true
+      .panel-body.nopadding
+        - if firewalls.size > 0
+          - cache ["v2/firewalls", firewalls] do
+            table.fullwidth.table.m-0 data-target="toggler.collapseable" id="firewall"
+              thead.bg-white
+                tr
+                  th = sortable "Local Id", :billable_instances, "details->>'device_id'","#firewall"
+                  th = sortable "IP Address", :billable_instances, "details->>'ip'", "#firewall"
+                  th = sortable "Mac Address", :billable_instances, "details->>'mac'", "#firewall"
+                  th = sortable "Type", :billable_instances, "details->>'type'", "#firewall"
+                  th.hidden-sm.hidden-xs = sortable "Customer", :billable_instances, "accounts.name", "#firewall"
+                  th = sortable "Comments", :billable_instances, "details->>'comments'", "#firewall"
+                  th colspan=2 &nbsp;
+              tbody
+                - firewalls.each do |f|
+                  - details = f.details
+                  tr.firewall
+                    td
+                      span
+                        .indicator class=(f.active ? "online" : "offline") title=""
+                      span
+                        |  #{details&.dig("device_id") || details&.dig("details", "device_id")}
+                    td = details&.dig("ip") || details&.dig("details", "ip")
+                    td = details&.dig("mac") || details&.dig("details", "mac")
+                    td = details&.dig("type") || details&.dig("details", "type")
+                    td.hidden-sm.hidden-xs = f.account.name
+                    td.comments = details&.dig("comments")
+                    - if policy(current_account).can_comment_firewalls_and_devices?
+                      td.text-right
+                        a data-toggle="modal" data-target="#firewall_#{f.id}" data-content-target="firewall_#{f.id}"
+                          | Add Comment
+                    - if policy(current_account).can_delete_firewalls?
+                      td.text-right = link_to "Delete Firewall", firewall_path(f.id), method: :delete
+            .text-left.padding-10.padding-top-20.border-top
+              = "There is a total of <strong>#{firewalls.size}</strong> firewalls.".html_safe
+
+            - if firewalls.size > 1
+              .text-center.border-top
+                == pagy_bootstrap_nav @firewalls_pagination
+        - else
+          .padding-6.margin-top-20.border-top.text-center
+            i.fa.fa-exclamation-triangle.text-warning
+            |  No firewalls registered
+
+- content_for :modals do
+  - firewalls.each do |f|
+    .modal.fade tabindex="-1" role="dialog" aria-hidden="true" id="firewall_#{f.id}" data-backdrop="static" data-keyboard="false" data-controller="comment-updater" data-value="#{f.id}" data-type="firewall"
+      .modal-dialog
+        .modal-content.padding-10
+          button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            span aria-hidden="true" &times;
+          = text_area_tag "comment", f&.details["comments"], { rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "Comments", class: "w-100", "data-target": "comment-updater.device" }
+          .text-right.margin-top-10
+            button.btn.btn-primary.margin-right-10 data-action="click->comment-updater#update"
+              | Save
+            button.btn.btn-default data-dismiss="modal" Close

@@ -1,0 +1,10 @@
+---
+  env: staging
+  ec2_keypair: "staging"
+  ec2_tag_env: "staging"
+  ec2_region: "us-west-2"
+  ec2_public_ip: true
+  ec2_vpc_subnet_id: "subnet-6de3330a"
+  elbv2_target_group: "429554606470:targetgroup/staging/b13aebf3c8818a1f"
+  papertrail_host: logs5.papertrailapp.com
+  papertrail_port: 16975

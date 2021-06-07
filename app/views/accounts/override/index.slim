@@ -1,0 +1,7 @@
+- if app_results.size.positive?
+  = render partial: "accounts/override/#{@app.configuration_type}"
+
+- else
+  .padding-6.margin-top-20.border-top.text-center
+    i.fa.fa-exclamation-triangle.text-warning
+    |  No app results selected

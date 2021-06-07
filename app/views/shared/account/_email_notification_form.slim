@@ -1,0 +1,63 @@
+- if account&.billing_account&.managed?
+  h2
+    | Incident Notifications
+
+  p
+    | How to contact you when incidents occur.  The SOC team will use the phone number provided only in case of time-sensitive incidents.
+-else
+  h2
+    | Email
+
+  p
+    | Email alerts when #{I18n.t('application.name')} Events are triggered.
+
+
+- url = subscription&.persisted? ? account_subscription_path(account, subscription) : account_subscriptions_path(account)
+= bootstrap_form_for(subscription, url: url) do |f|
+  = hidden_field_tag :type, subscription.type.parameterize(separator: "_")
+  = f.hidden_field :type
+
+  .col-xs-12.nopadding-left
+    = f.text_field :email_address, label: "Email Address", help: "Separate multiple email addresses with a comma"
+    - if account&.billing_account&.managed?
+      = f.text_field :phone_number, required: true, label: "For critical threats/emergencies, specify a phone number for escalation by the SOC team"
+
+  .col-xs-12.nopadding-left
+    - unless account&.billing_account&.managed?
+      = f.form_group :event_types, label: { text: "Enabled Events" } do
+        = hidden_field_tag "subscriptions_email[event_types][]", "none"
+        - if account && account.billing_account.plan&.managed?
+          .form-group
+            = f.check_box :event_types, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false }, :managed_service_event_summary do
+              i
+              |  Managed Service Event Summary
+
+        - Subscriptions::Email::ENABLED_EVENT_TYPES.without(:managed_service_event_summary).each do |type|
+          .form-group
+            = f.check_box :event_types, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false }, type do
+              i
+              |  #{type.to_s.humanize.titlecase }
+
+
+      h3.mb-0 Disabled App Notifications
+      p.mb-0
+        | Selected apps will not send email notifications.
+
+      = hidden_field_tag "subscriptions_email[disabled_apps][]", "none"
+      - App.enabled.ga.unmanaged_only.each do |app|
+        .form-group
+          = f.check_box :disabled_apps, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false, checked: f.object.disabled_apps.include?(app.id) }, app.id do
+            i
+            |  #{app.title}
+
+  .clearfix.margin-top-20
+    - if subscription.persisted?
+      .pull-left
+        = link_to account_subscription_path(account, subscription), method: :delete, class: "btn btn-link text-danger nopadding-left" do
+          i.fa.fa-trash
+          |  Remove
+
+    .pull-right
+      = f.submit "Update Notification", class: "btn btn-primary"
+      | &nbsp;
+      button.btn.btn-default type="reset" Reset

@@ -1,0 +1,35 @@
+- content_for(:page_header) do
+  = page_header("Incident", [link_to("All Incidents", account_apps_incidents_path(account)), link_to("Incident ##{incident.id}", account_apps_incident_path(account, incident)), "Edit"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      = bootstrap_form_for incident, url: account_apps_incident_path(account, incident) do |f|
+        .panel-heading
+          strong Edit Incident
+
+        .panel-body
+          = f.text_field :title
+          = f.text_area :description
+          = f.text_area :remediation
+
+          - incident.results.apps.each do |app|
+            hr
+            h4.mb-5 = app.title
+            p = app.description
+            - app_results = incident.results.where(app: app).page(0).per(10)
+
+            = render partial: "triage/incidents/app_result/#{app.report_template}", locals: { app_results: app_results }
+
+            - if app_results.total_pages > 1
+              .text-center.mt-10
+                | + #{(app_results.total_count - app_results.limit_value).to_s(:delimited)} additional results
+
+            = render partial: "triages/modals", locals: { similar_detections: app_results }
+
+
+        .panel-footer.clearfix
+          .pull-left
+
+          .pull-right.text-right
+            = submit_tag "Update", class: "btn btn-primary"

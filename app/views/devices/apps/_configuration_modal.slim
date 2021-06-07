@@ -1,0 +1,27 @@
+.modal.fade id="config-#{app.id}" tabindex="-1" role="dialog" aria-labelledby="config-app-modal-label" aria-hidden="true"
+  .modal-dialog.modal-lg
+    = bootstrap_form_tag url: device_app_config_path(device, app), method: :put do |f|
+      .modal-content
+        .modal-header
+          button type="button" class="close" data-dismiss="modal" aria-label="Close"
+            span aria-hidden="true" &times;
+          h4#config-app-modal-label.nomargin #{app.title} App Configuration
+          h5.text-muted.nomargin = device.hostname
+        .modal-body.cyberterrorist-network-connection-modal
+          - if app.device_configuration_scope?
+            = render partial: "apps/configs/#{app.configuration_type}", locals: { f: f, config: (device.app_config_for_app(app)&.merged_config || APP_CONFIGS[app.configuration_type]) }
+
+            = render partial: "apps/configs/admin_config", locals: { f: f, config: device.app_config_for_app(app)&.config.to_h }
+          - else
+            p This App must be configured at the Customer Level. Switch to the customer in question and attempt to configure it there.
+
+        - if app.device_configuration_scope?
+          .modal-footer.text-right
+            - if device.app_configs.where(app: app).any?
+              = link_to device_app_config_path(device, app), method: :delete, class: "btn btn-link text-danger", data: { confirm: "Are you sure you want to remove this device specific configuration?" } do
+                i.fa.fa-trash
+                |  Remove
+
+              = f.submit "Update", class: "btn btn-primary"
+            - else
+              = f.submit "Create", class: "btn btn-primary"

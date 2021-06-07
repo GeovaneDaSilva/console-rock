@@ -1,0 +1,15 @@
+table.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+  thead
+    tr
+      th
+      th Date/Time
+      th Finding
+      th Firewall
+      th Country
+      th.breezy-pdf-remove
+  tbody
+    = render partial: "r/breaches/app_result/syslog", collection: app_results, as: :app_result, cache: proc { |ar| ["v1", ar, current_user&.timezone] }
+
+    - if app_results.size.zero?
+      tr
+        td.text-center colspan="4" No results

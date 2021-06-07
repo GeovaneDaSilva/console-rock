@@ -1,0 +1,31 @@
+- name: Install apt dependencies
+  apt: name={{ item }}
+  with_items:
+    # - wkhtmltopdf
+    - xvfb
+
+- name: "Download source"
+  get_url:
+    url: https://github.com/wkhtmltopdf/wkhtmltopdf/releases/download/0.12.4/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+    dest: /home/ubuntu/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+  become: yes
+
+- name: "Unarchive"
+  unarchive:
+    src: /home/ubuntu/wkhtmltox-0.12.4_linux-generic-amd64.tar.xz
+    dest: /home/ubuntu/
+    remote_src: True
+  become: yes
+
+- name: install binary
+  copy:
+    src="/home/ubuntu/wkhtmltox/bin/wkhtmltopdf"
+    dest="/usr/bin/wkhtmltopdf"
+    remote_src=yes
+    owner=root
+    group=root
+    mode=0755
+  become: yes
+
+- name: Install xwkhtmltopdf
+  template: src="xwkhtmltopdf.j2" dest="/usr/local/bin/xwkhtmltopdf" mode="u=rwx,g=rx,o=rx"

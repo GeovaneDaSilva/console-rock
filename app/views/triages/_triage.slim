@@ -1,0 +1,86 @@
+link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css"
+link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css.map"
+script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"
+
+- if app_results.where(app: app).any?
+  = form_tag triage_path, method: :post, remote: true do
+    = hidden_field_tag :app_id, params[:app_id]
+    = hidden_field_tag :page, 0
+    .row.app-index-wrapper data-controller="checkbox-selectable"
+      .col-xs-12.app-card
+        .panel.panel-default
+          =
+          .panel-body
+            .row.app-title
+              .col-xs-12
+                .pull-left
+                  h3.nomargin
+                    | #{app.title.upcase} RESULTS
+                  h4.text-muted.nomargin
+                    - if defined?(device)
+                      = link_to device.hostname, device_path(device, { switch_account_id: device.customer.id }), target: "_blank"
+                      |  - #{device.customer.name}
+                    - else
+                      = account.name
+
+            .row.app-description
+              .col-xs-12
+                = app.description
+
+            = render partial: "triages/filtered_results"
+
+
+          .panel-footer
+            .pull-left
+
+            .pull-right.text-right
+              - if app_counter_caches.sum(:count) > 10
+                .form-group.d-inline-block
+                  = check_box_tag :apply_to_all_similar, true, false, data: {action: "checkbox-selectable#toggleAll"}
+                  | &nbsp;
+
+                  label for="apply_to_all_similar"
+                    | Apply Action to all #{@pagination.count.to_s(:delimited)} results
+              .btn-group.margin-left-10
+                button.btn.btn-primary.dropdown-toggle data-toggle="dropdown" aria-expanded="false"
+                  ' Action
+                  span.caret
+                ul.dropdown-menu.right-0.left-auto role="menu"
+                  - if Accounts::AppPolicy.new(nil, app).whitelistable?
+                    li.padding-6
+                      input.btn.btn-link type="submit" name="whitelist" value="Add to Whitelist"
+                  - if policy(account).create_incidents?
+                    li.padding-6
+                      input.btn.btn-link type="submit" name="incident" value="Add to Incident"
+                  - if policy(account).create_logic_rules?
+                    li.padding-6
+                      input.btn.btn-link type="submit" name="logic_rule" value="Add a Logic Rule"
+                  - if policy(account).perform_antivirus_actions?
+                    li.padding-6
+                      input.btn.btn-link type="submit" name="antivirus_actions" value="Perform AV Actions"
+                  - if policy(account).perform_override_actions? && app.report_template == "ironscales"
+                    li.padding-6
+                      input.btn.btn-link type="submit" name="override" value="Classify Results"
+                  - unless app.report_template == "secure_score"
+                    li.padding-6
+                      input.btn.btn-link type="submit" name="delete" value="Delete"
+
+  = render partial: "triages/modals", locals: { similar_detections: @similar_detections }
+
+- else
+  .row.app-index-wrapper
+    .col-xs-12.col-md-10.col-lg-8.col-md-offset-1.col-lg-offset-2.app-card
+      .panel.panel-default
+        .panel-body
+          .row.app-title
+            .col-xs-12
+              h3.nomargin = app.title.upcase
+              h4.text-muted.nomargin
+                | #{account.name}
+          .row.app-description
+            .col-xs-12
+              = app.description
+
+          .row
+            .col-xs-12
+              ' There are no results left to triage for this App.

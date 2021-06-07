@@ -1,0 +1,99 @@
+.panel-body data-controller="triage-rules"
+  .row.mb-0
+    .col-xs-12
+      .pull-left
+        h3.nomargin
+          | CREATE RULE
+  .row.mb-0
+    .col-xs-12
+      .form-inline
+        .form-group.pull-left
+          label.margin-right-10 On <b>#{app.title}</b> for
+          = hidden_field_tag "app_type", app.configuration_type, data: { target: "triage-rules.appType" }
+          = hidden_field_tag "logic_rule[app_id]", params[:app_id]
+          = select_tag "logic_rule[account_id]", options_for_select(account_options, params[:account_id]), class: "form-control margin-right-10", data: { action: "change->triage-rules#showToggle", target: "triage-rules.accountSelect" }
+        .form-group.pull-right.margin-top-6.include-descendants.hidden
+          label.switch.switch-rounded
+            = hidden_field_tag "logic_rule[include_descendants]", false
+            = check_box_tag "logic_rule[include_descendants]", true, class: "form-control"
+            span.switch-label data-on="YES" data-off="NO"
+            span Include all descendants?
+  .row.mb-0
+    hr
+  .row.mb-0
+    .col-xs-12
+      .form-group
+        = label_tag "logic_rule[description]", "Description"
+        = text_area_tag "logic_rule[description]", nil, required: true, class: "form-control margin-right-10"
+  .row.mb-0
+    .col-xs-12
+      .panel.panel-default
+        .panel-body
+          .col-xs-12
+            .row
+              .form-inline
+                .form-group
+                  label.margin-right-10 When
+                  = select_tag "logic_rule[rules][][logic]", options_for_select([["All", "and"], ["Any", "or"]]), class: "form-control margin-right-10"
+                  label.margin-right-10 of the following conditions are met:
+                .pull-right
+                  .input-group
+                    span.input-group-btn
+                      a.btn.btn-default.add-button data-action="click->triage-rules#addItem" data-target="triage-rules.addButton"
+                        i.fa.fa-plus
+                        | Add Condition
+            .row.condition-template.hidden
+              .form-inline
+                .form-group
+                  = text_field_tag "logic_rule[rules][][conditions][][attribute]", nil, required: true, placeholder: "Field", class: "form-control margin-right-10", disabled: true
+                  = select_tag "logic_rule[rules][][conditions][][operator]", options_for_select(operator_options), class: "form-control margin-right-10", disabled: true
+                  = text_field_tag "logic_rule[rules][][conditions][][value]", nil, placeholder: "Value", class: "form-control margin-right-10", disabled: true
+                .pull-right
+                  .input-group
+                    span.input-group-btn
+                      a.btn.btn-default.remove-button data-action="click->triage-rules#removeItem" data-target="triage-rules.removeButton"
+                        i.fa.fa-trash
+                        | Remove
+            .conditions
+  .row.mb-0
+    .col-xs-12
+      .panel.panel-default
+        .panel-body
+          .col-xs-12
+            .row
+              .form-inline
+                .form-group
+                  label.margin-top-8.margin-right-10 Perform the following actions:
+                .pull-right
+                  .input-group
+                    span.input-group-btn
+                      a.btn.btn-default.add-action-button data-action="click->triage-rules#addAction" data-target="triage-rules.addActionButton"
+                        i.fa.fa-plus
+                        | Add Action
+            .row.action-template.hidden
+              .form-inline
+                .form-group
+                  = select_tag "logic_rule[actions][][name]", options_for_select(action_options), class: "form-control margin-right-10 action-select", disabled: true, data: { action: "change->triage-rules#showActionInputs" }
+                  = select_tag "logic_rule[actions][][template_id]", options_for_select(incident_template_options), include_blank: true, class: "form-control margin-right-10 incident-template hidden", disabled: true
+                  label.check-inline.checkbox.consolidate-results.hidden
+                    = check_box_tag "consolidate_results", nil, false, class: "hidden", data: { action: "click->triage-rules#toggleConsolidateInputs" }
+                    i
+                    | Consolidate results?
+                  = text_field_tag "logic_rule[actions][][reset_time]", nil, required: true, placeholder: "Reset (hours)", size: 11, class: "form-control margin-right-10 consolidate-input hidden", disabled: true
+                  = text_field_tag "logic_rule[actions][][matching_fields]", nil, placeholder: "Matching fields", size: 15, class: "form-control margin-right-10 consolidate-input hidden", disabled: true
+
+                  = hidden_field_tag "logic_rule[actions][][av_vendor]", app.configuration_type, class: "av-vendor", disabled: true
+                  = select_tag "logic_rule[actions][][av_action]", [], class: "form-control margin-right-10 av-action hidden", disabled: true, data: { action: "change->triage-rules#refreshAvActionOptions" }
+                  = select_tag "logic_rule[actions][][av_action_option]", [], class: "form-control margin-right-10 av-action-option hidden", disabled: true
+                .pull-right
+                  .input-group
+                    span.input-group-btn
+                      a.btn.btn-default.remove-action-button data-action="click->triage-rules#removeAction" data-target="triage-rules.removeActionButton"
+                        i.fa.fa-trash
+                        | Remove
+            .actions
+.panel-footer
+  .pull-left
+  .pull-right.text-right
+    input.btn.btn-default.evaluate-button type="submit" name="evaluate" value="Evaluate"
+    = submit_tag "Create", class: "btn btn-primary margin-left-10"

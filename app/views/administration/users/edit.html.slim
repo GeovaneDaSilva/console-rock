@@ -1,0 +1,24 @@
+- content_for(:page_header) do
+  = page_header("User Profile", [@user.email])
+.row
+  .col-md-6
+    section.panel
+      .panel-body.noradius
+        = bootstrap_form_for(@user, url: administration_user_path(@user), html: { method: :put }, layout: :horizontal, label_col: "col-sm-4", control_col: "col-sm-8") do |f|
+          h4 Edit #{@user.email} Profile
+
+          - if session[:oauth_user].present?
+            p.small Not all fields are editable when logging in with #{session[:oauth_user]} accounts.
+
+          = f.text_field :first_name, label: "First Name", disabled: session[:oauth_user].present?
+          = f.text_field :last_name, label: "Last Name", disabled: session[:oauth_user].present?
+          = f.email_field :email, disabled: session[:oauth_user].present?
+          = f.time_zone_select :timezone, ActiveSupport::TimeZone.us_zones
+
+          = f.password_field :password, disabled: session[:oauth_user].present?
+          = f.password_field :password_confirmation, label: "Confirm Password", disabled: session[:oauth_user].present?
+
+          .text-right
+            button.btn.btn-primary type="submit" Update
+            | &nbsp;
+            button.btn.btn-default type="reset" Reset

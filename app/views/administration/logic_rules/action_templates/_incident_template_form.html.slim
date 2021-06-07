@@ -1,0 +1,9 @@
+.form-group
+  label.control-label.required for="logic_rules_action_template_details_title" Title
+  = text_field_tag "logic_rules_action_template[details][title]", @template&.title, class: "form-control"
+.form-group
+  label.control-label.required for="logic_rules_action_template_details_description" Description
+  = text_area_tag "logic_rules_action_template[details][description]", @template&.description, class: "form-control"
+.form-group
+  label.control-label.required for="logic_rules_action_template_details_remediation" Remediation Guidance
+  = text_area_tag "logic_rules_action_template[details][remediation]", @template&.remediation, class: "form-control"

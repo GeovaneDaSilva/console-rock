@@ -1,0 +1,18 @@
+.app-panel.disabled data-controller="device-app-card" data-device-app-card-device-id=device.id data-device-app-card-app-id=app.id
+  .panel.panel-default.w-100
+    .panel-heading class=("discreet-app" if app.discreet?)
+      h4.nomargin.text-center = app.title
+
+    .panel-body.d-flex
+      = render partial: "apps/app_panel_body", locals: { app: app, device: device }
+
+    - if app.configuration_type? && policy(current_account).can_manage_apps? && !%w[secure_now syslog].include?(app.configuration_type)
+      .panel-footer.clearfix
+        .pull-left.text-muted.disabled-hidden
+          - if device.app_configs.where(app: app).any?
+            i.fa.fa-info-circle title="Configured specifically for this device"
+        a.text-muted.disabled-hidden.pull-right href="#" data-toggle="modal" data-target="#config-#{app.id}"
+          i.fa.fa-gear
+          |  Configure
+        - content_for :modals do
+          = render partial: "devices/apps/configuration_modal", locals: { device: device, app: app }

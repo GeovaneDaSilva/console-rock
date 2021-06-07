@@ -1,0 +1,32 @@
+.form-group data-controller="hunt-test"
+  = f.hidden_field :type
+  = f.hidden_field :_destroy, data: { target: "hunt-test.destroyInput" }
+
+  .conditional-option.padding-10 data-target="hunt-test.contents"
+    h4.text-center
+      | File Name
+      .pull-right
+        a.remove data-action="hunt-test#remove" &times;
+    = f.fields_for :conditions, f.object.conditions do |c_f|
+      = render partial: "hunts/tests/#{c_f.object.class.name.demodulize.underscore}_form", locals: { f: c_f }
+
+    - if current_user.omnipotent?
+      - unless f.object.script_override?
+        hr
+
+      = f.hidden_field :lua_script_upload_id, data: { target: "hunt-test.uploadIdInput" }
+      strong.margin-bottom-5 Override this test with a custom Lua script
+
+      = f.text_field :lua_script_description, label: "Test for a File...", placeholder: "that does malicious things"
+
+      div data-target="hunt-test.uploadGallery"
+        - if f.object.lua_script_upload_id
+          figure
+            figcaption = f.object.lua_script_upload&.filename
+
+      label.btn.btn-primary for="upload-override-input-0"
+        input.hidden-file-input#upload-override-input-0 type="file" data-upload=true data-target="hunt-test.uploadInput"
+        | Upload Script
+
+      .text-muted.margin-top-10 Script must implement the following function definition:
+      pre find_file_name_override({id=X,result=false,details={}})

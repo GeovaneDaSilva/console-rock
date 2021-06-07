@@ -1,0 +1,53 @@
+div data-controller="countries-toggler" data-modal="report_traffic_modal"
+  .d-flex.flex-wrap
+    = f.switch :enable_all_countries, { label_name: "Enable All Countries", checked: false, data: { action: "click->countries-toggler#click", target: "countries-toggler.control" } }, onkeydown: "return false"
+  .mb-5
+    | Enabled Countries
+  .d-flex.flex-wrap
+    - APP_CONFIGS[:cyberterrorist_network_connection][:enabled_countries].each_slice(2).each do |group|
+      - group.each do |country|
+        .w-50
+          - key = country[0]
+          - country_config = config["enabled_countries"][country[0]]
+
+          - country_config.each do |k, v|
+            = f.hidden_field "config[enabled_countries][#{key}][#{k}]", value: v
+
+          = f.switch "config[enabled_countries][#{key}][enabled]", { label_name: country_config["full_name"], checked: config.dig("enabled_countries", key, "enabled"), data: { target: "countries-toggler.country"} }, "true", "false"
+
+  hr
+
+  .d-flex.flex-wrap
+    - additional_config_countries.each_slice(2).each do |group|
+      - group.each do |country|
+        - if country[0] == "US"
+          .w-50 data-controller="modal-confirm" data-modal="report_modal_#{country[0]}"
+            - key = country[0]
+            - country_config = country[1]
+
+            - country_config.each do |k, v|
+              = f.hidden_field "config[enabled_countries][#{key}][#{k}]", value: v
+
+            = f.switch "config[enabled_countries][#{key}][enabled]", { label_name: country_config["full_name"], checked: config.dig("enabled_countries", key, "enabled"), data: { target: "countries-toggler.country modal-confirm.control", action: "click->modal-confirm#click" } }, "true", "false"
+
+            = render partial: "shared/apps/configs/report_traffic_modal", locals: { id: "report_modal_#{country[0]}" }
+        - else
+          .w-50
+            - key = country[0]
+            - country_config = country[1]
+
+            - country_config.each do |k, v|
+              = f.hidden_field "config[enabled_countries][#{key}][#{k}]", value: v
+
+            = f.switch "config[enabled_countries][#{key}][enabled]", { label_name: country_config["full_name"], checked: config.dig("enabled_countries", key, "enabled"), data: { target: "countries-toggler.country" } }, "true", "false"
+
+  .d-flex.flex-wrap
+    .w-50.pr-5
+      = f.text_area "config[excluded_ips_to_array]", label: "Excluded IP Addresses", value: config.fetch("excluded_ips", APP_CONFIGS[:cyberterrorist_network_connection][:excluded_ips]).join("\n"), help: "One IP per line", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: %(127.0.0.1\n8.8.8.8)
+    .w-50
+      = f.text_area "config[process_exclusions_to_array]", label: "Excluded Processes", value: config.fetch("process_exclusions", APP_CONFIGS[:cyberterrorist_network_connection][:process_exclusions]).join("\n"), help: "One CLI command per line", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: %(%SystemRoot%\\System32\\curl.exe)
+  .d-flex.flex-wrap
+    .w-50
+      = f.switch "config[only_report_bad_reputation_connections]", label_name: "Only report bad reputation connections", checked: config.fetch("only_report_bad_reputation_connections", APP_CONFIGS[:cyberterrorist_network_connection][:only_report_bad_reputation_connections])
+
+  = render partial: "shared/apps/configs/report_traffic_modal"

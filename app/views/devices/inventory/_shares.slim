@@ -1,0 +1,12 @@
+table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+  thead
+    tr
+      th Name
+      th Path
+      th Description
+  tbody
+    - device.inventory.fetch("shares", []).each do |share|
+      tr
+        td = share.fetch("Name", "N/A").presence || "N/A"
+        td = share.fetch("Path", "N/A").presence || "N/A"
+        td = share.fetch("Description", "N/A").presence || "N/A"

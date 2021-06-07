@@ -1,0 +1,9 @@
+<%= incident.title %>
+
+Customer: <%= incident.account.name %>
+
+Description: <%= incident.description %>
+
+Remediation: <%= incident.remediation %>
+
+View incident on the platform: <%= account_apps_incident_url(incident.account, incident, host: ENV[I18n.t('application.host')], protocol: 'https').remove(/:\d+/) %>

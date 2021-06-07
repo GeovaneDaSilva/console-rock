@@ -1,0 +1,714 @@
+openapi: 3.0.1
+info:
+  title: RocketCyber API
+  description: |
+    This spec is for RocketCyber API.  Authentication for all endpoints is via API key that is provided by RocketCyber and acquired from the RocketCyber account console.
+
+      Last Updated: October 12, 2020
+
+     # Authentication
+     - All communication is assumed to be JSON-formatted
+     - Authorization is via headers `Authorization: "Bearer ApiTokenHere"`
+     # Endpoints
+     - Partner - The MSP  managing subscriptions on behalf of end customers. In general a partner must be created prior to the end customer.
+     - Customer - End customer consuming RocketCyber service.
+     - Usage - Billing information broken out by partner.  By default, returns the number of each type of product (device, cloud mailbox, firewall) that is being monitored on behalf of each Partner (i.e. MSP).  For a single partner, will display these values for the current billing cycle.
+       - If passed the _customer_level_, this will return usage broken down at the customer level rather than the Partner level
+       - If passed _start_date_ and _end_date_ parameters, can provide usage information for arbitrary time periods
+     - Product - Listing of products offered by the vendor (device, cloud mailbox, and firewall protection).  Available for reference.
+     - Incidents - Allows for programmatic pull of security incident data.  This will be a group of app results, summary and remediation instructions provided by the RocketCyber Security Operations Center (SOC).
+     - App Results - Allows for programmatic pull of app detections.  As an example, a notification of a login attempt from North Korea would be a single app result.
+
+     ## Typical interactions
+     - Create -> Partner
+     - Create -> Customer
+     - Get -> Usage
+     - Get -> Incidents
+
+
+  version: 0.0.6
+servers:
+  - url: 'https://app.rocketcyber.com/api/integrations/v1'
+  - url: 'https://staging.rocketcyber.com/api/integrations/v1'
+security:
+  - bearerAuth: []
+paths:
+  /app_results:
+    get:
+      tags:
+        - AppResult
+      summary: Security Detections
+      description: |
+        This endpoint returns app results (individual detections by one of our security applications).  This is the raw security data.
+      parameters:
+        - name: start_date
+          in: query
+          description: The first day to be included in the result data returned.
+          schema:
+            type: string
+            format: iso8601
+        - name: end_date
+          in: query
+          description: The last day to be included in the result data returned.
+          schema:
+            type: string
+            format: iso8601
+        - name: archive_state
+          in: query
+          description: Limit responses to those which have/have not been archived.
+          schema:
+            type: string
+        - name: id
+          in: query
+          description: The ID of a single app result you wish to retrieve.
+          schema:
+            type: string
+        - name: ids
+          in: query
+          description: The IDs of a multiple app results you wish to retrieve.
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: integer
+      responses:
+        '200':
+          description: An array of app results
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: status success
+                  usage:
+                    $ref: '#/components/schemas/AppResult'
+        '401':
+          description: Invalid credential
+  /customers:
+    get:
+      tags:
+        - Customer
+      summary: Customers
+      description: |
+        This endpoint returns information about existing *Customers*. If no parameters
+        are provided, all *Customers* will be returned (limited by the default *max* parameter).
+
+        Note - Single *Customer* queries will return an array with one element.
+      parameters:
+        - name: id
+          in: query
+          description: Used to return a specific customer by its id. Will override all other parameters
+          schema:
+            type: string
+            format: string
+        - name: ids
+          in: query
+          description: |
+            Used to return a list of specific *Customers*
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: max
+          in: query
+          description: Used to limit the number of *Customers* returned in the API call
+          schema:
+            type: number
+            format: integer
+            default: 10
+        - name: offset
+          in: query
+          description: |
+            Used to skip entries returned from query. An *offset* of 100  will skip the first 100 entries according to the order specified by the *sort* parameter. If no sort parameter is specified, id will be used.
+          schema:
+            type: number
+            format: integer
+            default: 0
+        - name: sort
+          in: query
+          description: Used to sort results of query. Parameter is column label from Customer schema.
+          schema:
+            type: string
+            format: string
+            default: id
+      responses:
+        '200':
+          description: An array of customers
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Customer'
+    put:
+      tags:
+        - Customer
+      summary: Customer Update
+      description: |
+        Updates an existing Customer. Customer *id* is required in body of request, all other fields are optional and will be ignored if not specified.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Customer'
+        required: true
+      responses:
+        '200':
+          description: Updated Customer
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Customer'
+        '404':
+          description: No matching Customer
+      x-codegen-request-body-name: customer
+    post:
+      tags:
+        - Customer
+      summary: Creates a new Customer
+      description: 'Required parameters are _name_ and _partner_id_.'
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreateCustomer'
+        required: true
+      responses:
+        '200':
+          description: Newly created Customer with Id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  customer:
+                    $ref: '#/components/schemas/Customer'
+        '404':
+          description: Error with customer data or partner-id not submitted.  Details in 'error' field
+      x-codegen-request-body-name: customer
+  /healthcheck:
+    get:
+      tags:
+        - HealthCheck
+      summary: Endpoint to ping for validation that API is up
+      description: |
+        This endpoint does not require authentication, and returns only a 200 header
+      responses:
+        '200':
+          description: 'Header-only 200 response'
+  /incidents:
+    get:
+      tags:
+        - Incident
+      summary: Incidents
+      description: |
+        This endpoint returns information on RocketCyber incidents that conform to the given filters.  Querying this endpoint with no filter will return all incidents (including resolved incidents).
+
+        _start_date_ and _end_date_ are based on the date the incident was created.
+      parameters:
+        - name: start_date
+          in: query
+          description: The earliest date for an incident you wish to be returned.
+          schema:
+            type: string
+            format: iso8601
+        - name: end_date
+          in: query
+          description: The latest date for an incident you wish to be returned.
+          schema:
+            type: string
+            format: iso8601
+        - name: status
+          in: query
+          description: 'The current status of desired incidents.  Valid values are "published", "resolved".  Published is used for active incidents.'
+          schema:
+            type: string
+      responses:
+        '200':
+          description: An array of incidents
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: status success
+                  usage:
+                    $ref: '#/components/schemas/Incident'
+        '401':
+          description: Invalid credential
+  /partners:
+    get:
+      tags:
+        - Partner
+      summary: Partners
+      description: |
+        This endpoint returns information about existing *Partners*. If no parameters
+        are provided, all *Partners* will be returned (limited by the default *max* parameter).
+
+        Note - Single *Partner* queries will return an array with one element.
+      parameters:
+        - name: id
+          in: query
+          description: |
+            Used to return a specific *Partner* by its id. Will override all other parameters.
+          schema:
+            type: string
+            format: string
+        - name: ids
+          in: query
+          description: Used to return a list of specific *Partners*
+          style: form
+          explode: false
+          schema:
+            type: array
+            items:
+              type: string
+        - name: max
+          in: query
+          description: Used to limit the number of Partners returned in the API call
+          schema:
+            type: number
+            format: integer
+            default: 10
+        - name: offset
+          in: query
+          description: |
+            Used to skip entries returned from query. An *offset* of 100  will skip the first 100 entries according to the order specified by the *sort* parameter. If no *sort* parameter is specified, id will be used.
+          schema:
+            type: number
+            format: integer
+            default: 0
+        - name: sort
+          in: query
+          description: Used to sort results of query. Parameter is column label from Partner schema.
+          schema:
+            type: string
+            format: string
+            default: id
+      responses:
+        '200':
+          description: An array of Partners
+          content:
+            application/json:
+              schema:
+                type: array
+                items:
+                  $ref: '#/components/schemas/Partner'
+    put:
+      tags:
+        - Partner
+      summary: Partner Update
+      description: |
+        Updates an existing Partner. Partner *id* is required in body of request, all other fields are optional and will be ignored if not specified.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/Partner'
+        required: true
+      responses:
+        '200':
+          description: Updated Partner
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Partner'
+        '404':
+          description: No Partner with provided ID
+      x-codegen-request-body-name: partner
+    post:
+      tags:
+        - Partner
+      summary: Creates a new Partner.
+      description: |
+        The only required parameter is the Partner _name_.  All others are optional.
+
+        Note that while Partner *id* is a valid field, it will be populated by the server if the record is successfully created and _should not_ be sent for this endpoint.
+
+        If desired, any number of users for this Partner can be created and security roles assigned as part of Partner creation.  See the example body below.
+
+        If desired, a plan can be assigned to this Partner as well by providing the ID for a _plan_.
+      requestBody:
+        description: |
+          Only the name is required, all other fields are optional.
+
+          For User creation, invites will be sent to the provided email.  The email will have a link the individual can use to complete the user registration process.
+
+          The 'role' field for a new user must be one of the following: _owner_, _incident_responder_, _viewer_, _billing_
+        content:
+          application/json:
+            schema:
+              $ref: '#/components/schemas/CreatePartner'
+        required: true
+      responses:
+        '200':
+          description: Newly created Partner with Id
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: status success
+                  partner:
+                    $ref: '#/components/schemas/Partner'
+        '404':
+          description: Error with submitted body.  Details in 'error' field
+      x-codegen-request-body-name: partner
+  /password_reset:
+    post:
+      tags:
+        - Password Reset
+      summary: Request a password reset link for a user
+      description: |
+        This endpoint accepts an email address and returns a link which can be used to reset the password for the RocketCyber _User_ associated with that email address.
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                email:
+                  type: string
+        required: true
+      responses:
+        '200':
+          description: A password reset link
+        '404':
+          description: Error with submitted body.  Details in 'error' field
+      x-codegen-request-body-name: password_reset
+
+  /products:
+    get:
+      tags:
+        - Products
+      summary: Products
+      description: |
+        This endpoint returns information on RocketCyber products.  More accurately, it says that we bill based on devices and firewalls.
+
+        This endpoint is not useful, and will likely be removed prior to V1.0
+      responses:
+        '200':
+          description: 'An array of products with exactly three entries (devices, firewall, office 365 instances)'
+        '401':
+          description: Invalid credential
+  /subscriptions:
+    post:
+      tags:
+        - Subscriptions
+      summary: Allows for bulk plan modification given Partner IDs
+      description: |
+        This endpoint can be used to suspend, cancel, and re-activate Partner and Customer accounts.
+
+        For each case, simply provide the IDs of all accounts you wish to be changed to the given state
+        For example, to cancel accounts 1-5, and reactivate accounts 6 and 7; the body would be:
+
+        {
+
+        "cancel": [1,2,3,4,5],
+
+        "reactivate": [6,7]
+
+        }
+      requestBody:
+        content:
+          application/json:
+            schema:
+              type: object
+              properties:
+                suspend:
+                  type: array
+                  items:
+                    type: integer
+                reactivate:
+                  type: array
+                  items:
+                    type: integer
+                cancel:
+                  type: array
+                  items:
+                    type: integer
+
+
+        required: true
+      responses:
+        '200':
+          description: Header-only 200
+        '500':
+          description: There was an error saving the new states
+  /usage:
+    get:
+      tags:
+        - Usage
+      summary: Usage
+      description: |
+        This endpoint returns aggregate usage records for a specified period. Usage outside of the specifed period will not impact the resulting records.
+
+        This data will specify the number of devices, firewalls, and cloud mailboxes monitored for each account, organized by Partner (MSP) or Customer depending on passed parameter.
+
+        Default timespan is the current billing period.
+        Default rollup is at the Partner level
+      parameters:
+        - name: start_date
+          in: query
+          description: The first day to be included in the usage data returned.
+          schema:
+            type: string
+            format: iso8601
+        - name: end_date
+          in: query
+          description: The last day to be included in the usage data returned.
+          schema:
+            type: string
+            format: iso8601
+        - name: customer_level
+          in: query
+          description: Whether to override default behavior and show usage broken out by Customer.
+          schema:
+            type: boolean
+        - name: id
+          in: query
+          description: The ID of a single Partner/Customer.  Data will reflect _only_ this account if this is provided
+          schema:
+            type: string
+      responses:
+        '200':
+          description: An array of utilization of services
+          content:
+            application/json:
+              schema:
+                type: object
+                properties:
+                  success:
+                    type: boolean
+                    description: status success
+                  usage:
+                    $ref: '#/components/schemas/Usage'
+        default:
+          description: Unexpected error
+          content:
+            application/json:
+              schema:
+                $ref: '#/components/schemas/Error'
+
+components:
+  schemas:
+    CreatePartner:
+        type: object
+        properties:
+          name:
+            type: string
+          city:
+            type: string
+          state:
+            type: string
+          zip_code:
+            type: string
+          users:
+            type: array
+            items:
+              type: object
+              properties:
+                first_name:
+                  type: string
+                last_name:
+                  type: string
+                email:
+                  type: string
+                role:
+                  type: string
+          plan:
+            type: integer
+
+    Partner:
+      type: object
+      properties:
+        id:
+          type: integer
+        name:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip_code:
+          type: string
+
+    CreateCustomer:
+      type: object
+      properties:
+        partner_id:
+          type: integer
+        name:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip_code:
+          type: string
+
+    Customer:
+      type: object
+      properties:
+        id:
+          type: integer
+        provider_id:
+          type: integer
+        name:
+          type: string
+        city:
+          type: string
+        state:
+          type: string
+        zip_code:
+          type: string
+    Usage:
+      type: object
+      properties:
+        partner_id:
+          type: string
+          description: |
+            The identifier of partner which is associated with this usage
+        customer_id:
+          type: string
+          description: |
+            The identifier of customer which is associated with this usage
+        subscription_id:
+          type: string
+          description: |
+            The identifier of the root subscription associated with this usage.
+        status:
+          type: string
+          description: |
+            Current status of usage record
+          enum:
+            - Billable
+            - Trial
+            - NFR
+        group_id:
+          type: string
+          description: |
+            The identifier of the group, possibly - data center, resource group or site.
+        group_name:
+          type: string
+          description: |
+            Human-readable identifier of the group, possibly - data center, resource group or site name.
+        product_id:
+          type: string
+          description: |
+            The identifier of the product associated with this usage record.
+        current_usage:
+          type: number
+          description: |
+            The current quantity consumed for the specified period. This quantity represents the amount a customer should be billed for if no futher services are consumed further.
+        unit_of_measure:
+          type: string
+          description: |
+            The quantity identifier of the product associated with this usage record.
+        current_charges:
+          minimum: 0
+          type: number
+        projected_usage:
+          minimum: 0
+          type: number
+    Incident:
+      type: object
+      properties:
+        id:
+          type: integer
+        title:
+          type: string
+        description:
+          type: string
+        remediation:
+          type: string
+        state:
+          type: string
+          description: |
+            This field will be changing to 'status' in the future to conform to our standard query parameters.
+        created_at:
+          type: string
+        published_at:
+          type: string
+        resolved_at:
+          type: string
+        creator:
+          type: string
+          description: Email
+        resolver:
+          type: string
+          description: Email
+        account:
+          type: string
+    AppResult:
+      type: object
+      properties:
+        id:
+          type: integer
+        app_id:
+          type: string
+          description: |
+            Identifier for which app made this detection
+        device_id:
+          type: string
+          description: |
+            The identifier of the device on which this behavior was detected (or null).
+        archive_state:
+          type: string
+          description: |
+            Current archive state of result
+          enum:
+            - active
+            - archived
+        verdict:
+          type: string
+          description: |
+            Detection analysis verdict
+          enum:
+            - informational
+            - suspicious
+            - malicious
+        detection_date:
+          type: string
+          description: |
+            Time of first detection for this malicious indicator.
+          format: iso8601
+        details:
+          type: string
+          description: |
+            JSON-formatted string with details of the detection.
+        customer_id:
+          type: number
+          description: |
+            Identifier of the customer associated with this detection.
+    Error:
+      type: object
+      properties:
+        code:
+          type: integer
+          format: int32
+        reason:
+          type: string
+          description: |
+            Current status of usage record
+          enum:
+            - Unexpected Error
+            - Invalid Date
+            - Access Denied
+            - Incomplete Request
+            - Unknown
+        message:
+          type: string
+  securitySchemes:
+    bearerAuth:
+      type: http
+      scheme: bearer

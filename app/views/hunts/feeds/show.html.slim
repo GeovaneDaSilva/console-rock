@@ -1,0 +1,36 @@
+- content_for(:page_header) do
+  = page_header("Hunt Feeds", [link_to_current_account(current_account.name), link_to("Hunt Feeds", hunts_feeds_path), "Hunt Feed"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Hunt Feed Details
+      .panel-body
+        - if @feed.cymon? && @feed.virus_total?
+          p
+            strong Keyword:
+            |  #{@feed.keyword}
+        p
+          strong Group:
+          |  #{@feed.group.name}
+
+        p
+          strong Source:
+          - if @feed.system_hunts?
+            | &nbsp;#{I18n.t("application.name")}
+          - else
+            |  #{feed_source(@feed.source)}
+
+- cache ["v1", @results] do
+  .row
+    .col-xs-12
+      .panel.panel-default
+        .panel-heading
+          strong Results
+        .panel-body
+          = render partial: "feed_result", collection: @results, cache: true
+
+          - if @pagination.pages > 1
+            .text-center
+              == pagy_bootstrap_nav @pagination

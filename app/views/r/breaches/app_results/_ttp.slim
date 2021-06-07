@@ -1,0 +1,13 @@
+table.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+  thead
+    tr
+      th Host
+      th Date/Time
+      th Attack Technique
+      th.breezy-pdf-remove
+  tbody
+    = render partial: "r/breaches/app_result/ttp", collection: app_results, as: :app_result, cache: proc { |ar| ["v1", ar, current_user&.timezone] }
+
+    - if app_results.size.zero?
+      tr
+        td.text-center colspan="4" No results

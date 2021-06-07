@@ -1,0 +1,15 @@
+form-group data-controller="hunt-test"
+  = f.hidden_field :type
+  = f.hidden_field :_destroy, data: { target: "hunt-test.destroyInput" }
+
+  .conditional-option.padding-10 data-target="hunt-test.contents"
+    h4.text-center
+      | Yara
+      .pull-right
+        a.remove data-action="hunt-test#remove" &times;
+    = f.fields_for :conditions, f.object.conditions do |c_f|
+      - if c_f.object.is_a?(Hunts::EqualityCondition)
+        label Path
+        = render partial: "hunts/tests/#{c_f.object.class.name.demodulize.underscore}_form", locals: { f: c_f, operators: [:is_equal_to] }
+      - else
+        = render partial: "hunts/tests/#{c_f.object.class.name.demodulize.underscore}_form", locals: { f: c_f }

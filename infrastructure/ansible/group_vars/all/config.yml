@@ -1,0 +1,71 @@
+---
+vm_name: console
+vm_swap: 1024
+path: /console
+git_branch: master
+vm_os: ubuntu/trusty64
+environments:
+  - development
+  - staging
+  - production
+package_bundles:
+  - curl
+  - graphics
+packages:
+  - curl
+  - libcurl3
+  - libcurl3-gnutls
+  - libcurl4-openssl-dev
+  - imagemagick
+manual_ruby_version: "{{ lookup('env','RUBY_VERSION') }}"
+server_name: localhost
+rails_version: 4
+ruby_install: rbenv
+ruby_version: 2.2.1
+environment_file: /console/.envrc
+databases:
+  - postgresql
+  - redis
+background_jobs:
+  - sidekiq
+postgresql_orm: activerecord
+redis_orm: redis-rb
+postgresql_db_name: console
+postgresql_db_user: vagrant
+postgresql_db_password:
+postgresql_extensions:
+  - hstore
+delayed_job_command: script/delayed_job run
+sidekiq_command: sidekiq
+server_type: nginx_puma
+git_url: git@github.com:bacholdings/console.git
+sidekiq_app_name: sidekiq
+
+app_name: '{{ vm_name }}'
+user_name: '{{ "vagrant" if target is defined else app_name }}'
+group_name: '{{ user_name }}'
+
+user_home_path: '/home/{{ user_name }}'
+
+ssl_certificate_path: /etc/nginx/ssl/{{ server_name }}.crt
+ssl_certificate_key_path: /etc/nginx/ssl/{{ server_name }}.key
+
+releases_path: '{{ path }}/releases'
+shared_path: '{{ path }}/shared'
+
+app_path: '{{ path }}'
+shared_config_path: '{{ shared_path }}/config'
+app_temp_path: "/tmp{{ app_path }}"
+app_logs_path: "{{ shared_path }}/log"
+app_public_path: "{{ shared_path }}/public"
+app_current_path: '{{ app_path }}/current'
+
+puma_bind_path: "unix://{{ app_temp_path }}/sockets/puma.sock"
+puma_config_path: "{{ shared_config_path }}/puma.rb"
+puma_pidfile_path: "{{ app_temp_path }}/pids/puma.{{ env }}.pid"
+puma_stderr_redirect_path: "{{ app_logs_path }}/puma.err.log"
+puma_stdout_redirect_path: "{{ app_logs_path }}/puma.log"
+
+ruby_user_name: '{{ "root" if ruby_install == "package" else user_name }}'
+
+use_apt_proxy: false

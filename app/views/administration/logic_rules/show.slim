@@ -1,0 +1,66 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    - if policy(current_user).soc_team?
+      = link_to edit_administration_logic_rule_path(@logic_rule), class: "btn btn-primary" do
+        i.fa.fa-pencil
+        | Edit
+    - if policy(current_user).soc_team?
+      = link_to administration_logic_rule_path(@logic_rule), method: :delete, class: "btn btn-danger" do
+        i.fa.fa-trash
+        | Delete
+  = page_header(@logic_rule.description, ["Administration", link_to("Triage Rules", administration_logic_rules_path), @logic_rule.description])
+
+.row.app-index-wrapper
+  .col-xs-12.col-lg-10.col-lg-offset-1.app-card
+    .panel.panel-default
+      .panel-heading
+        strong = @logic_rule.description
+      .panel-body
+        .row.mb-0
+          .col-xs-12
+            p On <b>#{@logic_rule.app.title}</b> for <b>#{@logic_rule.account&.name || "all accounts"}</b>
+        .row.mb-0
+          .col-xs-12
+            .row
+              .col-xs-7
+                .panel.panel-default
+                  .panel-body
+                    .col-xs-12
+                      - @rules.each do |rule|
+                        p When <b>#{rule[:logic]}</b> of the following conditions are met:
+                        table.fullwidth.table.m-0
+                          thead.bg-white
+                            tr
+                              th Field
+                              th Condition
+                              th Value
+                          tbody
+                            - if rule[:conditions].present?
+                              - rule[:conditions].each do |condition|
+                                tr
+                                  td #{condition[:attribute]}
+                                  td #{condition[:operator]}
+                                  td #{condition[:value]}
+                            - else
+                              tr
+                                td align="center" colspan="3"
+                                  i.fa.fa-exclamation-triangle.text-warning
+                                  |  No rules found
+              .col-xs-5
+                .panel.panel-default
+                  .panel-body
+                    .col-xs-12
+                      .row
+                        p Perform the following actions:
+                        table.fullwidth.table.m-0
+                          tbody
+                            - if @logic_rule.actions.present?
+                              tr
+                                - @logic_rule.actions.each do |action|
+                                  ul
+                                    li #{action}
+                            - else
+                              tr
+                                td align="center" colspan="3"
+                                  i.fa.fa-exclamation-triangle.text-warning
+                                  |  No actions found

@@ -1,0 +1,20 @@
+.panel-heading
+  strong Customers
+.panel-body.nopadding
+  table.table.fullwidth.mb-0
+    tbody
+      - current_account.self_and_all_descendant_customers.order(updated_at: :desc).limit(10).each do |customer|
+        tr
+          td = customer.name
+          td.text-right
+            = link_to "Switch", account_current_path(customer), method: :post
+            '  |
+            = link_to "Deploy", customer_agents_path(customer)
+
+.panel-footer.clearfix.p-10
+  .pull-left = link_to "All Customers", customers_path, class: "text-muted"
+  .pull-right
+    - if policy(current_account).create_customers?
+      = link_to new_customer_path do
+        i.fa.fa-plus
+        |  Add Customer

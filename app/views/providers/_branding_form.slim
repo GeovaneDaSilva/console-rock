@@ -1,0 +1,27 @@
+= bootstrap_form_for(provider) do |f|
+  = hidden_field_tag :tab, "branding"
+  .field-group
+    - if policy(provider).can_customize_logo?
+      .field-group
+        = f.label "Custom logo"
+        br
+        = f.hidden_field :logo_id
+        #logo-preview.upload-preview
+          - if provider.logo
+            figure data-resource-url=uploads_provider_upload_url(provider, provider.logo)
+              = image_tag provider.logo.url
+              a.remove remove
+
+        .file-picker.margin-top-10
+          meta name="presignUrl" content=uploads_provider_uploads_path(provider)
+          label.btn.btn-info.btn-xs for="logo-upload"
+            i.fa.fa-plus
+            |  Select file
+          input#logo-upload type="file" data-id-target="#provider_logo_id" data-preview="#logo-preview" accept="image/png, image/jpg, image/gif"
+
+        p.text-muted.size-11
+          | For best results, upload a PNG, GIF,
+          br
+          |  or JPEG with transparency.
+
+  = render partial: "providers/form_buttons", locals: { provider: provider }

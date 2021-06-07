@@ -1,0 +1,18 @@
+tr.scans-summary.scan-results data-controller="device-hunt" data-device-hunt-id=(hunt.id) data-device-hunt-revision=(hunt.revision) data-device-hunt-device=(device.id) data-target="device-hunt.content"
+  - if hunt.continuous?
+    = render partial: "hunts/continuous_hunt", locals: { device: device, hunt: hunt }
+  - else
+    - most_recent_hunt_start = Rails.cache.read("device_#{device.id}:hunt_#{hunt.id}") || 100.years.ago
+    - hunt_revision_start = Rails.cache.read("device_#{device.id}:hunt_#{hunt.id}_#{hunt.revision}")
+
+    - last_result = hunt.hunt_results.where(device: device).last
+    - if last_result && last_result.revision == hunt.revision
+      = render partial: "hunts/device_hunt_results", locals: { status: last_result.prevailing_status, name: hunt.name, hostname: device.hostname, timestamp: last_result.created_at, result_path: device_r_hunt_path(device, last_result), device: device, hunt: hunt }
+    - elsif last_result && last_result.revision != hunt.revision
+      = render partial: "hunts/device_hunt_results", locals: { status: "pending", name: hunt.name, hostname: device.hostname, timestamp: last_result.created_at, result_path: nil, device: device, hunt: hunt }
+    - elsif hunt_revision_start
+      = render partial: "hunts/device_hunt_results", locals: { status: "running", name: hunt.name, hostname: device.hostname, timestamp: hunt_revision_start, result_path: nil, device: device, hunt: hunt }
+    - elsif last_result&.created_at.to_i < most_recent_hunt_start.to_i
+      = render partial: "hunts/device_hunt_results", locals: { status: "running", name: hunt.name, hostname: device.hostname, timestamp: most_recent_hunt_start, result_path: nil, device: device, hunt: hunt }
+    - else
+      = render partial: "hunts/device_hunt_results", locals: { status: "pending", name: hunt.name, hostname: device.hostname, timestamp: nil, result_path: nil, device: device, hunt: hunt }

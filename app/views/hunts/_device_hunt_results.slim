@@ -1,0 +1,65 @@
+- if status == "pending"
+  td
+    = inline_loader
+    |  Pending Run
+- elsif status == "running"
+  td
+    = inline_loader
+    |  Running
+- elsif status == "malicious"
+  td.text-danger
+    i.fa.fa-exclamation-triangle
+    |  Malicious
+- elsif status == "suspicious"
+  td.text-warning
+    i.fa.fa-exclamation-triangle
+    |  Suspicious
+- elsif status == "clear"
+  td.text-success
+    i.fa.fa-check-circle
+    |  All Clear
+- elsif status == "informational"
+  td.text-informational
+    i.fa.fa-exclamation-triangle
+    |  Found
+- elsif status == "failure"
+  td.text-warning
+    i.fa.fa-exclamation-triangle
+    |  Hunt Error, Failed to Run
+
+- elsif status == "error"
+  td.text-warning
+    i.fa.fa-exclamation-triangle
+    |  Internal Error, Failed to Run
+
+- elsif status == "monitoring"
+  td
+    = inline_loader
+    |  Actively Monitoring
+
+td.name
+  - if name.present?
+    = link_to name, hunt_path(hunt)
+td.hostname data-controller="device-status" data-device-status-id=(device.id)
+  = link_to device_path(device) do
+    span data-target="device-status.indicator"
+      .indicator class=(device.connectivity)
+    |  #{device.hostname}
+td.timestamp
+  - if timestamp.blank? && !hunt.continuous?
+    | Never run
+  - elsif timestamp.present?
+    span datetime=(timestamp) data-controller="datetime" = l(timestamp, format: :long)
+td.text-right
+  - if result_path.present?
+    = link_to "View Results", result_path, "data-turbolinks": false
+
+    - unless hunt.continuous?
+      '  |
+      = link_to hunt_manual_run_path(hunt, device), remote: true, method: :patch do
+        - if %w[failure error].include?(status)
+          | Retry
+        - else
+          | Run
+  - else
+    | &nbsp;

@@ -1,0 +1,13 @@
+- content_for(:page_header) do
+  = page_header("New Hunt", [link_to("System Hunts", administration_hunts_path)])
+
+#hunt.row
+  .col-xs-6
+    .panel.panel-default
+      .panel-heading
+        strong New System Hunt
+      .panel-body
+        = bootstrap_form_for @hunt, url: administration_hunts_path do |f|
+          = render partial: "form", locals: { f: f, hunt: @hunt }
+
+= yield :templates

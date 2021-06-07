@@ -1,0 +1,15 @@
+table.table.fullwidth data-controller="checkbox-selectable"
+  thead.bg-transparent
+    tr
+      th
+        = check_box_tag "check_all", false, nil, checked: true, data: { action: "checkbox-selectable#toggleAll" }
+        | &nbsp;
+      th Device
+      th Remediation
+      th.pr-0
+  tbody
+    - remediations.each do |remediation|
+      tr
+        td = check_box_tag "remediations[]", remediation.id, checked: true
+        td = remediation.hostname
+        td = remediation.actions&.dig("payload", "remediation_actions")&.map{ |item| "#{item&.dig('action')}  #{item&.dig('file_path') || item&.dig('key')}"}&.join("; ")

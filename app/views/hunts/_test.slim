@@ -1,0 +1,9 @@
+.conditional-option.padding-10
+  = render partial: "hunts/tests/#{test.class.name.demodulize.underscore}", locals: { test: test }
+
+- unless test_iteration.last?
+  .text-center.padding-10
+    - if hunt.all_tests?
+      | AND
+    - else
+      | OR

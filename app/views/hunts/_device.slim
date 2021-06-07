@@ -1,0 +1,23 @@
+- cache ["v2/hunt-result", device, hunt] do
+  - most_recent_hunt_start = Rails.cache.read("device_#{device.id}:hunt_#{hunt.id}")
+  - hunt_revision_start = Rails.cache.read("device_#{device.id}:hunt_#{hunt.id}_#{hunt.revision}")
+
+  tr.hunt-device-result data-controller="device-hunt" data-device-hunt-id=(hunt.id) data-cable-device-hunt=(hunt.id) data-device-hunt-device=(device.id) data-device-hunt-revision=(revision) data-target="device-hunt.content"
+    - last_result = hunt.hunt_results.where(device: device).last
+
+    - if hunt.continuous?
+      - if last_result
+       = render partial: "hunts/continuous_hunt", locals: { device: device, hunt: hunt }
+      - else
+        = render partial: "hunts/device_hunt_results", locals: { status: "monitoring", name: hunt.name, hostname: device.hostname, timestamp: nil, result_path: nil, device: device, hunt: hunt }
+    - else
+      - if last_result && last_result.revision == hunt.revision
+        = render partial: "hunts/device_hunt_results", locals: { status: last_result.prevailing_status, name: hunt.name, hostname: device.hostname, timestamp: last_result.created_at, result_path: device_r_hunt_path(device, last_result), device: device, hunt: hunt }
+      - elsif last_result
+        = render partial: "hunts/device_hunt_results", locals: { status: "pending", name: hunt.name, hostname: device.hostname, timestamp: last_result.created_at, result_path: nil, device: device, hunt: hunt }
+      - elsif hunt_revision_start
+        = render partial: "hunts/device_hunt_results", locals: { status: "running", name: hunt.name, hostname: device.hostname, timestamp: hunt_revision_start, result_path: nil, device: device, hunt: hunt }
+      - elsif most_recent_hunt_start
+        = render partial: "hunts/device_hunt_results", locals: { status: "running", name: hunt.name, hostname: device.hostname, timestamp: hunt_revision_start, result_path: nil, device: device, hunt: hunt }
+      - else
+        = render partial: "hunts/device_hunt_results", locals: { status: "pending", name: hunt.name, hostname: device.hostname, timestamp: nil, result_path: nil, device: device, hunt: hunt }

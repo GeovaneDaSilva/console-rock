@@ -1,0 +1,31 @@
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong = device.hostname
+        .pull-right
+          span data-target="device-status.indicator"
+            = inline_loader
+          | &nbsp;
+          span data-target="device-status.text"
+      .panel-body
+        table.table.full-width.mb-0
+          tbody
+            tr
+              td
+                strong
+                  ' IP:
+                = device.ipv4_address
+              td.text-center
+                strong
+                  ' OS:
+                = device.family_version_edition
+              - if device.connectivity == "offline"
+                td.text-center
+                  strong
+                    ' LAST ACTIVE:
+                  = "#{distance_of_time_in_words_to_now(device.last_connected_at)} ago"
+              td.text-right
+                strong
+                  ' MAC:
+                = device.mac_address

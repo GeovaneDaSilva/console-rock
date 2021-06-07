@@ -1,0 +1,18 @@
+div data-controller="process-tree"
+  ul.d-flex.flex-row.nomargin.border.border-bottom-0.p-10.bg-light
+    li.d-inline-block
+      strong Process Tree
+    - process.process_tree.each do |parent|
+      li.d-inline-block.pl-5
+        label.nomargin
+          - if parent.parent_process?
+            i.fa.fa-arrow-right.pr-5.pl-5
+            | &nbsp;
+          input type="radio" id="process-tree-#{parent.object_id}" name="process-tree-#{process.object_id}" checked=(parent.parent_process?) value="process-#{parent.object_id}" data-target='process-tree.selector' data-action='process-tree#select'
+          '  #{parent.file_name}
+
+  .d-flex.border.p-10
+    .w-100.d-flex.flex-row
+      - process.process_tree.each do |parent|
+        .min-w-100 id="process-#{parent.object_id}" data-target='process-tree.detail'
+          = render partial: "devices/r/breaches/process_json", locals: { process: parent }

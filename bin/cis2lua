@@ -1,0 +1,2 @@
+#!/bin/bash
+bundle exec oval2lua convert --download-dir static_oval/cis/ --output-dir tmp/cis --debug

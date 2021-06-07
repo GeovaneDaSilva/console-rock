@@ -1,0 +1,9 @@
+= f.text_field :alien_vault_api_key, label: "AT&T Cybersecurity (AlienVault) API Key"
+
+- if ENV["VIRUS_TOTAL_API_KEY"]
+  = f.text_field :virus_total_api_key, label: "VirusTotal API Key"
+
+.pull-right.margin-top-20
+  = f.submit class: "btn btn-primary"
+  | &nbsp;
+  button.btn.btn-default type="reset" Reset

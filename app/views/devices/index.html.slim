@@ -1,0 +1,5 @@
+- content_for(:page_header) do
+  = page_header(current_account.name, [link_to_current_account(current_account.name), "Devices"])
+- unless params[:firewalls_only]
+  = render partial: "devices/devices", locals: { devices: @filtered_devices }
+= render partial: "devices/firewalls", locals: { firewalls: @firewalls }

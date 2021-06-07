@@ -1,0 +1,60 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    = link_to "New Plan", new_administration_plan_path, class: "btn btn-primary"
+  = page_header("Plans", ["Manage Payment Plans"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        span.elipsis
+          strong Payment Plans
+
+      .panel-body
+        .row
+          - @plans.each do |plan|
+            .col-xs-4
+              .plan-card.text-center
+                = render partial: "shared/plan_description", locals: { plan: plan }
+
+              br
+              ul.list-inline
+                li
+                  strong Subscribed Accounts:
+                  |  #{plan.accounts.size}
+                li
+                  strong Revenue:
+                  |  #{Money.new(plan.charges.completed.sum(:amount_cents), "USD").format}
+                li
+                  strong Base Cost:
+                  |  #{plan.price_per_frequency.format}
+                li
+                  strong Billing Frequency:
+                  |  #{plan.human_frequency}
+                li
+                  strong # included Devices:
+                  |  #{plan.included_devices.to_i}
+                li
+                  strong Price per additional device:
+                  |  #{plan.price_per_device_overage.format}
+                li
+                  strong Published for Users:
+                  |  #{yesno plan.published}
+                li
+                  strong Managed:
+                  |  #{yesno plan.managed}
+
+                li
+                  strong Included Apps:
+                  - cache ["v1/administration/plan/apps", plan.apps] do
+                    |  #{plan.apps.pluck(:title).to_sentence}
+
+              .text-right
+                - if policy(plan).edit?
+                  = link_to "Edit Plan", edit_administration_plan_path(plan), class: "btn btn-link"
+                - if policy(plan).destroy?
+                  = link_to "Delete", administration_plan_path(plan), class: "btn btn-link text-danger", method: :delete, data: { "confirm": "Are you sure?" }
+          hr
+        - if @pagination.pages > 1
+          .text-center
+            == pagy_bootstrap_nav @pagination

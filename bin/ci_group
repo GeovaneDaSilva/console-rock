@@ -1,0 +1,9 @@
+#!/usr/bin/env ruby
+
+PROCESSES = 2
+NODE = ENV["CIRCLE_NODE_INDEX"].to_i
+
+first_group = PROCESSES.times.collect { NODE }.sum + 1
+last_group = PROCESSES.times.collect { NODE }.sum + PROCESSES
+
+puts "#{first_group},#{last_group}"

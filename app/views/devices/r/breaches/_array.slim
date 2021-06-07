@@ -1,0 +1,9 @@
+- detail_types = details.collect(&:class).uniq
+
+- if detail_types.include?(String) && detail_types.size == 1
+  li.list-item.pl-5
+    = render partial: "devices/r/breaches/details", locals: { details: details.to_sentence, key: key.singularize.pluralize(details.size) }
+- else
+  - details.each do |value|
+    li.list-item.mb-10.pl-5
+      = render partial: "devices/r/breaches/details", locals: { details: value, key: key.singularize }

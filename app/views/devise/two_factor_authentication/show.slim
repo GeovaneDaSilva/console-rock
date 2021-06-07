@@ -1,0 +1,19 @@
+.padding-15
+  .login-box
+    = form_with(url: user_two_factor_authentication_path, :method => :put, html: { class: "sky-form boxed" }) do |f|
+      header
+        i.fa.fa-users
+        |  Authentication
+
+      = devise_error_messages!
+
+      fieldset
+        section
+          = f.label "Authentication Code", class: "label"
+          label.input
+            i.icon-append.fa.fa-lock
+            = f.text_field :code, autocomplete: "off", id: "code", autofocus: true
+            span.tooltip.tooltip-top-right 2FA Code From App or Recovery Code
+
+      footer
+        = f.submit "Submit", class: "btn btn-primary pull-right"

@@ -1,0 +1,38 @@
+title
+  = @title || I18n.t('application.name', default: 'ACME, Inc')
+
+link rel="apple-touch-icon-precomposed" sizes="57x57" href="/apple-touch-icon-57x57.png"
+link rel="apple-touch-icon-precomposed" sizes="114x114" href="/apple-touch-icon-114x114.png"
+link rel="apple-touch-icon-precomposed" sizes="72x72" href="/apple-touch-icon-72x72.png"
+link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144x144.png"
+link rel="apple-touch-icon-precomposed" sizes="60x60" href="/apple-touch-icon-60x60.png"
+link rel="apple-touch-icon-precomposed" sizes="120x120" href="/apple-touch-icon-120x120.png"
+link rel="apple-touch-icon-precomposed" sizes="76x76" href="/apple-touch-icon-76x76.png"
+link rel="apple-touch-icon-precomposed" sizes="152x152" href="/apple-touch-icon-152x152.png"
+meta name="application-name" content="&nbsp;"
+meta name="msapplication-TileColor" content="#FFFFFF"
+meta name="msapplication-TileImage" content="/mstile-144x144.png"
+meta name="msapplication-square70x70logo" content="/mstile-70x70.png"
+meta name="msapplication-square150x150logo" content="/mstile-150x150.png"
+meta name="msapplication-wide310x150logo" content="/mstile-310x150.png"
+meta name="msapplication-square310x310logo" content="/mstile-310x310.png"
+
+meta name="turbolinks-cache-control" content="no-cache"
+meta name="breezy-pdf-timeout" content="5000"
+
+= render partial: "shared/sentry"
+
+= csrf_meta_tags
+= action_cable_meta_tag
+
+meta name="description" content=""
+meta name="viewport" content="width=device-width, maximum-scale=1, initial-scale=1, user-scalable=0"
+= stylesheet_link_tag    "https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800"
+= stylesheet_link_tag    "application", media: "all"
+= stylesheet_link_tag    "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+
+= yield :head
+
+= javascript_include_tag "application"
+= javascript_pack_tag "application"
+= favicon_link_tag I18n.t("application.favicon")

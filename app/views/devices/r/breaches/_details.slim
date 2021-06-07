@@ -1,0 +1,16 @@
+- if details.is_a?(TestResults::AdvancedBreachDetectionJson)
+  = render partial: "devices/r/breaches/advanced_breach_detection_json", locals: { details: details }
+- elsif details.is_a?(TestResults::DefenderDetectionJson)
+  = render partial: "devices/r/breaches/defender_detection_json", locals: { details: details }
+- elsif details.is_a?(TestResults::DataDiscoveryJson)
+  = render partial: "devices/r/breaches/data_discovery_json", locals: { details: details }
+- elsif details.is_a?(TestResults::VulnerabilityScanJson)
+  = render partial: "devices/r/breaches/vulnerability_scan_json", locals: { details: details, key: key }
+- elsif details.is_a?(TestResults::BaseJson)
+  = render partial: "devices/r/breaches/base_json", locals: { details: details }
+- elsif details.is_a?(Array)
+  = render partial: "devices/r/breaches/array", locals: { details: details, key: key }
+- elsif details.is_a?(Hash)
+  = render partial: "devices/r/breaches/hash", locals: { details: details, key: key }
+- else
+  = render partial: "devices/r/breaches/detail", locals: { value: details, key: key }

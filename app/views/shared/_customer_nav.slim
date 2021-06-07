@@ -1,0 +1,7 @@
+ul
+  - customers.each do |customer|
+    - if policy(customer).show?
+      li
+        = link_to account_current_path(customer), method: :post, class: "pb-5 pt-5 d-inline-block" do
+          i.fa class=(icon_for_account(customer))
+          |  #{customer.name}

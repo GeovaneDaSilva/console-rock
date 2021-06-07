@@ -1,0 +1,58 @@
+- charge = provider.charges.order(created_at: :desc).first
+
+section.panel.provider
+  .panel-body.nopadding-left.nopadding-right
+    .row.nomargin
+      .col-sm-8
+        h4.nomargin = provider.name
+        = provider_breadcrumbs(provider, provider.ancestors)
+      .col-sm-4.text-right
+        = render partial: "provider_status", locals: { provider: provider.root }
+
+      .col-xs-12.text-right
+        - if policy(provider).make_current?
+          = link_to "Make Current", account_current_path(provider.id), method: :post, class: "btn btn-link"
+        - if policy(provider).edit?
+          = link_to "View Details", provider_path(provider), class: "btn btn-link"
+
+        - if policy(provider).destroy?
+          = link_to "Destroy", administration_provider_path(provider), method: :delete, remote: true, class: "btn btn-link text-danger", data: { confirm: "Are you sure? There is no reversing this action." }
+
+    hr
+
+    .row.nomargin
+      .col-xs-12
+        ul.list-inline.nomargin
+          - if provider.plan
+            li
+              strong Plan:
+              |  #{provider.plan.name}
+          li
+            strong Paid Thru:
+            |  #{l provider.paid_thru, format: :long}
+          li
+            strong Total Device Count:
+            |  #{number_with_delimiter Device.where(customer: provider.self_and_all_descendants).size}
+          li
+            strong Customer Count:
+            |  #{number_with_delimiter provider.customers.size}
+          li
+            strong Agent Release Group:
+            |  #{provider.agent_release_group.humanize}
+
+    - if charge
+      hr
+
+      .row.nomargin
+        .col-xs-12
+          ul.list-inline.nomargin
+            li
+              strong Last Charge Status:
+              |  #{charge.status}
+            li
+              strong Last Charge Amount:
+              |  #{number_to_currency(charge.amount.to_f)}
+
+            li
+              strong Last Charge Date:
+              |  #{l charge.created_at, format: :long}

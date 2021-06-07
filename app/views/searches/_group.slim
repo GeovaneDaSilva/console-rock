@@ -1,0 +1,9 @@
+= link_to group_path(result, switch_account_id: result.account_id) do
+  .clearfix.search-result.group
+    h4
+      span.label.label-success Group
+      | &nbsp;
+      = result.name
+    p.margin-top-10
+      ul.list-inline.nomargin
+        li Context: #{result.account.name}

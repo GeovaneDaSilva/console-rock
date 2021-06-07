@@ -1,0 +1,15 @@
+PAGE LOADING TIMES
+
+20 records per page
+
+100 Records
+Pagy:      7.8s,  7.13s, 5s,    7s,    5.3s
+Kaminari:  8.64s, 6.35s, 5.37s, 6.02s, 6.22s
+
+1,000 Records
+Pagy:      5.74s, 6.88s, 5.68s, 5.83s, 6.39s
+Kaminari:  7.77s, 5.79s, 5.71s, 6.33s, 5.59s
+
+10,000 Records
+Pagy:      6.15s, 6.23s, 6.42s, 7.21s, 6.40s
+Kaminari:  6.97s, 7.74s, 6.39s, 6.17s, 6.05s

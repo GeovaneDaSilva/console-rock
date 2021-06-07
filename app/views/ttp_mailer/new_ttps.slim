@@ -1,0 +1,12 @@
+h1 #{@ttps.size} New #{"TTP".pluralize(@ttps)} Found
+
+- @ttps.each do |ttp|
+  ul
+    li ID: #{ttp.id}
+    li Technique: #{ttp.technique}
+    li Tactic: #{ttp.tactic}
+    li Description: #{ttp.description}
+    li
+      |Url:&nbsp;
+      a href=ttp.url #{ttp.url}
+  hr

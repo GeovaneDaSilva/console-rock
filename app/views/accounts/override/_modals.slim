@@ -1,0 +1,15 @@
+- app_results.each do |app_result|
+  .container
+    .modal.fade id="app-result-#{app_result.id}-action" role="dialog"
+      .modal-dialog
+        = bootstrap_form_tag url: account_override_path(current_account, app_result), method: :put do |f|
+          .modal-content
+            .modal-header
+              button class="close" data-dismiss="modal" aria-label="Close"
+              h4.modal-title
+                ' #{app_result.value}
+            .modal-body
+              = render partial: "accounts/override/#{@app.configuration_type}_actions", locals: { f:f, app_result: app_result }
+
+            .modal-footer
+              = f.submit "Save", class: "btn btn-primary"

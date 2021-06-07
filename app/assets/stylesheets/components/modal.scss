@@ -1,0 +1,40 @@
+.modal-body {
+  max-height: calc(100vh - 200px);
+  overflow-y: scroll;
+}
+
+.modal .modal-dialog {
+  max-height: calc(100vh - 60px);
+}
+
+.modal > .next, .modal > .prev {
+  font-family: "FontAwesome";
+  font-size: 80px;
+  display: block;
+  height: 100vh;
+  position: absolute;
+  padding-top: 50%;
+  color: #000;
+  transition: opacity 250ms;
+  opacity: 0.3;
+
+  &:hover {
+    opacity: 0.75;
+  }
+}
+
+.modal > .next {
+  right: 10px;
+
+  &:after {
+    content: "\f105";
+  }
+}
+
+.modal > .prev {
+  left: 10px;
+
+  &:after {
+    content: "\f104";
+  }
+}

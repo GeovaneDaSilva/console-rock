@@ -1,0 +1,26 @@
+- cache ["v1/devices/r/timeline", app_result, app, current_user&.timezone] do
+  .app-result-details.clearfix
+    - cache ["v1/devices/r/timeline", app, current_user&.timezone] do
+      - if app_result.malicious?
+        h4.title.text-danger Malicious
+      - if app_result.suspicious?
+        h4.title.text-warning Suspicious
+      - if app_result.informational?
+        h4.title.text-informational Informational
+
+      h3.title = app.title
+
+      p.description.hidden-xs = app.description
+
+    - cache ["v1/devices/r/timeline", app_result, ttp, current_user&.timezone] do
+      .details class=(app_result.verdict)
+        - if app.display_image_icon
+          .icon-wrapper
+            .icon
+              = raw app.display_image_icon.as_data
+        .row.pl-15
+          .col-xs-12.col-md-8.border-top.border-bottom.mt-20.mb-20.pt-15.pb-15.bg-white
+            = render partial: "devices/r/timelines/app_result/#{app.report_template}", locals: { app_result: app_result, ttp: ttp, device: device }
+          .row.pb-30
+            .col-xs-12.col-md-8.text-center
+              button.btn.btn-success data-toggle="modal" data-target="#app-result-#{app_result.id}-detail" More Details

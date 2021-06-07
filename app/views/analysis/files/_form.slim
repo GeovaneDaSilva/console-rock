@@ -1,0 +1,18 @@
+div data-controller="upload-and-submit"
+  meta name="presignUrl" content=uploads_analysis_uploads_path
+
+  = bootstrap_form_for analysis, url: analysis_file_path, remote: true, html: { class: "margin-bottom-0", data: { target: "upload-and-submit.form" } } do |f|
+    .row
+      .col-xs-8
+        #file-analysis-gallery.margin-top-8.margin-bottom--8 data-target="upload-and-submit.uploadGallery"
+          figure
+            figcaption Select a file up to 15MB in size
+
+      .col-xs-4.text-right
+        = f.hidden_field :upload_id, data: { target: "upload-and-submit.uploadIdInput" }
+
+        label.btn.btn-primary for="analysis-file-upload-input"
+          input.hidden-file-input#analysis-file-upload-input type="file" data-upload=true data-target="upload-and-submit.uploadInput"
+          | Select File
+
+        = f.submit "Upload", { class: "hidden" }

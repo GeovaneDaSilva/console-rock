@@ -1,0 +1,236 @@
+charge_accounts:
+  cron: "18 */4 * * *"
+  class: "ServiceRunnerJob"
+  queue: billing
+  args:
+    - "Charges::Scheduler"
+
+expire_subscriptions:
+  cron: "1 0 * * *"
+  class: "ServiceRunnerJob"
+  queue: billing
+  args:
+    - "Accounts::SubscriptionExpirer"
+
+support_file_cleaner:
+  cron: "0 1 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "SupportFileCleaner"
+
+hunt_feed_updater:
+  cron: "30 */8 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Hunts::Feeds::Updater"
+
+notify_devices_of_pending_hunts:
+  cron: "20 4 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Hunts::DeviceNotifier"
+
+disabled_hunt_destroyer:
+  cron: "0 1 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Hunts::DisabledDestroyer"
+
+archived_hunt_result_destroyer:
+  cron: "0 2 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "HuntResults::ArchivedDestroyer"
+
+old_hunt_test_destroyer:
+  cron: "0 3 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Hunts::OldTestsDestroyer"
+
+device_heartbeat_checker:
+  cron: "*/9 * * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Devices::HeartBeatChecker"
+
+inactive_devices_notifier:
+  cron: "0 10 * * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Devices::InactiveChecker"
+
+expired_devices_destroyer:
+  cron: "0 6 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Devices::DestroyExpired"
+
+ttp_update_and_notifier:
+  cron: "0 0 * * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "TTPs::UpdateAndNotify"
+
+queue_trashed_processor:
+  cron: "0 * * * 6"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Uploads::TrashedProcessor"
+
+update_pg_hero_stats:
+  cron: "*/5 * * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Administration::PgHeroStats"
+    - "update"
+
+clean_pg_hero_stats:
+  cron: "22 12 1 */2 *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Administration::PgHeroStats"
+    - "clean"
+
+agent_releaser:
+  cron: "*/13 * * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "AgentReleases::Releaser"
+
+agent_release_cleaner:
+  cron: "0 0 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "AgentReleases::Cleaner"
+
+# ms_dir_audit_update:
+#   cron: "15 * * * *"
+#   class: "ServiceRunnerJob"
+#   queue: utility
+#   args:
+#     - "MsGraph::Scheduler"
+#     - "directory_audit"
+
+# ms_risk_detection_update:
+#   cron: "15 * * * *"
+#   class: "ServiceRunnerJob"
+#   queue: utility
+#   args:
+#     - "MsGraph::Scheduler"
+#     - "risk_detection"
+
+# ms_secure_score_update:
+#   cron: "20 8 * * *"
+#   class: "ServiceRunnerJob"
+#   queue: utility
+#   args:
+#     - "MsGraph::Scheduler"
+#     - "secure_score"
+
+# ms_signin_update:
+#   cron: "45 * * * *"
+#   class: "ServiceRunnerJob"
+#   queue: utility
+#   args:
+#     - "MsGraph::Scheduler"
+#     - "signin"
+
+ms365_billing:
+  cron: "0 4 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "MsGraph::Services::Scheduler"
+    - "MsGraph::Services::BillingInformationPull"
+
+ms_old_user_remover:
+  cron: "20 9 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "MsGraph::Services::RemoveOldUsers"
+
+update_app_counter_caches:
+  cron: "12 12 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Utils::Utilities"
+    - "update_app_counter_caches"
+
+sentinelone_credential_expired_warning:
+  cron: "0 5 * * */2"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Sentinelone::Services::CredentialExpirationWarning"
+
+incident_cleanup:
+  cron: "*/17 * * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Incidents::Closer"
+
+kaseya_credentials:
+  cron: "0 */8 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Credentials::Update::KaseyaCredentials"
+
+datto_credentials:
+  cron: "15 */8 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Credentials::Update::DattoCredentials"
+
+connectwise_credentials:
+  cron: "30 */8 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Credentials::Update::ConnectwiseCredentials"
+
+syncro_credentials:
+  cron: "45 */8 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Credentials::Update::SyncroCredentials"
+
+populate_data_usage:
+  cron: "0 5 * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "ReportingData::PopulateUsageData"
+
+publish_incidents:
+  cron: "*/9 * * * *"
+  class: "ServiceRunnerJob"
+  queue: utility
+  args:
+    - "Incidents::Publisher"
+
+database_maintenance:
+  cron: "0 2 * * * America/Chicago"
+  class: "DatabaseMaintenanceJob"
+  queue: maintenance

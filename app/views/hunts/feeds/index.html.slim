@@ -1,0 +1,24 @@
+- content_for(:page_header) do
+  - if policy(current_account).editor?
+    .action-links.pull-right.margin-top-5
+      = link_to new_hunts_feed_path, class: "btn btn-primary" do
+        i.fa.fa-plus
+        | New Hunt Feed
+  = page_header("Hunt Feeds", [link_to_current_account(current_account.name), "Hunt Feeds"])
+
+#hunt.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Hunt Feeds
+      .panel-body.nopadding
+        - if @feeds.size.positive?
+          - cache ["v1", @feeds] do
+            table.fullwidth.table.m-0
+              = render partial: "feed", collection: @feeds, cache: Proc.new { |hunt| [feed] }
+
+            - if @pagination.pages > 1
+              .text-center.border-top
+                == pagy_bootstrap_nav @pagination
+        - else
+          .text-center No Feeds

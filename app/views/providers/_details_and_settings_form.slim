@@ -1,0 +1,37 @@
+= bootstrap_form_for(provider) do |f|
+  = hidden_field_tag :tab, "details-and-settings"
+
+  .field-group
+    = f.text_field :name
+
+    - if provider.persisted? && policy(provider).can_modify_agent_release_group?
+      .field-group
+        = f.select :agent_release_group, Account.agent_release_groups.collect { |k, v| [k.humanize, k] }, label: "Agent Release Group", help: "Allows targeting of agent releases. Default is General"
+
+    - if policy(provider).can_modify_disable_sub_subscriptions?
+      .field-group
+        = f.switch :disable_sub_subscriptions, { label_name: "Disable sub-MSP Billing", label_class: "switch-success switch-round" }
+
+    - if policy(provider).enable_customer_notifications?
+      .field-group
+        = f.switch :enable_customer_notifications, { label_name: "Allow customers to subscribe to notifications", label_class: "switch-success switch-round" }, "1", ""
+
+    - if !provider.persisted? && policy(:administration).provision_providers?
+      span.label.label-warning Admin
+      |  This provider will be nested under the current provider #{current_provider.name}. Want to create a root provider instead? Use the #{link_to "Provision Provider", new_administration_provider_path} form instead.
+
+  - if provider.persisted? && policy(provider).update_provider_settings?
+    .field-group
+      - if provider.all_descendants.size.positive?
+        = f.form_group :settings_inheritance, label: { text: "Setting inheritance: " } do
+          br
+          = f.radio_button :settings_inheritance, :none, label: "None", checked: true
+          = f.radio_button :settings_inheritance, :merge, label: "Merge changed settings"
+          = f.radio_button :settings_inheritance, :override, label: "Override all settings"
+
+      .row
+        = f.fields_for :setting do |ff|
+          .col-xs-12
+            = render partial: "shared/settings_form", locals: { f: ff }
+
+  = render partial: "providers/form_buttons", locals: { provider: provider }

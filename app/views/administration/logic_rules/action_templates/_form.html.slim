@@ -1,0 +1,10 @@
+.form-group
+  label.control-label.required for="logic_rules_action_template_type" Type
+  = select_tag "logic_rules_action_template[type]", options_for_select(template_types), class: "form-control"
+.form-group
+  label.control-label.required for="logic_rules_action_template_name" Name
+  = text_field_tag "logic_rules_action_template[name]", @template&.name, class: "form-control"
+
+.row.mb-0
+hr
+= render partial: "administration/logic_rules/action_templates/incident_template_form"

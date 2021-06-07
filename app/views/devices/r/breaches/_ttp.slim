@@ -1,0 +1,15 @@
+.avoid-page-break-inside id="ttp-#{ttp.id}"
+  h4.bold.size-16.noborder.nomargin
+    | TTP #{ttp.id} - #{ttp.technique} - #{ttp.tactic}
+
+  p.nomargin
+    = ttp.description
+    br
+    br
+    = link_to "Read more...", ttp.url, rel: "noopener noreferrer", target: "_blank"
+
+  - if ttp.remediation.present?
+    p.margin-top-10
+      strong Remediation:
+      br
+      = ttp.remediation

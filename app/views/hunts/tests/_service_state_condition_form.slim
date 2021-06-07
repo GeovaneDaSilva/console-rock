@@ -1,0 +1,5 @@
+= f.hidden_field :type
+= f.hidden_field :order
+= f.hidden_field :operator
+
+= f.select :condition, %w[any running stopped paused].collect { |state| [state.humanize, state] }, label: "has state"

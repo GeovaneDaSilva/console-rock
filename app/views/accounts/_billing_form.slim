@@ -1,0 +1,171 @@
+- if %w[pax8 kaseya].include?(account.billing_account.plan&.plan_type) && !current_user.roles.map(&:account).include?(current_account&.root) && !current_user.admin?
+  p
+    '
+      To change plans or for other billing questions, please contact your #{account.billing_account.plan&.plan_type&.humanize} sales representative.
+- else
+  .margin-bottom-20
+    - if account.plan.nil? && !account.root?
+      .alert.alert-info.margin-bottom-30
+        h4 This account is currently part of the #{account.billing_account.name} subscription.
+        p Selecting a plan for this account will result in separate charges, invoices, and billing notifications.
+
+
+    - if account.all_descendants.with_plan.any?
+      .alert.alert-default.margin-bottom-30
+        h4 Sub-Account Billing
+        p This account has sub-accounts which manage their own subscriptions.
+
+        table.table.nomargin
+          - account.all_descendants.with_plan.includes(:plan).order(:name).each do |sub_account|
+            tr
+              td
+                = sub_account.name
+
+                - if sub_account.provider?
+                  ul.nomargin
+                    - sub_account.customers.each do |customer|
+                      li #{customer.name} Customer
+
+              td #{sub_account.plan.name} Plan
+              td title="Paid thru #{l sub_account.paid_thru, format: :long_digits}" = sub_account.sales_status
+              td.text-right = link_to "View", account_path(sub_account, anchor: "billing", switch_account_id: sub_account.id)
+
+    - if policy(account).admin? && (account.plan || account.root?)
+      .alert.alert-danger.margin-bottom-30
+        h4 Administration Actions
+        p
+          = bootstrap_form_for account, html: { class: "nomargin" } do |f|
+            = f.date_select :paid_thru
+            - if account.plan
+              = f.switch :unset_plan, label_name: "Revert to trial"
+
+              - if !account.root?
+                .text-muted
+                  i.fa.fa-exclamation-triangle
+                  | This is a sub-account. Unsetting the plan for this account will revert it to use the parent account's plan/billing.
+            br
+            = f.submit class: "btn btn-danger"
+
+    - end_date = (current_account.created_at + 28.days).to_date
+    - trial_days_remaining = (end_date - current_account.paid_thru).to_i
+    - if policy(current_account).can_extend_trial_for_sub_account? && trial_days_remaining > 0
+      .alert.alert-info.margin-bottom-30
+        h4 Extend RocketCyber Trial Duration
+        p
+          = bootstrap_form_tag(url: provider_extend_trial_path(provider_id: current_user.id), html: { class: "nomargin" }) do |f|
+            p Current trial ends on: #{current_account.paid_thru}
+            p Trial can be extended up to: #{end_date}
+            br
+            - if trial_days_remaining > 0
+              = number_field_tag "provider[extend_days]", 0, min: 0, max: trial_days_remaining, placeholder: 0
+              br
+              = f.submit value: "Click to Extend Trial", class: "btn btn-info"
+    - elsif !current_user.admin_role.nil? || trial_days_remaining <= 0
+      .alert.alert-info.margin-bottom-30
+        p This account trial duration cannot be extended any further. 
+        
+    - if  account.plan || account.root?
+      .margin-bottom-40
+        h3 Billing Email
+        = bootstrap_form_for(account) do |f|
+          .col-xs-12.nopadding-left
+            = f.text_field :emails, required: true, label: "Billing Email Address", help: "Separate multiple email addresses with a comma", placeholder: "john@company.com,lisa@msp.com"
+
+            .pull-right
+              = f.submit "Save Email", class: "btn btn-primary"
+              | &nbsp;
+      - if account.provider?
+        .field-group.padding-bottom-10
+          = link_to "RocketCyberSLA Document", sla&.url, target: :_blank
+
+      - if account.trial? || account.trial_expired?
+        .col-xs-12
+          h3.margin-bottom-0
+            | Your trial
+            - if account.paid_thru.today?
+              |  ends today.
+            - elsif account.paid_thru.future?
+              |  ends in #{distance_of_time_in_words(DateTime.current.utc.end_of_day, account.paid_thru.to_datetime.utc.end_of_day)}.
+            - elsif account.trial_expired?
+                |  has expired.
+
+          p Select a plan to continue using #{I18n.t('application.name', default: 'ACME, Inc')}.
+
+      - elsif account.past_due?
+        .col-xs-12
+          h3.margin-bottom-0
+            | Subscription past due
+          - if policy(account).can_rerun_card
+            = link_to "Re-run credit card now", account_credit_cards_path(account, charge_card: true), method: :post, class: "text-warning", remote: true
+          p
+            | Your account is past due. Update your payment information or contact support for help.
+          p
+            | If you have recently updated your payment information, please check back in a few minutes while we process your payment.
+            = render partial: "accounts/payment_method", locals: { account: account }
+            br
+            br
+            = link_to "Cancel subscription", account_plan_path(account, account.plan), method: :delete, class: "text-danger"
+
+      - elsif account.canceled?
+        .col-xs-12
+          h3.margin-bottom-0 Subscription canceled
+          p
+            - if account.paid_thru.future?
+              ' Your account will remain active through #{account.paid_thru.strftime("%b %d, %Y")}.
+
+            - if policy(account).can_reactivate_plan?
+              = link_to "Reactivate your subscription", account_plan_path(account, account.plan), method: :put
+              |  or select a new plan.
+
+      - elsif account.plan.nil?
+        h2.color-green
+          b Select a plan to begin using #{I18n.t('application.name', default: 'ACME, Inc')}.
+
+      - else
+        p
+          | Your subscription will next charge on #{account.paid_thru.strftime("%b %d, %Y")}.
+          = render partial: "accounts/payment_method", locals: { account: account }
+
+        p
+          = link_to "Cancel subscription", account_plan_path(account, account.plan), method: :delete, class: "text-danger"
+
+  hr
+  .row
+    = render partial: "accounts/plan", collection: @plans, locals: { account: account, subscribed: account.plan_id.present? }
+
+  - if account.plan
+    #billing-history.margin-bottom-20
+      h3 History
+      table.table
+        thead
+          tr
+            td Date
+            td Description
+            td Status
+            td &nbsp;
+        tbody
+          - cache ["v1", "charges", @charges] do
+            - @charges.each do |charge|
+              tr
+                td = charge.created_at.strftime("%Y-%m-%d")
+                td #{humanized_money_with_symbol(charge.amount)} (#{charge.plan.name})
+                td = charge.status.to_s.humanize
+                td
+                  - if charge.completed?
+                    = link_to "PDF", account_charge_path(account, charge, format: :pdf), class: "pdf-link"
+                  - else
+                    | &nbsp;
+
+
+          - if Charge.where(account: account.self_and_all_ancestors).none? # This count had the trial
+            tr
+              td = account.created_at.strftime("%Y-%m-%d")
+              td
+                - if @charges.any?
+                  | $0.00 (#{days_since(@charges.last.created_at.beginning_of_day, account.created_at.beginning_of_day)} day free trial)
+                - else
+                  | $0.00 (#{days_since(account.paid_thru.to_datetime.end_of_day, account.created_at.beginning_of_day)} day free trial)
+              td Completed
+              td &nbsp;
+
+    = render partial: "shared/pdf_download"

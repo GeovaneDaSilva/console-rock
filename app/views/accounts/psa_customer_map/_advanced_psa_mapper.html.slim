@@ -1,0 +1,133 @@
+- with_stimulus_controller('advanced-psa-customer-mapper') do
+  = bootstrap_form_tag(url: account_psa_customer_map_search_path, method: :post, data: { remote: true, controller: stimulus_controller, "create_url" => account_psa_customer_map_create_advanced_path, "delete_url" => account_psa_customer_map_destroy_advanced_path }, html: { class: 'psa-customer-map-form' }) do |f|
+    .row.psa-customer-map-form__headings
+      .col-xs-6
+        h4.mb-0 #{I18n.t("application.name")} Customers
+        p.mt-5.mb-10
+          |
+            Use this search form to find specific #{I18n.t("application.name")}
+            customers. After you click search, your customers will appear
+            in the table below.
+        p.mb-10
+          |
+            To select a customer to connect to a PSA account, click on the row in the
+            table that corresponds to the customer you want to map. You may select as many
+            customers as you like. Once you've selected the customers you want
+            to connect to a PSA customer, go to the <strong>PSA Accounts</strong>
+            section to search for PSA accounts.
+
+      .col-xs-6
+        h4.mb-0 PSA Accounts
+        p.mt-5.mb-10
+          |
+            Use this search form to find specific PSA accounts to link to
+            your #{I18n.t("application.name")} customers. After you click search,
+            your PSA accounts will appear in the panel below.
+        p.mb-10
+          |
+            To connect your selected customers to a PSA account, click on the
+            name of the PSA account.
+
+
+    .row.psa-customer-map-form__search-forms
+      / Customer Search Form
+      / --------------------------------------------------------------------
+      .col-xs-6
+        .form-group
+          = label_tag "customers[q]", "Search for #{I18n.t("application.name")} customers"
+          = text_field_tag "customers[q]", form.customers_params.q, class: 'form-control'
+        .form-group
+          .checkbox
+            = label_tag "customers[no_connection]" do
+              = check_box_tag "customers[no_connection]", "1", form.customers_params.no_connection
+              | Only customers without a PSA account connection
+        .form-group
+          = label_tag "customers[limit]", "Limit results to:"
+          = select_tag "customers[limit]", options_for_select([5, 10, 20, 50, 100], form.customers_params.limit), class: "form-control"
+        .form-group.pull-right
+          = f.submit "Search", { data: { action: stimulus_action('click', 'onSearchCustomers'), target: stimulus_target('customerSearchButton') } }
+          = button_tag "Reset", { data: { action: stimulus_action('click', 'onResetCustomersSearch') }, class: "btn btn-link" }
+
+      / Company Search Form
+      / --------------------------------------------------------------------
+      .col-xs-6
+        .form-group
+          = label_tag "companies[q]", "Search for PSA accounts"
+          = text_field_tag "companies[q]", form.companies_params.q, class: 'form-control'
+        .form-group
+          .checkbox
+            = label_tag "companies[no_connection]" do
+              = check_box_tag "companies[no_connection]", "1", form.companies_params.no_connection
+              | Only accounts without a customer connection
+        .form-group
+          = label_tag "companies[company_types]", "Filter by company types"
+          = select_tag "companies[company_types]", options_from_collection_for_select(form.query.company_types, "id", "name", form.companies_params.company_types), { multiple: true, class: "form-control select" }
+
+        .form-group
+          = label_tag "companies[limit]", "Limit results to:"
+          = select_tag "companies[limit]", options_for_select([5, 10, 20, 50, 100], form.companies_params.limit), class: "form-control"
+        .form-group.pull-right
+          = f.submit "Search", { data: { action: stimulus_action('click', 'onSearchCompanies'), target: stimulus_target('companySearchButton') } }
+          = button_tag "Reset", { data: { action: stimulus_action('click', 'onResetCompaniesSearch') }, class: "btn btn-link" }
+
+    .row.psa-customer-map-form__actions
+      .col-xs-6.d-flex.flex-column.justify-content-flex-end
+        / Customers Actions
+        / ------------------------------------------------------------------
+        .customer-actions.btn-group(role="group" aria-label="Bulk actions for customer to PSA connections")
+          button.btn.btn-default#selectAllCustomers(data-action=stimulus_action('click', 'onSelectAll')) Select all
+          button.btn.btn-default#deleteSelectedCustomerMappings(data-action=stimulus_action('click', 'onDeleteAllSelectedMaps')) Delete selected connections
+      .col-xs-6
+        .psa-customer-map-form__flash-notifications#flashNotificationsContainer
+          #loader.psa-customer-map-form__flash-notifications__loader(hidden=true)
+            = inline_loader
+          #messages.psa-customer-map-form__flash-notifications__messages
+
+    .row.psa-customer-map-form__tables
+      / Customers View
+      / --------------------------------------------------------------------
+      .col-xs-6
+        / Customers Table
+        / ------------------------------------------------------------------
+        table.table.table-bordered.table-hover
+          thead
+            tr
+              th #{I18n.t("application.name")} Customer
+              th PSA Account
+          tbody(data-target=stimulus_target('customersTableBody'))
+            - form.query.customers.each do |customer|
+              - cached_company = customer.cached_company
+              tr.customer-row(data-customer-id=customer.id data-company-id=cached_company&.id)
+                td.customer-name = customer.name
+                td.company-name = cached_company&.name
+
+        <script type="text/template" id="customerTemplate">
+          <tr class="customer-row" data-customer-id="<%- obj.id %>" data-company-id="<%- obj.relatedToId %>">
+            <td class="customer-name"><%- obj.name %></td>
+            <td class="company-name"><%- obj.relatedToName %></td>
+          </tr>
+        </script>
+
+        button#loadMoreCustomers.btn.btn-default.center-block(data-action=stimulus_action('click', 'onLoadMoreCustomers')) Load More
+
+      / Companies View
+      / --------------------------------------------------------------------
+      .col-xs-6
+        .panel.panel-default
+          .panel-heading.relaxed#companiesHeader
+            h4#companiesHeaderText No customers selected...
+
+          .panel-body(data-target=stimulus_target('companiesRadioContainer'))
+            = f.collection_radio_buttons :psa_company, form.query.companies, :id, :name, inline: false, label: { text: 'Select one or more customers to connect them to a PSA account' }
+
+          <script type="text/template" id="psaCompanyTemplate">
+            <label class="radio">
+              <input name="psa_company" id="psa_company" type="radio" value="<%- obj.id %>"><i></i> <%= obj.name %>
+            </label>
+          </script>
+
+          button#loadMoreCompanies.btn.btn-default.center-block(data-load="companies" data-action=stimulus_action('click', 'onLoadMoreCompanies')) Load More
+
+    .row
+      .col-xs-12
+        = link_to 'Done', account_integrations_path, { class: 'btn btn-default pull-right' }

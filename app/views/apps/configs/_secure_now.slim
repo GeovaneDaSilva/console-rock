@@ -1,0 +1,13 @@
+.mb-5 Secure Now! Configuration
+.d-flex.flex-wrap
+  = f.hidden_field "config[url]", value: config.fetch("url", APP_CONFIGS[:secure_now][:url])
+  .w-50.pr-5
+    = f.text_field "config[client_id]", label: "Client ID", value: config.fetch("client_id", APP_CONFIGS[:secure_now][:client_id]), autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+  .w-50.pr-5
+    = f.number_field "config[sync_interval]", label: "Sync Interval", value: config.fetch("sync_interval", APP_CONFIGS[:secure_now][:sync_interval]), autocorrect: "off", autocapitalize: "off", spellcheck: "false", help: "In minutes", min: 10
+  .w-50.pr-5
+    = f.text_field "config[url]", label: "URL", value: config.fetch("url", APP_CONFIGS[:secure_now][:url]), autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+  .w-50.pr-5
+    = f.select "config[hostname]", options_from_collection_for_select(Device.where(customer: account), :hostname, :hostname, config.dig("hostname")), include_blank: true, label: "Monitoring Device", data: { required: true }
+  .w-50.pr-5
+    = f.switch "config[report_app_results]", { label_name: "Report App Results", checked: (config.fetch("report_app_results", APP_CONFIGS[:secure_now][:report_app_results]) == true) }

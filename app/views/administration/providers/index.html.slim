@@ -1,0 +1,49 @@
+- content_for(:page_header) do
+  = page_header("All Providers", ["All Providers"])
+
+.row
+  .col-md-4
+    .panel.panel-default
+      .panel-heading
+        h4.nomargin Filter providers
+      .panel-body
+        = bootstrap_form_tag url: administration_providers_path, method: :get do |f|
+          = f.search_field :search, value: params[:search]
+          hr
+          = f.form_group :payment_status, label: { text: "Payment Status" } do
+            div
+              = f.radio_button :payment_status, "", label: "Any status", checked: params[:payment_status].blank?
+            div
+              = f.radio_button :payment_status, :trial, label: "Within Trial", checked: params[:payment_status] == "trial"
+            div
+              = f.radio_button :payment_status, :trial_expired, label: "Trial Expired", checked: params[:payment_status] == "trial_expired"
+            div
+              = f.radio_button :payment_status, :current, label: "Current", checked: params[:payment_status] == "current"
+            div
+              = f.radio_button :payment_status, :past_due, label: "Past Due", checked: params[:payment_status] == "past_due"
+          hr
+          = f.form_group :plan_id, label: { text: "Plan" } do
+            div
+              = f.radio_button :plan_id, "", label: "Any plan", checked: params[:plan_id].blank?
+            - Plan.all.each do |plan|
+              div
+                = f.radio_button :plan_id, plan.id, label: plan.name, checked: params[:plan_id] == plan.id.to_s
+          hr
+          = f.form_group :subscription_status, label: { text: "Subscription Status" } do
+            div
+              = f.radio_button :status, "", label: "Any subscription status", checked: params[:status].blank?
+            - Provider.statuses.keys.each do |status|
+              div
+                = f.radio_button :status, status, label: status.humanize, checked: params[:status] == status
+          hr
+          = f.select :agent_release_group, Account.agent_release_groups.collect { |k, v| [k.humanize, k] }, label: "Agent Release Group", include_blank: true
+          hr
+          = submit_tag "Filter", class: "btn btn-primary"
+
+  .col-md-8
+    .providers
+      = render partial: "provider", collection: @providers, cache: Proc.new{ |provider| ["administration", provider, current_role] }
+
+    - if @pagination.pages > 1
+      .text-center
+        == pagy_bootstrap_nav @pagination

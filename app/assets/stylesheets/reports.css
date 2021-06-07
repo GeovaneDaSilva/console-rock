@@ -1,0 +1,70 @@
+/*
+ * This is a manifest file that'll be compiled into application.css, which will include all the files
+ * listed below.
+ *
+ * Any CSS and SCSS file within this directory, lib/assets/stylesheets, vendor/assets/stylesheets,
+ * or any plugin's vendor/assets/stylesheets directory can be referenced here using a relative path.
+ *
+ * You're free to add application-wide styles to this file and they'll appear at the bottom of the
+ * compiled file so the styles you add here take precedence over styles defined in any other CSS/SCSS
+ * files in this directory. Styles in this file should be added after the last require_* statement.
+ * It is generally better to create a new file per style scope.
+ *
+ *= require bootstrap
+ *= require timeline
+ *= require reports/essentials
+ *= require reports/layout
+ *= require reports/green
+ *= require reports/_base
+ *= require reports/timeline
+ *= require components/loading
+ *= require components/full_page_modal
+ *= require components/map
+ *= require components/stoplight
+ *= require_self
+ */
+
+.table-fixed {
+  table-layout: fixed;
+
+  td { white-space: nowrap; overflow: hidden; }
+}
+
+.bg-white {
+  background: #fff;
+}
+
+.border-bottom-0 {
+  border-bottom: 0 !important;
+}
+
+.newline-wrap {
+  white-space: pre-wrap;
+}
+
+@media (min-width: 768px) {
+  .container {
+    width: unset;
+  }
+}
+@media (min-width: 992px) {
+  .container {
+    width: unset;
+  }
+}
+@media (min-width: 1200px) {
+  .container {
+    width: unset;
+  }
+}
+
+@media only screen and (max-width: 768px) {
+  section div.row>div {
+    margin-bottom: unset;
+  }
+
+  .container {
+    padding-left: 0;
+    padding-right: 0;
+  }
+}

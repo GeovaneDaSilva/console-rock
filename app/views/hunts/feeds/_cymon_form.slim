@@ -1,0 +1,9 @@
+h3.nomargin Add a Cymon Feed
+
+= bootstrap_form_for feed do |f|
+  = f.hidden_field :source
+  - unless feed.persisted?
+    = f.text_field :keyword
+
+  = f.select :group_id, options_from_collection_for_select(groups, :id, :name)
+  = f.submit class: "btn btn-primary", disabled: groups.blank?

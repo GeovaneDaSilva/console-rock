@@ -1,0 +1,22 @@
+.col-md-12.col-lg-6
+  .panel.panel-default.on-demand-hunts
+    .panel-heading
+      strong
+        i.fa.fa-bullseye.text-danger
+        |  On-Demand Hunts
+      ul.nav.nav-tabs.pull-right
+        - first_taken = false
+        - Plan.values_for_on_demand_hunt_types.each do |type|
+          - if policy(current_account).send("can_on_demand_hunt_#{type}?")
+            li class=("active" unless first_taken)
+              a href="##{type}-hunt-tab" data-toggle="tab" = prettify type.to_s.humanize
+            - first_taken = true
+
+    .panel-body
+      .tab-content.transparent
+        - first_taken = false
+        - Plan.values_for_on_demand_hunt_types.each do |type|
+          - if policy(current_account).send("can_on_demand_hunt_#{type}?")
+            .tab-pane id="#{type}-hunt-tab" class=("active" unless first_taken)
+              = render partial: "accounts/hunts/#{type}", locals: { "on_demand_#{type}": "Hunts::OnDemand#{type.to_s.camelcase}".constantize.new }
+            - first_taken = true

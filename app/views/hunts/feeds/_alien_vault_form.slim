@@ -1,0 +1,25 @@
+h3.nomargin Add an AT&T Cybersecurity (AlienVault) Feed
+p
+  | Subscribe to Pulses to have their results acted upon as hunts.
+
+  - if current_account.nearest_alien_vault_api_key.blank?
+    br
+    br
+    span.label.label-warning API Key Required
+    '  To use AT&T Cybersecurity as a feed source, you need to specify an API key for this account.
+    br
+    br
+    = link_to "Sign Up to AT&T Cybersecurity", "https://otx.alienvault.com/", target: "_blank"
+    br
+    br
+    - if current_account.provider?
+      = link_to "Add your API key", provider_path(current_account, anchor: "integrations"), data: { "turbolinks-action" => "advance" }
+    - else
+      = link_to "Add your API key", customer_path(current_account, anchor: "integrations"), data: { "turbolinks-action" => "advance" }
+
+
+
+= bootstrap_form_for feed, disabled: groups.blank?  do |f|
+  = f.hidden_field :source
+  = f.select :group_id, options_from_collection_for_select(groups, :id, :name), {}, disabled: current_account.nearest_alien_vault_api_key.blank?
+  = f.submit class: "btn btn-primary", disabled: current_account.nearest_alien_vault_api_key.blank? || groups.blank?

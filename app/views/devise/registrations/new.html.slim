@@ -1,0 +1,22 @@
+- if ENV["DISABLE_SIGNUPS"]
+  .padding-15
+    .login-box
+      form.sky-form.boxed
+        header
+            i.fa.fa-users
+            |  Sign up
+        fieldset
+          section.text-center
+            p Signups have been disabled by the administrator.
+            p Do not pass Go. Do not collect $200.
+- else
+  .padding-15
+    .login-box
+      form.sky-form.boxed
+        header
+            i.fa.fa-users
+            |  Sign up
+        fieldset
+          section.text-center
+            p
+              | Trial sign up is done at the #{link_to " Kaseya trial page", "https://rcinfo.rocketcyber.com/rc-trial-request.html"}

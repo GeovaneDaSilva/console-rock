@@ -1,0 +1,27 @@
+#!/usr/bin/env ruby
+
+require "socket"
+
+def wait_for(port)
+  tries = 1
+  connected = false
+
+  while tries <= 30 && connected == false
+    begin
+      Socket.tcp("localhost", port, connect_timeout: 1) {}
+      connected = true
+    rescue Errno::ECONNREFUSED
+      puts "localhost:#{port} unavailable, trying again"
+      sleep 1
+      tries += 1
+    end
+  end
+
+  if tries > 30
+    exit(1)
+  end
+end
+
+wait_for 6666 # Redis
+
+puts "Services up!"

@@ -1,0 +1,2 @@
+<% conditions = test.conditions.order(:order) -%>
+table.insert(hunt_results.test_results, find_service_with_state(<%= test.id %>, [[<%= conditional(conditions.first.operator, conditions.first.condition) %>]], [[<%= conditions.last.condition %>]]))

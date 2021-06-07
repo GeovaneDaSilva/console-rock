@@ -1,0 +1,44 @@
+table.table.fullwidth
+  thead.bg-transparent
+    tr
+      th.pl-0
+        = check_box_tag "check_all", false, nil, checked: true, data: { action: "checkbox-selectable#toggleAll" }
+        | &nbsp;
+      th
+      th Detected
+      th.customer Customer
+      th Device
+      th Local Port
+      th Remote Port
+      th Protocol
+      th Type
+      th Country
+      th.pr-0
+  tbody
+    - app_results.each do |app_result|
+      tr
+        td.pl-0 = check_box_tag "app_results[]", app_result.id, checked: true
+        td
+          - if app_result.malicious?
+            span.text-danger title="Malicious"
+              i.fa.fa-exclamation-triangle
+          - if app_result.suspicious?
+            span.text-warning title="Suspicious"
+              i.fa.fa-exclamation-triangle
+          - if app_result.informational?
+            span.text-informational title="Informational"
+              i.fa.fa-exclamation-triangle
+        td = l app_result.detection_date, format: :digital
+        td.customer = app_result.customer.name
+        td = app_result.details.fw_mac_add || '-'
+        td = app_result.details.local_port
+        td = app_result.details.remote_port
+        td = app_result.details.protocol
+        td = app_result.value
+        td
+          - if app_result.details.country
+             = image_tag "flags/#{app_result.details.country.downcase}.png", title: COUNTRIES[app_result.details.country].dig("full_name")
+          - else
+            '  -
+        td.pr-0.text-right
+          a data-toggle="modal" data-target="#app_results_modal" data-content-target="app-result-#{app_result.id}-detail" Details

@@ -1,0 +1,11 @@
+- if test.script_override?
+  p.nomargin
+    ' Test for a
+    strong Registry Key
+    |  #{test.lua_script_description}
+- else
+  p.nomargin
+    ' Test for a
+    strong Registry Key
+    - conditions = test.conditions.order(:order)
+    |  by the name of #{conditions.first.condition_to_sentence} that #{conditions.last.operator.to_s.humanize.downcase} #{conditions.last.condition_to_sentence}.

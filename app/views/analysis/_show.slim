@@ -1,0 +1,5 @@
+- if analysis.is_a?(Analysis::Url)
+  = render partial: "analysis/urls/analysis", locals: { analysis: analysis }
+
+- elsif analysis.is_a?(Analysis::File)
+  = render partial: "analysis/files/analysis", locals: { analysis: analysis }

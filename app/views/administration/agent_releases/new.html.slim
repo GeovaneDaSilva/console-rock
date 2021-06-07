@@ -1,0 +1,27 @@
+- content_for(:page_header) do
+  = page_header("Agent Releases", ["New Agent Release"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        span.elipsis
+          strong New Agent Release
+      .panel-body
+        p.text-muted
+          i.fa.fa-exclamation-triangle.text-warning
+          |  Creation of a new release will halt all prior releases for the targeted groups.
+
+        = bootstrap_form_for [:administration, @agent_release] do |f|
+          = f.text_field :description
+          = f.select :period, AgentRelease.periods.collect { |k, v| [k.humanize, k] }, label: "Release Duration", help: "Amount of time to distribute the release of support files across all targeted customers"
+
+          = f.form_group :agent_release_groups, label: { text: "Target Groups" } do
+            = hidden_field_tag "agent_release[agent_release_groups][]", "9000"
+            - Account.agent_release_groups.each do |name, id|
+              .form-group
+                = f.check_box :agent_release_groups, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false }, id do
+                  i
+                  |  #{name.to_s.humanize }
+
+          = f.submit class: "btn btn-primary"

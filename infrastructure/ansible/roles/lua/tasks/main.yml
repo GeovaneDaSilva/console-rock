@@ -1,0 +1,25 @@
+- name: "Download source"
+  get_url:
+    url: https://www.lua.org/ftp/lua-5.3.4.tar.gz
+    dest: /home/ubuntu/lua-5.3.4.tar.gz
+    checksum: md5:53a9c68bcc0eda58bdc2095ad5cdfc63
+  become: yes
+
+- name: "Unarchive"
+  unarchive:
+    src: /home/ubuntu/lua-5.3.4.tar.gz
+    dest: /home/ubuntu/
+    remote_src: True
+  become: yes
+
+- name: "Compile"
+  make:
+    chdir: /home/ubuntu/lua-5.3.4
+    target: linux
+  become: yes
+
+- name: "Install"
+  make:
+    chdir: /home/ubuntu/lua-5.3.4
+    target: install
+  become: yes

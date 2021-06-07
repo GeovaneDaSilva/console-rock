@@ -1,0 +1,32 @@
+- case title
+  - when /last_visit/, /time/, /time_written/, /last_accessed/, /created/
+    .margin-bottom-3
+      strong #{title.humanize.upcase}:
+      - if defined?(timezone)
+        |  #{l Time.at(value.to_i).in_time_zone(timezone), format: :full}
+      - else
+        |  #{l Time.at(value.to_i), format: :full}
+  - when /hidden/
+    .margin-bottom-3
+      strong #{title.humanize.upcase}:
+      - if [true, false].include?(value)
+        |  #{value.to_s.humanize}
+      - else
+        |  #{value.to_i == 0 ? "False" : "True" }
+  - when /message/
+    .margin-bottom-3
+      strong #{title.humanize.upcase}:
+      |  #{value.gsub(/\r\n/, "<br>").html_safe}
+  - when /size/
+    .margin-bottom-3
+      strong #{title.humanize.upcase}:
+      |  #{value.to_i.to_s(:human_size)}
+  - when /url/
+    .truncate.margin-bottom-3 title=value
+      strong #{title.humanize.upcase}:
+      |  #{value}
+  - when /dns_entry_type/, /dns_flags/, /dns_name/
+  - else
+    .margin-bottom-3
+      strong #{title.humanize.upcase}:
+      |  #{value}

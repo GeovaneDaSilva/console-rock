@@ -1,0 +1,4 @@
+- if policy(customer).edit?
+ = link_to_unless_current "Modify Settings", customer_path(customer), class: "btn btn-primary" do
+- if policy(customer).destroy?
+  = link_to "Delete Customer Account", customer_path(customer), class: "btn btn-primary", remote: true, method: :delete, data: { confirm: "Are you sure?" }

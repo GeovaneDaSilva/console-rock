@@ -1,0 +1,5 @@
+table.table.fullwidth data-controller="checkbox-selectable"
+  thead.bg-transparent
+    = render partial: "shared/app_results/bitdefender_header", locals: { show_checkbox: true, show_details: true, display_admin: current_user.admin? }
+  tbody
+    = render partial: "shared/app_results/bitdefender_row", collection: similar_detections, as: :app_result, locals: { show_checkbox: true, show_details: true, query_params: query_params, display_admin: current_user.admin? }, cache: proc { |ar| ["v1", ar, current_user&.timezone] }

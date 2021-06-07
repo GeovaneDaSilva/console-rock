@@ -1,0 +1,42 @@
+- content_for(:page_header) do
+  - if policy(current_user).soc_team?
+    .action-links.pull-right.margin-top-5
+      = link_to new_administration_logic_rule_path, class: "btn btn-primary"
+        i.fa.fa-plus
+        | New Rule
+  = page_header("Triage Rules", ["Administration", "Triage Rules"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Triage Rules
+      .panel-body.nopadding
+        table.fullwidth.table.m-0
+          thead
+            tr
+              th.hidden-sm.hidden-xs Description
+              th Account
+              th App
+              th Last Updated
+              th &nbsp;
+          tbody
+            - if @logic_rules.present?
+              - @logic_rules.each do |logic_rule|
+                tr
+                  td.hidden-sm.hidden-xs = logic_rule.description
+                  td = logic_rule.account&.name || "All"
+                  td = logic_rule.app.title
+                  td = l logic_rule.updated_at, format: :full
+                  td.text-right
+                    = link_to "View", administration_logic_rule_path(logic_rule), class: "margin-right-10"
+                    = link_to "Edit", edit_administration_logic_rule_path(logic_rule), class: "margin-right-10"
+                    = link_to "Remove", administration_logic_rule_path(logic_rule), method: :delete, class: "margin-right-10"
+            - else
+              tr
+                td align="center" colspan="5"
+                  i.fa.fa-exclamation-triangle.text-warning
+                  |  No rules found
+        - if @pagy.pages > 1
+          .text-center
+            == pagy_bootstrap_nav(@pagy)

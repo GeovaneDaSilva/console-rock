@@ -1,0 +1,6 @@
+---
+- name: Create systemd config
+  template: src=systemd.j2 dest=/lib/systemd/system/sidekiq.service
+
+- name: Install new config
+  shell: systemctl daemon-reload && systemctl enable sidekiq.service

@@ -1,0 +1,242 @@
+html
+  head
+    = stylesheet_link_tag "https://fonts.googleapis.com/css?family=Open+Sans:300,400,700,800"
+    = stylesheet_link_tag "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css"
+
+    meta name="breezy-pdf-timeout" content="250"
+    meta name="breezy-pdf-width" content="8.5"
+    meta name="breezy-pdf-height" content="11"
+    meta name="breezy-pdf-filename" content=filename
+    css:
+      #{Rails.application.assets_manifest.find_sources("application.css").first.to_s.html_safe}
+
+      html, body {
+        background: transparent;
+      }
+
+      body {
+        font-family: "Open Sans", "Helvetica Neue", Helvetica, Arial, sans-serif;
+        font-weight: 200;
+        padding: 20px;
+        color: #555;
+        max-width: 2550px;
+        background: transparent;
+      }
+
+      strong {
+        font-weight: 400;
+      }
+
+      table {
+        width: 100%;
+        font-weight: 200;
+        line-height: 1.2em;
+      }
+
+      .m-t { margin-top: 20px }
+      .m-b { margin-bottom: 20px; }
+
+      .muted-text { color: #888; }
+      .text-small { font-size: 85%; }
+      .text-large { font-size: 115%; }
+      .text-right { text-align: right; }
+      .text-center { text-align: center; }
+      .border-bottom { border-bottom: 1px solid #EEE; }
+      .float-right { float: right; }
+      .vertical-align-top { vertical-align: top; }
+
+      h3 { margin: 5px 0; }
+      a { color: #00c3e5; }
+
+      h4 > span, h5 > span, span { color: #8dc63f; }
+
+      #logo { width: 300px; }
+
+      .card-image {
+        vertical-align: middle;
+        width: 26px;
+      }
+
+      .page-break {
+        page-break-after: always !important;
+      }
+
+      .footer {
+        position: absolute;
+        bottom: 20px;
+        width: 100%;
+      }
+
+      @media print {
+        a[href]:after {
+          content: none !important;
+        }
+      }
+
+  body
+    .page-break
+      = image_tag(I18n.t('application.base_logo'), id: "logo")
+
+      .float-right.text-right
+        = charge.updated_at.strftime("%B %d, %Y")
+        br
+        strong
+          = charge.status.to_s.humanize
+      br
+      br
+      br
+      br
+
+      table.m-t.m-b
+        tr
+          td.vertical-align-top
+            strong Billed To:
+            br
+            = [ account.name, account.contact_name, account.street_1, account.street_2, "#{[account.city, account.state].reject(&:blank?).join(', ')} #{account.zip_code}"].reject(&:blank?).join("<br>").html_safe
+
+          td.text-right
+            span.muted-text Invoice #
+            span.text-large = charge.id
+            h2.text-right #{humanized_money_with_symbol(charge.amount)}
+
+      table.m-t.m-b
+        tr
+          td
+            strong
+              ' Payment Method:
+            - if charge.plan.plan_type == "pax8"
+              br
+              |  Not Paid
+            - else
+              br
+              i.fa class="#{credit_card_icon(charge.card_type)}"
+              |  #{charge.card_type} #{charge.card_masked_number}
+
+
+
+      h4.border-bottom #{charge.plan.name} Plan
+      p = charge.plan.description
+
+      - if charge.plan.price_per_frequency.positive?
+        h4.price.nomargin
+          span.amount = humanized_money_with_symbol plan.price_per_frequency, no_cents_if_whole: true
+          |  / #{plan.human_frequency}
+
+      h5.sub-price.nomargin
+        span.amount +#{humanized_money_with_symbol(plan.price_per_device_overage, no_cents_if_whole: true)}
+        |  per device
+
+      - if charge.line_items.office_365_mailbox.any?
+        h5.sub-price.nomargin
+          span.amount +#{humanized_money_with_symbol(plan.price_per_office_365_mailbox_overage, no_cents_if_whole: true)}
+          |  per Office365 Mailbox
+
+      - if charge.line_items.firewall.any?
+        h5.sub-price.nomargin
+          span.amount +#{humanized_money_with_symbol(plan.price_per_firewall_overage, no_cents_if_whole: true)}
+          |  per Firewall
+
+      ul.list-unstyled
+        - if plan.included_devices.to_i.positive?
+          li
+            | #{plan.included_devices.to_s(:delimited)} included devices
+
+        - if plan.included_office_365_mailboxes.to_i.positive? && charge.line_items.office_365_mailbox.any?
+          li
+            | #{plan.included_office_365_mailboxes.to_s(:delimited)} included Office365 Mailboxes
+
+        - if plan.included_firewalls.to_i.positive? && charge.line_items.firewall.any?
+          li
+            | #{plan.included_firewalls.to_s(:delimited)} included Firewalls
+
+        - if plan.threat_hunting?
+          li Threat Hunting
+
+        - if plan.threat_intel_feeds?
+          li Threat Intel Feeds
+
+        - if plan.on_demand_analysis_types.any?
+          li On-demand #{plan.on_demand_analysis_types.collect {|s| prettify(s) }.to_sentence} analysis
+
+        - if plan.on_demand_hunt_types.any?
+          li On-demand #{plan.on_demand_hunt_types.collect(&:to_s).collect!(&:humanize).collect! {|s| prettify(s) }.to_sentence} hunting
+
+        - if plan.apps.any?
+          li Included Apps: #{plan.apps.pluck(:title).to_sentence}
+
+      h4 Payment Summary
+      table
+        - if charge.plan.price_per_frequency.positive?
+          tr
+            td.text-right colspan="5"
+              strong Base Cost:
+            td.text-right = humanized_money_with_symbol(Money.new(charge.line_items.plan_base.sum(:amount_cents), "USD"))
+        tr
+          - devices_included = charge.line_items.plan_base.first&.meta&.dig("included_devices") || 0
+          td.text-right colspan="5"
+            strong #{[(charge.line_items.plan_base_device.size - devices_included), 0].max.to_s(:delimited)} devices @ #{humanized_money_with_symbol(plan.price_per_device_overage, no_cents_if_whole: true)} each:
+          td.text-right = humanized_money_with_symbol(Money.new(charge.line_items.plan_base_device.sum(:amount_cents), "USD"))
+        - if charge.line_items.additional_app_device.any?
+          tr
+            td.text-right colspan="5"
+              strong Additional Apps:
+            td.text-right = humanized_money_with_symbol(Money.new(charge.line_items.additional_app_device.sum(:amount_cents), "USD"))
+
+        - if charge.line_items.office_365_mailbox.any?
+          tr
+            td.text-right colspan="5"
+              strong Office365 Mailboxes:
+            td.text-right = humanized_money_with_symbol(Money.new(charge.line_items.office_365_mailbox.sum(:amount_cents), "USD"))
+
+        - if charge.line_items.firewall.any?
+          tr
+            td.text-right colspan="5"
+              strong Firewalls:
+            td.text-right = humanized_money_with_symbol(Money.new(charge.line_items.firewall.sum(:amount_cents), "USD"))
+
+        tr
+          td.text-right.border-top colspan="5"
+            strong Total:
+          td.text-right.border-top
+            strong = humanized_money_with_symbol(charge.amount)
+
+    - if account.distributor?
+      - account_counts = charge.line_items.plan_base_device.group("meta #>> '{account_name}'").count
+      - if account_counts[nil].blank?
+        .page-break
+          h3.border-bottom MSP Summary
+          table
+            thead
+              th MSP
+              th.text-right Monitored Devices
+            - account_counts.each do |account_name, count|
+              tr
+                td = account_name
+                td.text-right = count
+
+    - customer_counts = charge.line_items.plan_base_device.group("meta #>> '{customer_name}'").count
+    - if customer_counts[nil].blank?
+      h3.border-bottom Customer Summary
+      table
+        thead
+          th MSP
+          - if charge.line_items.office_365_mailbox.any?
+            th Office365 Mailboxes
+          - if charge.line_items.firewall.any?
+            th Firewalls
+          th.text-right Active Devices
+        - customer_counts.each do |customer_name, count|
+          tr
+            td
+              = customer_name
+              - account_name = charge.line_items.plan_base_device.where(%(meta -> 'customer_name' ? :customer_name), customer_name: customer_name)&.first&.meta["account_name"]
+              - if account_name
+                |  - #{account_name}
+            - if charge.line_items.office_365_mailbox.any?
+              td
+                = charge.line_items.office_365_mailbox.where(%(meta -> 'account_name' ? :account_name), account_name: customer_name).count
+
+            - if charge.line_items.firewall.any?
+              td
+                = charge.line_items.firewall.where(%(meta -> 'account_name' ? :account_name), account_name: customer_name).count
+            td.text-right = count

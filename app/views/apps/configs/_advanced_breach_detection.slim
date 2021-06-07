@@ -1,0 +1,48 @@
+ul.nav.nav-tabs
+  li.active
+    a href="#windows" data-toggle="tab" aria-expanded="true"
+      i.fa.fa-windows
+      |  Windows
+  li
+    a href="#macos" data-toggle="tab" aria-expanded="false"
+      i.fa.fa-apple
+      |  MacOS
+
+.tab-content.border.border-top-none.padding-15.margin-bottom-5
+  #windows.tab-pane.active
+    - ttps = TTP.find(APP_CONFIGS[:advanced_breach_detection][:enabled_ttps].keys).group_by(&:tactic)
+    .d-flex.flex-wrap
+      - sorted_ttp_keys = ttps.keys.sort_by { |tactic| ttps[tactic].size }
+      - sorted_ttp_keys.reverse.each_slice(2).each do |group|
+        - group.each do |tactic|
+          .w-50.mt-10
+            h5.mb-5
+              u = tactic
+            - ttps[tactic].sort_by(&:id).each do |ttp|
+              div
+                = f.switch "config[enabled_ttps][#{ttp.id}][enabled]", { label_name: "#{ttp.id} - #{ttp.technique}", checked: config.dig("enabled_ttps", ttp.id, "enabled") }, "true", "false"
+
+  #macos.tab-pane
+    - ttps = TTP.find(APP_CONFIGS[:advanced_breach_detection][:macos_enabled_ttps].keys).group_by(&:tactic)
+    .d-flex.flex-wrap
+      - sorted_ttp_keys = ttps.keys.sort_by { |tactic| ttps[tactic].size }
+      - sorted_ttp_keys.reverse.each_slice(2).each do |group|
+        - group.each do |tactic|
+          .w-50.mt-10
+            h5.mb-5
+              u = tactic
+            - ttps[tactic].sort_by(&:id).each do |ttp|
+              div
+                = f.switch "config[macos_enabled_ttps][#{ttp.id}][enabled]", { label_name: "#{ttp.id} - #{ttp.technique}", checked: config.dig("macos_enabled_ttps", ttp.id, "enabled") }, "true", "false"
+
+.d-flex.flex-wrap
+  .w-50.mt-10
+    h5.mb-5 Additional Options
+    = f.switch "config[low_confidence_results]", { label_name: "Report low confidence results", checked: (config.dig("low_confidence_results") == true) }
+
+  .w-100
+    = f.text_area "config[excluded_cli_commands_to_array]", label: "Excluded CLI Commands", value: config.fetch("excluded_cli_commands", APP_CONFIGS[:advanced_breach_detection][:excluded_cli_commands]).join("\n"), help: "One CLI command per line", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+  .w-100
+    = f.text_area "config[excluded_parent_processes_to_array]", label: "Excluded Parent Processes", value: config.fetch("excluded_parent_processes", APP_CONFIGS[:advanced_breach_detection][:excluded_parent_processes]).join("\n"), help: "One parent process per line", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "%ProgramFiles(x86)%\\Kaseya\\*\\KaUsrTsk.exe"
+  .w-100
+    = f.text_area "config[excluded_registry_values_to_array]", label: "Excluded Registry Values", value: config.fetch("excluded_registry_values", APP_CONFIGS[:advanced_breach_detection][:excluded_registry_values]).join("\n"), help: "One registry value per line", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"

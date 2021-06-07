@@ -1,0 +1,300 @@
+@import "_vars/colors";
+
+.border {
+  border: 1px solid $borderColor;
+}
+
+.border-top {
+  border-top: 1px solid $borderColor;
+}
+
+.border-top-none {
+  border-top: none !important;
+}
+
+.border-bottom {
+  border-bottom: 1px solid $borderColor;
+}
+
+.border-right {
+  border-right: 1px solid $borderColor;
+}
+
+.border-left {
+  border-left: 1px solid $borderColor;
+}
+
+.min-w-100 {
+  min-width: 100%;
+}
+
+.overflow-x-scroll {
+  overflow-x: scroll;
+}
+
+.overflow-x-hidden {
+  overflow-x: hidden;
+}
+
+.bg-light {
+  background-color: #f1f2f7;
+}
+
+.m-0 {
+  margin: 0 !important;
+}
+
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+
+.mb-5 {
+  margin-bottom: 5px !important;
+}
+
+.mb-10 {
+  margin-bottom: 10px !important;
+}
+
+.mt-0 {
+  margin-top: 0 !important;
+}
+
+.mt-5 {
+  margin-top: 5px !important;
+}
+
+.mt-10 {
+  margin-top: 10px !important;
+}
+
+.mr-10 {
+  margin-right: 10px !important;
+}
+
+.mr-0 {
+  margin-right: 0 !important;
+}
+
+.ml-0 {
+  margin-left: 0 !important;
+}
+
+.ml-10 {
+  margin-left: 10px !important;
+}
+
+.ml-15 {
+  margin-left: 15px !important;
+}
+
+.p-0 {
+  padding: 0 !important;
+}
+
+.pt-0 {
+  padding-top: 0 !important;
+}
+
+.pl-0 {
+  padding-left: 0 !important;
+}
+
+.pl-15 {
+  padding-left: 15px !important;
+}
+
+.pt-5 {
+  padding-top: 5px !important;
+}
+
+.p-10 {
+  padding: 10px !important;
+}
+
+.p-20 {
+  padding: 20px !important;
+}
+
+.pt-10 {
+  padding-top: 10px !important;
+}
+
+.pt-15 {
+  padding-top: 15px !important;
+}
+
+.pt-20 {
+  padding-top: 20px !important;
+}
+
+.pt-30 {
+  padding-top: 30px !important;
+}
+
+.pb-5 {
+  padding-bottom: 5px !important;
+}
+
+.pl-5 {
+  padding-left: 5px !important;
+}
+
+.pl-20 {
+  padding-left: 20px !important;
+}
+
+.pl-25 {
+  padding-left: 25px !important;
+}
+
+.pr-5 {
+  padding-right: 5px !important;
+}
+
+.pr-10 {
+  padding-right: 10px !important;
+}
+
+.pr-15 {
+  padding-right: 15px !important;
+}
+
+.pr-0 {
+  padding-right: 0 !important;
+}
+
+.d-inline-block {
+  display: inline-block !important;
+}
+
+.mb-0 {
+  margin-bottom: 0 !important;
+}
+
+.mt-2 {
+  margin-top: 15px;
+}
+
+.text-white {
+  color: #fff !important;
+}
+
+.w-25 {
+  width: 25%;
+}
+
+.w-33 {
+  width: 33%;
+}
+
+.w-50 {
+  width: 50%;
+}
+
+.w-100 {
+  width: 100%;
+}
+
+.h-100 {
+  height: 100%;
+}
+
+.bg-transparent {
+  background-color: unset !important;
+}
+
+.bg-warning {
+  background-color: $warningYellow;
+}
+
+.bg-danger {
+  background-color: $errorRed;
+}
+
+.bg-success {
+  background-color: $rcGreen;
+}
+
+.d-flex {
+  display: -ms-flexbox !important;
+  display: flex !important;
+
+  &.align-items-center {
+    align-items: center !important;
+  }
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.d-flex-safari-fix {
+   margin: 0 -.3px; // hack to make safari work with percentage widths and flexbox
+}
+
+.flex-column {
+  -ms-flex-direction: column !important;
+  flex-direction: column !important;
+}
+
+.flex-column {
+  -ms-flex-direction: column !important;
+  flex-direction: column !important;
+}
+
+.flex-row {
+  -ms-flex-direction: row !important;
+  flex-direction: row !important;
+}
+
+.flex-row-reverse {
+  -ms-flex-direction: row-reverse !important;
+  flex-direction: row-reverse !important;
+}
+
+.flex-wrap {
+  flex-wrap: wrap;
+}
+
+.align-items-stretch {
+  -ms-flex-align: stretch !important;
+  align-items: stretch !important;
+}
+
+.align-items-end {
+  -ms-flex-align: end !important;
+  align-items: end !important;
+}
+
+.justify-content-flex-end {
+  -ms-flex-item-align: end;
+  justify-content: flex-end;
+}
+
+.flex-grow-1 {
+  flex-grow: 1;
+}
+
+.display-4 {
+  font-size: 2em;
+}
+
+.center {
+  -ms-transform: translate(0%, 50%);
+  transform: translate(0%, 50%);
+}
+
+.responsive-1-by-1 {
+  width: 100%;
+  padding-top: 100%; /* 1:1 Aspect Ratio */
+  position: relative;
+
+  .responsive-item {
+    position: absolute;
+    top: 0;
+    left: 0;
+    bottom: 0;
+    right: 0;
+  }
+}

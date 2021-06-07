@@ -1,0 +1,9 @@
+table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+  tbody
+    - device.inventory.fetch("computer_system", {}).each do |key, value|
+      tr
+        = render partial: "devices/inventory/detail", locals: { key: key, value: value }
+    - device.inventory.fetch("processor", []).each do |processor|
+      - processor.each do |key, value|
+        tr
+          = render partial: "devices/inventory/detail", locals: { key: key, value: value }

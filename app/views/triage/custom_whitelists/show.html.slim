@@ -1,0 +1,39 @@
+= form_tag account_triage_custom_whitelist_path, method: :post, remote: true do
+    = hidden_field_tag :app_id, params[:app_id]
+    .row.app-index-wrapper data-controller="expandable-table"
+      .col-xs-12.col-sm-8.col-sm-offset-2.app-card
+        .panel.panel-default
+          .panel-body
+            .row.app-title
+              .col-xs-12
+                .pull-left
+                  h3.nomargin
+                    | Custom Whitelist
+                    b.text-green Beta
+                  h4.text-muted.nomargin
+                    = account.name
+
+                .pull-right
+                  = link_to "< Back to Results", triage_path(query_params)
+
+            .row.app-description
+              .col-xs-12
+                p Fill in to create a custom whitelist rule.  If needed, <a href="#{I18n.t('helpdocs.custom_whitelisting')}">a description of custom whitelist use</a> is available. This rule will be added to the <u>#{app.title} App</u> configuration for #{account.name}.
+
+            .row
+              .col-xs-12
+                table
+                  - fields.each do |field|
+                    tr
+                      td
+                        = field.gsub(',', '-->')
+                      td
+                        = text_field_tag field
+
+            .pull-right.text-right
+              label.checkbox
+                = check_box_tag :apply_to_all
+                i
+                | Apply to existing
+
+              = submit_tag "Add", class: "btn btn-primary"

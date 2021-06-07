@@ -1,0 +1,14 @@
+= f.hidden_field :type
+= f.hidden_field :order
+= f.hidden_field :operator
+
+= f.text_field :condition, label: "YARA Script File", class: "hidden-text-input", data: { target: "hunt-test.uploadIdInput" }
+
+div data-target="hunt-test.uploadGallery"
+  - if f.object.upload
+    figure
+      figcaption = f.object.upload.filename
+
+label.btn.btn-primary for="yara-script-input-0"
+  input.hidden-file-input#yara-script-input-0 type="file" data-upload=true data-target="hunt-test.uploadInput"
+  | Upload Script

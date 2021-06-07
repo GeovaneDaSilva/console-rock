@@ -1,0 +1,25 @@
+- if provider.active?
+  .strong
+    ' Active Subscription
+  - if provider.current?
+    span.text-success
+      i.fa.fa-thumbs-up
+      |  Current
+  - elsif provider.past_due?
+    span.text-danger
+      i.fa.fa-thumbs-down
+      |  Past due
+  - elsif provider.trial?
+    span.text-info
+      i.fa.fa-clock-o
+      |  Trial
+  - elsif provider.trial_expired?
+    span.text-warning
+      i.fa.fa-exclamation-triangle
+      |  Trial expired
+- elsif provider.canceled?
+  .strong
+    ' Canceled Subscription
+- elsif provider.suspended?
+  .strong
+    ' Suspended Subscription

@@ -1,0 +1,15 @@
+p
+  | If you would like to integrate Sentinel, get the account IDs for all customer Sentinel instances.  Click the button below and paste into the box corresponding to the correct customer account.  For more details, see <a href="#{I18n.t('helpdocs.barracuda_sen')}">configuration instructions</a>
+p
+  | Once this is complete, send your syslog to #{I18n.t('application.api_syslog_target')}
+
+.row
+  .col-xs-12.app-card
+    .panel.panel-default
+      = bootstrap_form_tag url: account_api_integrations_path(account), method: :post, remote: true do |f|
+        = f.hidden_field :type, value: "sen"
+
+        = render partial: "shared/account/subaccount_list", locals: { form: f, sub_accounts: sub_accounts, map: maps.where(map_type: "sen").pluck(:account_id, :target_id).to_h, app_id: app_id }
+
+        .pull-right.text-right
+          = submit_tag "Save", class: "btn btn-primary"

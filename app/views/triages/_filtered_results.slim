@@ -1,0 +1,45 @@
+.row
+  .col-xs-12.form-inline
+    .form-group.margin-right-10
+      label.d-block Search
+      .input-group
+        = search_field_tag :search, params[:search], class: "form-control"
+
+    .form-group.margin-right-10
+      label.d-block Detection Date
+      .input-group.input-daterange data-provide="datepicker"
+        = text_field_tag :start_date, (start_date ? l(start_date, format: :long_digits) : nil), class: "form-control", data: { "date-format" => "mm/dd/yyyy" }
+        .input-group-addon thru
+        = text_field_tag :end_date, (end_date ? l(end_date, format: :long_digits) : nil), class: "form-control", data: { "date-format" => "mm/dd/yyyy" }
+
+    input.btn.btn-primary.d-inline-block.margin-top-25 type="submit" value="Filter"
+
+    = link_to "Clear", triage_path(app_id: app.id), class: "btn btn-link margin-top-25"
+
+    .pull-right
+      .input-group.margin-top-25
+        span.input-group-addon
+          i.fa.fa-cloud-download
+        span.input-group-btn
+          input.btn.btn-default type="submit" name="export" value="CSV"
+          input.btn.btn-default type="submit" name="export" value="JSON"
+
+.row
+  .col-xs-12 class=("no-device no-customer" if defined?(device)) class=("no-customer" if account.customer?)
+    = render partial: "triages/app_result/#{app.report_template}", locals: { similar_detections: @similar_detections }
+
+  - if @pagination.pages > 1
+    .row
+      .col-xs-12.text-center
+        == pagy_bootstrap_nav @pagination
+
+.row
+  .col-xs-12
+    ' There has been
+    strong #{@pagination.count.to_s(:delimited)}
+    '  #{"result".pluralize(@pagination.count)} of this type
+
+    - if defined?(device)
+      | on this device.
+    - else
+      | across all devices.

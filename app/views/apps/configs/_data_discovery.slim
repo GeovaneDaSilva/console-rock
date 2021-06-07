@@ -1,0 +1,97 @@
+ul.nav.nav-tabs
+  li.active
+    a href="#scan" data-toggle="tab" aria-expanded="true" Scanning Options
+  li
+    a href="#card" data-toggle="tab" aria-expanded="false" Payment Card Data Scans
+  li
+    a href="#custom" data-toggle="tab" aria-expanded="false" Custom Data Scans
+
+.tab-content.border.border-top-none.padding-15.margin-bottom-5
+  #scan.tab-pane.active
+    .d-flex.flex-wrap
+      .w-100
+        = f.switch "config[removable_drives]", { label_name: "Scan Removable Drives", checked: config.dig("removable_drives"), on: "YES", off: "NO" }
+      .w-100
+        = f.switch "config[fixed_drives]", { label_name: "Scan Fixed Drives", checked: config.dig("fixed_drives"), on: "YES", off: "NO" }
+      .w-100
+        = f.switch "config[remote_drives]", { label_name: "Scan Remote Drives", help: "Avoid duplicate results by limiting scanning of remote drives to one device per connected drive", checked: config.dig("remote_drives"), on: "YES", off: "NO" }
+
+      .w-100
+        hr
+
+      .w-50.pr-5
+        = f.select "config[scan_interval]", options_for_select(%w[Weekly Monthly Quarterly], config.dig("scan_interval")), label: "Scan Interval"
+
+      .w-50
+        = f.number_field "config[scan_start_time]", label: "Scan start time", help: "Specifies the time at which to initiate the scan using 24-hour clock", min: 0, max: 2359, value: config.dig("scan_start_time")
+
+      .w-100
+        hr
+
+      .w-50.pr-5
+        = f.text_area "config[directories_to_array]", label: "Explicit Directories", value: config.dig("directories").join("\n"), help: "Explicitly define directories, in addition to the selected drives above, to scan. One directory or path name per line.", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "U:\\ \n%WINDIR%\\maybebad.docx"
+
+      .w-50
+        = f.text_area "config[excluded_directories_to_array]", label: "Excluded Directories", value: config.dig("excluded_directories").join("\n"), help: "Explicitly define directories, regardless of the selected drives above, to not scan. One directory or path name per line.", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "U:\\ \n%WINDIR%\\notbad.docx"
+
+  #card.tab-pane data-controller="disable-all-toggler"
+    .d-flex.flex-wrap
+      .w-100.pt-5.pb-5
+        = f.switch "config[scan_types][payment_card][scan_payment_data]", { label_name: "Scan for Payment Card Data", checked: config.dig("scan_types", "payment_card", "scan_payment_data"), on: "YES", off: "NO", data: { action: "click->disable-all-toggler#toggle" } }
+
+      .w-100.mb-10.d-flex.flex-wrap id="div_payment_keywords"
+        p.w-100.mb-5
+          | Payment Card Brands
+        - %w[amex visa discover diners mastercard maestro carte_blanche jcb solo switch].each do |brand|
+          .w-50.pr-5.mb-5
+            = f.switch "config[scan_types][payment_card][enabled_brands][#{brand}]", { label_name: "#{brand}", checked: (config&.dig("scan_types", "payment_card", "enabled_brands") || []).include?(brand), data: { target: "disable-all-toggler.control" } }, "true", "false"
+      .w-100
+        hr
+
+      .w-100.mb-10.d-flex.flex-wrap id="div_keywords"
+        - keywords = config&.dig("scan_types", "payment_card", "keywords") || []
+        = f.text_area "config[scan_types][payment_card][keywords]", label: "Contextual Keywords", value: keywords&.join("\n"), help: "Enter keywords that should be present when payment card data is detected. Helps reduce false detections", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "disable-all-toggler.control" }
+
+      .w-100
+        hr
+
+      .w-100.pr-5
+        = f.number_field "config[scan_types][payment_card][reporting_threshold]", value: config.dig("scan_types", "payment_card", "reporting_threshold"), label: "Score Reporting Threshold (percentage)", min: 0, max: 100, data: { target: "disable-all-toggler.control" }
+
+  #custom.tab-pane
+    .d-flex.flex-wrap
+      .w-100
+        table.table.fullwidth id="tbl_keywords"
+          thead
+            tr
+              td = "Data Type"
+              td = "Regular Expression"
+              td = "Enabled/Disabled"
+              td
+          tbody
+            - config.dig("scan_types").except("payment_card").each_slice(2).each do |group|
+              - group.each do |pattern|
+                tr data-target="tbl-row-editor.row" data-controller="tbl-row-editor"
+                  td
+                    input type='hidden' name="config[scan_types][#{pattern[0]}][key]" value=pattern[0]
+                    input type='text' name="config[scan_types][#{pattern[0]}][label]" value="#{pattern[1]["label"] || pattern[0]}" readonly=true data-target="tbl-row-editor.text"
+                  td
+                    textarea name="config[scan_types][#{pattern[0]}][regex]" readonly=true data-target="tbl-row-editor.text" row="2"
+                      = [pattern[1]['regex']].flatten&.join("\n")
+                  td
+                    = f.hidden_field "config[scan_types][#{pattern[0]}][keywords]", value: [pattern[1]["keywords"]].flatten&.join("\n")
+                    = f.hidden_field "config[scan_types][#{pattern[0]}][reporting_threshold]", value: pattern[1]["reporting_threshold"]
+                    = f.switch "config[scan_types][#{pattern[0]}][enabled]", { label_name: "", checked: config.dig("scan_types", pattern[0], "enabled") == true }, "true", "false"
+                  td
+                    a.pr-10 href="#" data-action="click->tbl-row-editor#edit" data-toggle="modal" data-target="#config-key-value-edit"
+                      i.fa.fa-edit
+                    a href="#" data-action="click->tbl-row-editor#del"
+                      i.fa.fa-trash
+
+        a.text-muted.pull-right href="#" data-toggle="modal" data-target="#config-key-value"
+          i.fa.fa-gear
+          |  Add
+          - content_for :sub_modals do
+            = render partial: "apps/configs/data_discovery_modal", locals: { id: "config-key-value", title: "Add Custom Data Scan", description: "New Scan Type", target: { id: "tbl_keywords", config_key: "config[scan_types]" }, scan_type: nil, button_text: "Create" }
+          - content_for :sub_modals do
+            = render partial: "apps/configs/data_discovery_modal", locals: { id: "config-key-value-edit", title: "Edit Custom Data Scan", description: "Scan Type", target: { id: "tbl_keywords", config_key: "config[scan_types]" }, scan_type: nil, button_text: "Update" }

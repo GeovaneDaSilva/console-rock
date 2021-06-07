@@ -1,0 +1,48 @@
+- content_for(:page_header) do
+  = page_header("User Profile", ["Profile"])
+.row
+  .col-md-6
+    section.panel
+      .panel-body.noradius.padding-10
+        = bootstrap_form_for(resource, as: resource_name, url: registration_path(resource_name), html: { method: :put }, layout: :horizontal, label_col: "col-sm-4", control_col: "col-sm-8") do |f|
+          h4 Edit Profile
+
+          - if session[:oauth_user].present?
+            p.small Not all fields are editable when logging in with #{session[:oauth_user]} accounts.
+
+          = f.text_field :first_name, label: "First Name", disabled: session[:oauth_user].present?
+          = f.text_field :last_name, label: "Last Name", disabled: session[:oauth_user].present?
+          = f.email_field :email, disabled: session[:oauth_user].present?
+          = f.time_zone_select :timezone, ActiveSupport::TimeZone.us_zones
+
+          - unless session[:oauth_user].present?
+            hr
+
+            h4 Update Password
+
+            = f.password_field :current_password
+            = f.password_field :password
+            = f.password_field :password_confirmation
+
+          hr
+          h4 Two Factor Authentication
+
+          p
+           | Two factor authentication requires both a password and a code from your authentication app in order to log into your account.  This increases your accounts' security.  Even if your password is compromised, a malicious actor will not be able to log into your account.
+
+          - if resource.otp_secret_key.nil? || resource.otp_backup_codes.nil?
+            .col-xs-2
+              = link_to "Enable Two Factor", qr_path
+          - else
+            .col-xs-2
+              = link_to "Disable Two Factor", qr_path, method: :delete, :data => {:confirm => 'Are you sure?'}
+            .col-xs-2
+              = link_to "View QR Code", qr_path, method: :get
+          .col-xs-2
+            = link_to "Instructions", I18n.t('helpdocs.2fa_setup')
+
+
+          .col-sm-8.col-sm-offset-4
+            button.btn.btn-primary type="submit" Update
+            | &nbsp;
+            button.btn.btn-default type="reset" Reset

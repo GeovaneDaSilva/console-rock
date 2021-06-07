@@ -1,0 +1,72 @@
+div
+  h2.mb-0.mt-20.noborder Process Details
+  dl.dl-horizontal
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "PID", value: process.pid }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "Process owner", value: process.owner }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "Command line", value: process.command_line }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "Process created", value: process.process_create_time }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "Thread count", value: process.thread_count }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "Session ID", value: process.session_id }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "Parent PID", value: process.parent_pid }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "TTP Condition", value: process.ttp_condition }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "Threat Name", value: process.threat_name }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "ML Raw Score", value: process.ml_raw_score }
+
+div
+  h2.mb-0.mt-20.noborder Process File Image Details
+  dl.dl-horizontal
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "File name", value: process.file_name }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "File path", value: process.file_path }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "MD5", value: process.md5 }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "SHA1", value: process.sha1 }
+    = render partial: "devices/r/breaches/dl_detail", locals: { key: "SHA2", value: process.sha2 }
+
+  .row
+    .col-xs-12.col-md-6
+      dl.dl-horizontal
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "File version", value: process.file_version }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "Product name", value: process.product_name }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "Internal name", value: process.internal_name }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "Company name", value: process.company_name }
+
+    .col-xs-12.col-md-6
+      dl.dl-horizontal
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "Size", value: process.size }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "File attributes", value: process.file_attributes }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "File created", value: process.create_time }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "File modified", value: process.last_write_time }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "File accessed", value: process.last_accessed }
+
+- if process.target_image
+  - process.target_image.each do |item|
+    .border-top
+      h2.mb-0.mt-20.noborder Target Image Details
+      dl.dl-horizontal
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "File name", value: item.file_name }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "File path", value: item.file_path }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "MD5", value: item.md5 }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "SHA1", value: item.sha1 }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "SHA2", value: item.sha2 }
+
+      .row
+        .col-xs-12.col-md-6
+          dl.dl-horizontal
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "Size", value: item.size }
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "File attributes", value: item.file_attributes }
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "File created", value: item.create_time }
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "File modified", value: item.last_write_time }
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "File accessed", value: item.last_accessed }
+
+- if process.connections.is_a?(Array) && process.connections.any?
+  .border-top
+    h2.mb-0.mt-20.noborder Process Network Connection Details
+    .row
+      - (process.connections).each do |connection|
+        .col-xs-12.col-md-6
+          dl.dl-horizontal
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "Remote address", value: connection.remote_address }
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "Remote port", value: connection.remote_port }
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "Local address", value: connection.local_address }
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "Local port", value: connection.local_port }
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "TCP state", value: connection.tcp_state }
+            = render partial: "devices/r/breaches/dl_detail", locals: { key: "Offload state", value: connection.offload_state }

@@ -1,0 +1,24 @@
+- content_for(:page_header) do
+  - if policy(:administration).manage_system_hunts?
+    .action-links.pull-right.margin-top-5
+      = link_to new_administration_hunt_path, class: "btn btn-primary" do
+        i.fa.fa-plus
+        | New System Hunt
+  = page_header("System Hunts", ["System Hunts"])
+
+#hunt.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong System Hunts
+      .panel-body.nopadding
+        - if @hunts.any?
+          - cache ["v2", @hunts, @pagination] do
+            table.fullwidth.table.m-0
+              = render partial: "hunt", collection: @hunts, cache: Proc.new { |hunt| [hunt] }
+
+            - if @pagination.pages > 1
+              .text-center.border-top
+                == pagy_bootstrap_nav @pagination
+        - else
+          .text-center No System Hunts

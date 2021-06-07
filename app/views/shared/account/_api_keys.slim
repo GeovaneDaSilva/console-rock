@@ -1,0 +1,38 @@
+h2
+  | API
+
+p
+  | Generate an API key for accessing your #{I18n.t("application.name")} information programmatically.  For endpoint details, see the #{link_to " swagger documentation ", I18n.t('helpdocs.api_swagger')}.
+- if I18n.locale == :barracudamsp || I18n.locale == :ngrok
+  p
+    | A #{link_to " Postman collection ", I18n.t('helpdocs.api_postman')} is also available.
+
+- unless api_key.new_record?
+  = bootstrap_form_for(api_key,  url: account_api_key_path(account, api_key), remote: false) do |f|
+    .d-flex.flex-wrap.margin-bottom-20
+      .w-50.pr-5
+        - if policy(account).can_move_info?
+          .field-group
+            = f.switch :allow_moving_info, { label_name: "Move this MSP and all customers", label_class: "switch-success switch-round", onchange: "$(this).closest('form').submit()" }
+
+    - move_code = account.move_codes&.first
+    - if move_code && api_key.allow_moving_info
+      .d-flex.flex-wrap.margin-bottom-20
+        .w-50.pr-5
+          .field-group
+            label.control-label = "Move Code"
+            = text_field_tag :move_code, move_code&.id, class: "form-control", readonly: true
+
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        .field-group
+          = f.text_field :access_token, value: api_key.access_token, readonly: true
+
+.pull-right
+  = button_to account_api_keys_path(account), form_class: "btn btn-default", method: :post do
+    i.fa.fa-key
+    |  Generate Key
+  | &nbsp;
+  = button_to account_api_key_path(account), form_class: "btn btn-primary", method: :delete do
+    i.fa.fa-trash
+    |  Destroy Key

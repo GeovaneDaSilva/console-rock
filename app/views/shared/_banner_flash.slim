@@ -1,0 +1,13 @@
+noscript
+  #banner-flash.error
+    .row
+      .col-xs-12.col-md-8.col-md-offset-2.text-center Javascript is required. Please enable Javascript in your browser settings.
+- if defined?(@payment_notice)
+  #banner-flash class=(@payment_notice[:type])
+    .row
+      .col-xs-12.col-md-8.col-md-offset-2.text-center
+        = @payment_notice[:message]
+        | &nbsp;
+
+        - if policy(current_provider).can_modify_plan?
+          = link_to @payment_notice[:link_text], provider_path(current_provider, anchor: "billing")

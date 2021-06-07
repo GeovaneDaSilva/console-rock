@@ -1,0 +1,13 @@
+#!/bin/bash
+# run_local production or run_local staging
+# All user passwords will be set to 123456
+heroku pg:backups:capture -a rocketcyber-$1
+heroku pg:backups:download -a rocketcyber-$1
+pg_restore --verbose --clean --no-acl --no-owner -h localhost -U postgres -d console_dev latest.dump
+rm latest.dump
+rails runner 'User.find_each { |u| u.update(password: "123456", password_confirmation: "123456", encrypted_otp_secret_key: nil) }'
+rails runner 'Upload.support_files.destroy_all'
+rails runner 'App.update_all(display_image_id: nil, display_image_icon_id: nil)'
+rails runner 'Account.update_all(api_keys: nil)'
+rails runner 'Credentials::MsGraph.update_all(keys: nil)'
+rails runner 'Device.update_all(inventory_upload_id: nil, inventory_last_updated_at: nil)'

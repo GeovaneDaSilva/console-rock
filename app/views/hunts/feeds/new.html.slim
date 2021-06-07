@@ -1,0 +1,39 @@
+- content_for(:page_header) do
+  = page_header("Hunt Feeds", [link_to_current_account(current_account.name), link_to("Hunt Feeds", hunts_feeds_path), "New Hunt Feed"])
+
+#hunt.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        ul.nav.nav-tabs.pull-left
+          li
+            a href="#system" aria-expanded="true" data-toggle="tab" #{I18n.t('application.name')} Threat Intelligence
+          / li
+          /   a href="#cymon" aria-expanded="true" data-toggle="tab" Cymon
+          li
+            a href="#alienvault" aria-expanded="false" data-toggle="tab" Alien Vault
+          - if current_account.managed?
+            li
+              a href="#reversinglabs" aria-expanded="false" data-toggle="tab" Reversing Labs
+            - if ENV["VIRUS_TOTAL_API_KEY"] 
+              li
+                a href="#virustotal" aria-expanded="false" data-toggle="tab" Virus Total
+      .panel-body
+        .tab-content.transparent
+          - if @groups.blank?
+            p
+              span.label.label-warning No Device Groups
+              '  To create a Hunt Feed, you need a Device Group first. Create one
+              = link_to "here", new_group_path
+              | .
+          #system.tab-pane
+            = render partial: "system_hunts_form", locals: { feed: @system_feed, groups: @groups }
+          / #cymon.tab-pane
+          /   = render partial: "cymon_form", locals: { feed: @cymon_feed, groups: @groups, source: "" }
+          #alienvault.tab-pane
+            = render partial: "alien_vault_form", locals: { feed: @alienvault_feed, groups: @groups }
+          - if current_account.managed?
+            #reversinglabs.tab-pane
+              = render partial: "reversing_labs_form", locals: { feed: @reversinglabs_feed, groups: @groups }
+            #virustotal.tab-pane
+              = render partial: "virus_total_form", locals: { feed: @virus_total_feed, groups: @groups }

@@ -1,0 +1,13 @@
+- unless customer.marked_for_deletion?
+  tr
+    td = customer.name
+    td.hidden-sm.hidden-xs = customer.parent.name
+    td = number_with_delimiter customer.all_descendant_devices.size
+    td = customer.license_key
+    td = customer.all_descendant_billable_instances.office_365_mailbox.active.size
+    td = customer.all_descendant_billable_instances.firewall.active.size
+
+    td.text-right
+      = link_to "Switch", account_current_path(customer), method: :post
+      '  |
+      = link_to "Deploy", customer_agents_path(customer)

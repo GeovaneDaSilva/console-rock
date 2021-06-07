@@ -1,0 +1,35 @@
+.padding-15
+  .login-box
+    = form_for(resource, as: resource_name, url: session_path(resource_name), html: { class: "sky-form boxed" }) do |f|
+      header
+        i.fa.fa-users
+        |  Sign in
+
+      = devise_error_messages!
+
+      fieldset
+        section
+          = f.label :email, class: "label"
+          label.input
+            i.icon-append.fa.fa-envelope
+            = f.email_field :email, autofocus: true, placeholder: "john.smith@example.com"
+            span.tooltip.tooltip-top-right Email Address
+
+        section
+          = f.label :password, class: "label"
+          label.input
+            i.icon-append.fa.fa-lock
+            = f.password_field :password, autocomplete: "off"
+            span.tooltip.tooltip-top-right Type your password
+          label.checkbox for="user_remember_me"
+            = f.check_box :remember_me
+            i
+            | Remember me?
+
+      footer
+        = f.submit "Log In", class: "btn btn-primary pull-right"
+
+        = render "devise/shared/links"
+= render partial: "shared/flash"
+
+= javascript_include_tag "timezone-detection", "data-turbolinks-track": "reload"

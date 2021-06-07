@@ -1,0 +1,16 @@
+- pagination_key = "app_#{app.id}".to_sym
+- app_results_pagination, app_results = pagy all_app_results.where(app: app), page_param: pagination_key
+
+- if app_results.size.positive?
+  .row.margin-top-20.avoid-page-break-inside id="app-#{app.id}"
+    .col-xs-12
+      .box-inner
+        h3.bold.size-18 = app.title
+        p = app.description
+
+        - cache ["v1/devices/r/breach/app-results", app_results, current_user&.timezone] do
+          = render partial: "r/breaches/app_results/#{app.report_template}", locals: { app_results: app_results, query_params: { app_id: app.id } }
+
+          - if app_results_pagination.pages > 1
+            .text-center.breezy-pdf-remove
+              == pagy_bootstrap_nav app_results_pagination

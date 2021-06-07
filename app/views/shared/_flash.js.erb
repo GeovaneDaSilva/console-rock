@@ -1,0 +1,26 @@
+toastr.options= {
+  progressBar: true,
+  positionClass: 'toast-bottom-right'
+};
+
+toastr.remove();
+
+<%- unless flash[:error].blank? %>
+  toastr.error('<%= escape_javascript flash[:error] %>')
+<% end %>
+
+<%- unless flash[:failure].blank? %>
+  toastr.error('<%= escape_javascript flash[:failure] %>')
+<% end %>
+
+<%- unless flash[:notice].blank? %>
+  toastr.success('<%= escape_javascript flash[:notice] %>')
+<% end %>
+
+<%- unless flash[:info].blank? %>
+  toastr.info('<%= escape_javascript flash[:info] %>')
+<% end %>
+
+<% flash.each do |k, _| %>
+  <% flash[k] = nil %>
+<% end %>

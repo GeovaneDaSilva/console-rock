@@ -1,0 +1,22 @@
+table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+  thead
+    tr
+      th Name
+      th Publisher
+      th Username
+      th Version
+      th Size
+      th Install Date
+  tbody
+    - device.inventory.fetch("software", []).each do |software|
+      tr
+        td = software.fetch("DisplayName", "N/A")
+        td = software.fetch("Publisher", "N/A")
+        td = software.fetch("username", "N/A")
+        td = software.fetch("DisplayVersion", "N/A")
+        td
+          - if software.dig("EstimatedSize") && software.dig("EstimatedSize").is_a?(Integer)
+            = software.dig("EstimatedSize").to_s(:human_size)
+          - else
+            = software.fetch("EstimatedSize", "N/A")
+        td = software.fetch("InstallDate", "N/A")

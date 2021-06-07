@@ -1,0 +1,33 @@
+tr
+  td
+    - if app_result.malicious?
+      span.text-danger title="Malicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.suspicious?
+      span.text-warning title="Suspicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.informational?
+      span.text-informational title="Informational"
+        i.fa.fa-exclamation-triangle
+
+    | &nbsp;
+    = link_to app_result.device.hostname, "##{app_result.device.id}", data: { turbolinks: false }
+
+  td = l app_result.detection_date, format: :digital
+  td.breezy-pdf-remove = app_result.details.local_address || " - "
+  td.breezy-pdf-remove = app_result.details.local_port || " - "
+  td
+    span data-controller="external-intel" data-external-intel-type="ip" data-external-intel-value=app_result.details.remote_address = app_result.details.remote_address || " - "
+  td = app_result.details.remote_port || " - "
+  td = app_result.details.direction || " - "
+  td.text-center.breezy-pdf-remove title=(app_result.details.reputation.to_h.fetch("threats_found", "Unknown Reputation"))
+    - detections = app_result.details.detection_count.to_i
+    - 8.times do |i|
+      span.stoplight class=("malicious" if i <= (detections - 1))
+      | &nbsp;
+  td
+    - if app_result.details.country
+      = image_tag "flags/#{app_result.details.country.downcase}.png", alt: app_result.details.country, title: COUNTRIES[app_result.details.country].dig("full_name")
+    - else
+      '  -
+  td.breezy-pdf-remove = link_to "Details", device_r_breach_url(app_result.device, anchor: "app-result-#{app_result.id}")

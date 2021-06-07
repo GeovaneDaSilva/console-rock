@@ -1,0 +1,6 @@
+= bootstrap_form_for feed do |f|
+  - unless feed.persisted? && feed.cymon?
+    = f.text_field :keyword
+
+  = f.select :group_id, options_from_collection_for_select(groups, :id, :name), required: true
+  = f.submit class: "btn btn-primary"

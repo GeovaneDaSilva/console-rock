@@ -1,0 +1,27 @@
+- content_for(:page_header) do
+  = page_header("Incident", [link_to("All Incidents", account_apps_incidents_path(account)), "Incident ##{incident.id}"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      = bootstrap_form_for incident, url: account_apps_incident_remediate_path(account, incident), method: :put do |f|
+        .panel-heading
+          .pull-left
+            strong
+              = incident.title
+
+          .pull-right
+            = link_to "< Back to Incident", account_apps_incident_path(account, incident)
+
+        .panel-body
+          = render partial: "triages/remediations", locals: { remediations: remediations }
+
+          .pull-right.text-right
+            label.checkbox
+              = check_box_tag :isolate_all
+              i
+              | Isolate All Devices
+
+            / # Commented out for future use: 2020-09-11
+            / = hidden_field_tag :av_full_scan, params[:av_full_scan]
+            = f.submit "Execute", class: "btn btn-primary ml-10"

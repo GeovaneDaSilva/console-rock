@@ -1,0 +1,6 @@
+= bootstrap_form_for analysis, url: analysis_url_path, remote: true, html: { class: "margin-bottom-0" } do |f|
+  .row
+    .col-xs-10
+      = f.text_field :url, placeholder: "http://example.com/malicious", hide_label: true, wrapper: { class: "margin-bottom-0" }
+    .col-xs-2
+      = f.submit "Analyze", class: "btn btn-primary pull-right margin-top-0 margin-bottom-0"

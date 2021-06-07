@@ -1,0 +1,32 @@
+table.table.fullwidth data-controller="checkbox-selectable"
+  thead.bg-transparent
+    tr
+      th.pl-0
+        = check_box_tag "check_all", false, nil, checked: true, data: { action: "checkbox-selectable#toggleAll" }
+        | &nbsp;
+      th
+      th Detected
+      th.customer Customer
+      th.device Device
+      th Value
+      th.pr-0
+  tbody
+    - similar_detections.each do |app_result|
+      tr
+        td.pl-0 = check_box_tag "app_results[]", app_result.id, checked: true
+        td
+          - if app_result.malicious?
+            span.text-danger title="Malicious"
+              i.fa.fa-exclamation-triangle
+          - if app_result.suspicious?
+            span.text-warning title="Suspicious"
+              i.fa.fa-exclamation-triangle
+          - if app_result.informational?
+            span.text-informational title="Informational"
+              i.fa.fa-exclamation-triangle
+        td = l app_result.detection_date, format: :digital
+        td.customer = link_to app_result.customer.name, account_triage_path(app_result.customer, query_params.merge(switch_account_id: app_result.customer.id)), target: "_blank", title: "Triage this App for #{app_result.customer.name}"
+        td.device = link_to app_result.device.hostname, device_triage_path(app_result.device, query_params), target: "_blank", title: "Triage this App for #{app_result.device.hostname}"
+        td = app_result.value
+        td.pr-0.text-right
+          a data-toggle="modal" data-target="#app_results_modal" data-content-target="app-result-#{app_result.id}-detail" Details

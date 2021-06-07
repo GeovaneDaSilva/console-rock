@@ -1,0 +1,33 @@
+- content_for :modals do
+  .modal.fade tabindex="-1" role="dialog" aria-labelledby="accept-tos-label" aria-hidden="true" id="accept-tos" data-backdrop="static" data-keyboard="false"
+    .modal-dialog.modal-sm
+      .modal-content.sky-form
+        = form_for current_user, url: registration_path(:user), method: :put do |f|
+          .modal-header
+            h4.nomargin id="accept-tos-label" Hold on...
+          .modal-body.text-center
+            p You need to accept the #{I18n.t('application.tos_label')} before you can proceed.
+
+            section
+              = f.label :current_password, class: "label"
+              label.input
+                i.icon-append.fa.fa-lock
+                = f.password_field :current_password, autocomplete: "off"
+                span.tooltip.tooltip-top-right Type your password
+
+            label.checkbox for="user_accept_tos"
+              = f.check_box :accept_tos, required: true
+              i
+              ' I accept the #{I18n.t('application.name')}
+              - if I18n.locale == :barracudamsp || I18n.locale == :ngrok
+                = link_to "End User License Agreement", "https://www.barracuda.com/company/legal/prd_trm", target: "_blank"
+              - else
+                = link_to "Terms of Service", "/tos", target: "_blank"
+
+          .modal-footer.text-right
+            = link_to "Logout", destroy_user_session_path, method: :delete, class: "btn btn-primary pull-left ml-0", title: "Log out and reset password"
+            = f.submit "Accept", class: "btn btn-primary"
+
+  javascript:
+    $('#accept-tos').modal('show')
+    $('#accept-tos input[type="password"]').focus()

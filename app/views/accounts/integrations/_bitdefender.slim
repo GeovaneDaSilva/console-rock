@@ -1,0 +1,68 @@
+div data-controller="api-test"
+  = bootstrap_form_tag url: bitdefender_auth_create_path, method: :post do |f|
+    - credential = account&.bitdefender_credential
+    - has_credential = account.bitdefender_credential?
+    p.hidden data-target="api-test.type"
+      | bitdefender
+
+    p
+      |
+        For <a href="#{I18n.t('helpdocs.bitdefender')}">configuration instructions</a>, see the #{I18n.t("application.name")} help docs.
+
+    - if has_credential
+      - if request.params[:show_app_id] == app_id.to_s
+        p
+          b
+            |
+              Please complete the mapping below and click 'Save Map'
+
+      .d-flex.flex-wrap
+        .w-100
+          - companies = credential&.sites
+          - acm = (antivirus_customer_maps || []).inject({}) { |r, s| r.merge!({s["antivirus_id"] => s})}
+
+          - if companies.present?
+            table.table.fullwidth id="tbl_mapping"
+              thead
+                tr
+                  td = "Company Name"
+                  td = "Customer"
+                  td
+              tbody
+                - companies.each do |id, name|
+                  tr
+                    td
+                      input type='text' name="map[#{id}][company_name]" value="#{name}" readonly=true
+                    td
+                      = select_tag "map[#{id}][account_id]", options_for_select(dropdown_formatted_sub_accounts, acm&.dig(id.to_s)&.account_id), class: "form-control", include_blank: true
+
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.text_field :access_token, label: "Enter your Bitdefender access token", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100", data: { target: "api-test.accessToken" }, value: integrations_mask(credential&.access_token), readonly: has_credential
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+      .w-50.pr-5
+        = f.text_field :bitdefender_url, label: "Enter your BitDefender URL", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "https://cloud.gravityzone.bitdefender.com", pattern: 'https:\/\/.*', value: credential&.bitdefender_url, readonly: has_credential
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+
+    p.padding-10 data-target="api-test.outputDisplay"
+
+    .w-100.text-right.padding-10
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#"
+        | Credential Test
+      - if has_credential
+        = f.submit value: "Save Map", class: "btn btn-primary margin-right-10"
+        = link_to "Clear Existing Credential", bitdefender_auth_destroy_path(customer_id: account.id), class: "btn btn-primary", :method => :delete
+      - else
+        = f.submit value: "Authenticate", class: "btn btn-primary"
+      .margin-top-5
+
+    .modal.fade id="bitdefender_loading" role="dialog" data-target="confirm-modal.loading" data-backdrop="static" data-keyboard="false"
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h3.modal-title = "Please wait..."
+          .modal-body.text-center
+            | Please wait while we process your request.
+          .padding-3.text-center
+            h1
+              i.fa.fa-spinner.spin

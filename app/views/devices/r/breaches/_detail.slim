@@ -1,0 +1,25 @@
+- if key == "ttp_id" || value.blank?
+- elsif value.is_a?(Time)
+  strong #{key.to_s.underscore.titleize.upcase}:
+  |  #{l value.in_time_zone(current_user.timezone), format: :digital}
+- elsif key =~ /md5|sha1|sha2|filecontenthash/
+  strong #{key.to_s.underscore.titleize.upcase}:
+  span data-controller="external-intel" data-external-intel-type="hash" data-external-intel-value=value = value
+- elsif key =~ /ip$|remote_address/
+  strong #{key.to_s.underscore.titleize.upcase}:
+  span data-controller="external-intel" data-external-intel-type="ip" data-external-intel-value=value = value
+- elsif key =~ /message/
+  strong #{key.to_s.underscore.titleize.upcase}:
+  pre.nomargin = value
+- elsif key.to_s.match(/_url/)
+  strong #{key.to_s.underscore.titleize.upcase}:
+  = link_url(value)
+- elsif key =~ /controlName/
+  strong #{key.to_s.underscore.titleize.upcase}:
+  | #{value}
+  - unless value == "overallScore"
+    pre
+      = render partial: "devices/r/breaches/details", locals: { details: RefSecureScore.find_by(id: value)&.details || "", key: "" } unless value == "overallScore"
+- else
+  strong #{key.to_s.underscore.titleize.upcase}:
+  |  #{value}

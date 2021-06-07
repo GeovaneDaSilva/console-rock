@@ -1,0 +1,20 @@
+- if current_user.omnipotent?
+  .d-flex.flex-wrap
+    .w-100.pt-15
+      h4 Admin Only Custom Configs
+
+    - config.fetch("admin_configs", []).each do |admin_config|
+      .w-50.pr-5
+        = f.text_field "config[admin_configs][][key]", label: "Config Key", value: admin_config.fetch("key", nil), autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+      .w-50
+        = f.text_field "config[admin_configs][][value]", label: "Config Value", value: admin_config.fetch("value", nil), autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+        label.switch.switch-rounded
+          / Manually build switch markup so that the hidden field isn't present. See check_box api docs gotcha.
+          input type="checkbox" value="true" name="config[admin_configs][][_destroy]" id="config[admin_configs][][_destroy]"
+          span.switch-label data-on="YES" data-off="NO"
+          span Remove
+
+    .w-50.pr-5
+      = f.text_field "config[admin_configs][][key]", label: "Config Key", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+    .w-50
+      = f.text_field "config[admin_configs][][value]", label: "Config Value", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"

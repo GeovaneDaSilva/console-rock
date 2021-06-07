@@ -1,0 +1,116 @@
+@import "_vars/colors";
+
+.dashboard-card {
+    overflow:hidden;
+    background: #fff;
+
+    .dashboard-inner {
+        margin: 15px;
+    }
+
+    .dashboard-card-icon {
+        float:left;
+        width:56px;
+        height:56px;
+        margin-right: 15px;
+        text-align:center;
+
+        > i {
+            color:#FFF;
+            font-size:28px;
+            line-height:56px;
+        }
+    }
+
+    .dashboard-card-body {
+        h5, h6 {
+            margin:0;
+        }
+
+        h5 {
+            font-size:20px;
+            font-weight:bold;
+            line-height:1;
+        }
+
+        h6 {
+            color: #999;
+            font-size:12px;
+            font-weight:bold;
+            text-transform:uppercase;
+        }
+    }
+
+    .dashboard-card-action {
+        border-top:1px solid #DDD;
+        background: #EEE;
+        margin-top: 15px;
+
+        > span {
+            display:block;
+            position:relative;
+            padding:8px 15px;
+            color:#A1A1A1;
+            font-size:12px;
+            font-weight:bold;
+
+            > i {
+                margin: 2px 3px 0 0;
+                float: right;
+            }
+        }
+    }
+
+    &.dashboard-card-type-1 {
+        $color: darken($rcGreen, 20%);
+        .dashboard-card-icon {
+            background:$color;
+        }
+
+        h5 {
+            color:$color
+        }
+    }
+
+    &.dashboard-card-type-2 {
+        .dashboard-card-icon {
+            background:$rcGreen;
+        }
+
+        h5 {
+            color:$rcGreen;
+        }
+    }
+
+    &.dashboard-card-type-3 {
+        .dashboard-card-icon {
+            background: $errorRed;
+        }
+
+        h5 {
+            color:$errorRed;
+        }
+    }
+
+    &.dashboard-card-type-4 {
+        $color: $informational;
+
+        .dashboard-card-icon {
+            background:$color;
+        }
+
+        h5 {
+            color:$color;
+        }
+    }
+
+    &.dashboard-card-type-5 {
+        .dashboard-card-icon {
+            background:$warningYellow;
+        }
+
+        h5 {
+            color:$warningYellow;
+        }
+    }
+}

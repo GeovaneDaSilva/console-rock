@@ -1,0 +1,21 @@
+- content_for(:page_header) do
+  = page_header(current_account.name, [link_to_current_account(current_account.name), link_to("Devices", devices_path), link_to(@device.hostname, device_path(@device)), "Completed Hunts"])
+
+.row
+  .col-xs-12#hunts
+    .panel.panel-default
+      .panel-heading
+        strong #{@device.hostname} Hunts
+      .panel-body.nopadding
+        - if @hunts.size.positive?
+          - cache ["v1/hunts", @hunts] do
+            table.fullwidth.table.m-0
+              - @hunts.each do |hunt|
+                - cache ["v3", "device-hunt", hunt, @device] do
+                  = render partial: "devices/hunt", locals: { device: @device, hunt: hunt }
+
+            - if @pagination.pages > 1
+              .text-center
+                == pagy_bootstrap_nav @pagination
+        - else
+          .text-center No Hunts

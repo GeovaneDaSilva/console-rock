@@ -1,0 +1,15 @@
+.sub-account-list {
+  &__add-customer {
+    &__checkbox {
+      position: static !important;
+    }
+
+    &__summary {
+      cursor: pointer;
+    }
+  }
+
+  &__td {
+    vertical-align: middle !important;
+  }
+}

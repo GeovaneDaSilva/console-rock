@@ -1,0 +1,16 @@
+- if psa_config.persisted?
+  .row
+    .col-xs-12
+      .alert.alert-info.drop-shadow.margin-bottom-30
+        strong.size-18 Update From PSA
+        p
+          | If you wish to refresh the board, queue or customer type options, select "Re-Sync Basic Data" and click "Update Integration"
+        p
+          | To import additional customer types for an existing integration, select both "Import Customers" and "Re-Sync", then click "Update Integration"
+= render partial: "accounts/integrations/connectwise", locals: { account: current_account, credential: connectwise_credential, psa_config: psa_config }
+br
+= render partial: "accounts/integrations/datto", locals: { account: current_account, credential: datto_credential, psa_config: psa_config }
+br
+= render partial: "accounts/integrations/kaseya", locals: { account: current_account, credential: kaseya_credential, psa_config: psa_config }
+br
+= render partial: "accounts/integrations/syncro", locals: { account: current_account, credential: syncro_credential, psa_config: psa_config }

@@ -1,0 +1,19 @@
+- show_checkbox = nil if local_assigns[:show_checkbox].nil?
+- show_details = nil if local_assigns[:show_details].nil?
+tr
+  - if show_checkbox
+    th.pl-0
+      = check_box_tag "check_all", false, nil, checked: true, data: { action: "checkbox-selectable#toggleAll" }
+      | &nbsp;
+  th
+  th Detected
+  th Reported By
+  th.customer Customer
+  th Sender Reputation
+  th Sender Email
+  th Internal Sender
+  th Type
+  th Subject
+  th Themis Verdict
+  - if show_details
+    th.pr-0

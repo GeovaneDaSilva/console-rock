@@ -1,0 +1,34 @@
+- content_for(:page_header) do
+  = page_header("All Providers", ["All Providers"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        h4.nomargin Crash Reports
+      .panel-body
+        = bootstrap_form_tag url: administration_crash_reports_path, method: :get do |f|
+          = f.search_field :device_id, value: params[:device_id], help: "Filter by Device ID"
+          hr
+          = submit_tag "Filter", class: "btn btn-primary"
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-body
+        - cache ["v5/crash_reports", @crash_reports], expires_in: 60.minutes do
+          table.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+            thead
+              tr
+                th Date
+                th Device
+                th Customer
+                th Filename
+                th Size
+                th &nbsp;
+            tbody
+              = render partial: "crash_report", collection: @crash_reports
+
+    - if @pagination.pages > 1
+      .text-center
+        == pagy_bootstrap_nav @pagination

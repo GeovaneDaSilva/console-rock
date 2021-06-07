@@ -1,0 +1,11 @@
+---
+# The authentication token for the application.
+authentication: V1qkKDzm9yluLCxLXy1V5OTJJCYE3koqHvArtm0z6Fs
+enable_sidekiq: true
+
+ignored_endpoints:
+  - Api::V1::Customers::SupportsController#index
+  - Api::V1::Customers::SupportsController#show
+  - Api::V1::Devices::CrashReportsController#create
+  - ServiceRunnerJob - DeviceMessages::Log
+  - ServiceRunnerJob - DeviceMessages::Heartbeat

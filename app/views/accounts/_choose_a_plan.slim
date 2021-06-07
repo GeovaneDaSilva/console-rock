@@ -1,0 +1,19 @@
+  .row
+    .col-xs-12
+      - if current_account.billing_account.plan_id.nil?
+        .alert.alert-danger.drop-shadow.margin-bottom-30
+          strong.size-18 Please Select a Plan or Trial
+          p
+            | Select your company name at the top-right of your screen, then click "Billing"
+      - elsif current_account.billing_account.plan.trial && (current_account.paid_thru || current_account.billing_account.paid_thru) > DateTime.current
+        .alert.alert-success.drop-shadow.margin-bottom-30
+          strong.size-18 Welcome!
+          p
+            ' Your Managed SOC trial expires in #{distance_of_time_in_words(DateTime.current.utc.end_of_day, current_account.paid_thru.to_datetime.utc.end_of_day)}.
+          - unless current_account.billing_account&.plan&.plan_type == "kaseya"
+            p
+              |
+                <a href="https://www.rocketcyber.com/product-demo">Schedule</a> an onboarding session with our security team to get started.
+            p
+              |
+                #{link_to "Subscribe", provider_path(current_account.billing_account, anchor: "billing")} to the paid Managed SOC service.

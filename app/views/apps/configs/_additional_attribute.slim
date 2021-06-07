@@ -1,0 +1,8 @@
+- if value.is_a?(Array)
+  - value.each do |vv|
+    = render partial: "apps/configs/additional_attribute", locals: { f: f, input_name: "#{input_name}[]", value: vv}
+- elsif value.is_a?(Hash)
+  - value.each do |key, vv|
+    = render partial: "apps/configs/additional_attribute", locals: { f: f, input_name: "#{input_name}[#{key}]", value: vv}
+- else
+  = f.hidden_field input_name, value: value

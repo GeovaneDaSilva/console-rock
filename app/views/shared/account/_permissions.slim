@@ -1,0 +1,54 @@
+- user_roles = UserRole.where(account: account.self_and_ancestors).order(:role).includes(:user, :account)
+
+- cache ["v1/account-user-roles", account, user_roles] do
+  #permissions
+    .table-responsive.nomargin
+      table.table.table-bordered.table-striped.table-vertical-middle
+        thead
+          tr
+            td Name
+            td.hidden-xs Email
+            td.hidden-xs Role
+            td Actions
+
+        - user_roles.each do |user_role|
+          - next unless user_role.account == account
+
+          tr
+            td
+              = user_role.user.name
+            td.hidden-xs
+              | #{user_role.user.email}
+            td.hidden-xs = user_role.role.humanize
+            td.text-right
+              - if policy(user_role).resend_invitation?
+                = link_to account_user_invitation_path(account, user_role), method: :post, remote: true, class: "btn btn-link" do
+                  i.fa.fa-envelope
+                  |  Resend Invitation
+              - if user_role.account == account
+                - if policy(user_role).update?
+                  = link_to edit_account_user_path(account, user_role), class: "btn btn-default btn-xs" do
+                    i.fa.fa-pencil
+                    | Edit
+
+                - if policy(user_role).destroy?
+                  = link_to account_user_path(account, user_role), method: :delete, class: "btn btn-danger btn-xs" do
+                    i.fa.fa-times
+                    | Remove
+                - else
+                  button.btn.btn-default.btn-xs disabled="true"
+                    i.fa.fa-times
+                    | Remove
+              - if current_user.admin? && user_role.user.max_login_attempts?
+                = link_to administration_user_unlock_path(user_role.user), method: :put, data: { confirm: "Are you sure you want to unlock this user?" }, class: "btn btn-default btn-xs" do
+                  i.fa.fa-unlock
+                  | Unlock
+
+          - if user_roles.blank?
+            tr
+              td.text-center colspan="4" No Users
+
+  .pull-right
+    = link_to new_account_user_path(account), class: "btn btn-primary" do
+      i.fa.fa-plus
+      |  Add User

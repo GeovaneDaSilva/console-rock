@@ -1,0 +1,8 @@
+- operators ||= %i[is_equal_to is_not_equal_to starts_with ends_with contains does_not_contain]
+= f.hidden_field :type
+= f.hidden_field :order
+- operators.each do |operator|
+  div
+    = f.radio_button :operator, operator, label: operator.to_s.humanize
+
+= f.text_field :condition, hide_label: true

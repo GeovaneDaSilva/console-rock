@@ -1,0 +1,7 @@
+div
+  = image_tag "app-card-logo.png", alt: "#{I18n.t("application.name")}"
+div
+  h6.nomargin
+    | Authored By: #{I18n.t("application.name")}
+  .text-muted.text-right
+    | #{l app.updated_at, format: :digital}

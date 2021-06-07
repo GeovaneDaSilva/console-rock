@@ -1,0 +1,1 @@
+table.insert(hunt_results.test_results, evaluate_yara_script(<%= test.id %>, [[<%= path(test.conditions.first.condition) %>]], [[<%= test.conditions.last.upload.url %>]]))

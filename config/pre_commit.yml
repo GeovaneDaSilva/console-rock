@@ -1,0 +1,15 @@
+---
+:checks_remove:
+- :jshint
+:checks_add:
+- :white_space
+- :console_log
+- :debugger
+- :pry
+- :tabs
+- :rspec_focus
+- :merge_conflict
+- :migrations
+- :rubocop
+- :yaml
+- :json

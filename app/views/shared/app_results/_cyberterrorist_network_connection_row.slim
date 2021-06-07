@@ -1,0 +1,61 @@
+- show_checkbox = nil if local_assigns[:show_checkbox].nil?
+- show_details = nil if local_assigns[:show_details].nil?
+- show_customer = nil if local_assigns[:show_customer].nil?
+- show_customer_link = nil if local_assigns[:show_customer_link].nil?
+- show_text = nil if local_assigns[:show_text].nil?
+- show_for_reporting = nil if local_assigns[:show_for_reporting].nil?
+- query_params ||= {}
+
+tr.align-center
+  - if show_checkbox
+    td.pl-0 = check_box_tag "app_results[]", app_result.id, checked: true
+  - if show_text
+    td = app_result.verdict
+  - else
+    td
+      - if app_result.malicious?
+        span.text-danger title="Malicious"
+          i.fa.fa-exclamation-triangle
+      - if app_result.suspicious?
+        span.text-warning title="Suspicious"
+          i.fa.fa-exclamation-triangle
+      - if app_result.informational?
+        span.text-informational title="Informational"
+          i.fa.fa-exclamation-triangle
+      - if show_for_reporting
+        | &nbsp;
+        = link_to app_result.device.hostname, device_triage_path(app_result.device, query_params.merge(host: ENV.fetch(I18n.t('application.host')), protocol: 'https')), target: "_blank", target: "_blank", title: "Triage this App for #{app_result.device.hostname}"
+  td = l app_result.detection_date, format: :digital
+  - if show_customer
+    - if app_result.customer.nil?
+      td = (sanitize("<i>None</i>") if show_text)
+    - else
+      td.customer
+        - if show_customer_link
+          = link_to app_result.customer.name, account_triage_url(app_result.customer, query_params.merge(switch_account_id: app_result.customer.id, host: ENV.fetch(I18n.t('application.host')), protocol: 'https')), target: "_blank", title: "Triage this App for #{app_result.customer.name}"
+        - else
+          = app_result.customer.name
+  - unless show_for_reporting
+    td.device = link_to app_result.device.hostname, device_triage_url(app_result.device, query_params), target: "_blank", target: "_blank", title: "Triage this App for #{app_result.device.hostname}"
+  td.breezy-pdf-remove = app_result.details.local_address || (show_text ? sanitize("<i>None</i>") : " - ")
+  td.breezy-pdf-remove = app_result.details.local_port || (show_text ? sanitize("<i>None</i>") : " - ")
+  td
+    span data-controller="external-intel" data-external-intel-type="ip" data-external-intel-value=app_result.details.remote_address = app_result.details.remote_address || (show_text ? sanitize("<i>None</i>") : " - ")
+  td = app_result.details.remote_port || (show_text ? sanitize("<i>None</i>") : " - ")
+  td = app_result.details.direction || (show_text ? sanitize("<i>None</i>") : " - ")
+  td.text-center.breezy-pdf-remove title=(app_result.details.reputation.to_h.fetch("threats_found", "Unknown Reputation"))
+    - detections = app_result.details.detection_count.to_i
+    - 8.times do |i|
+      span.stoplight class=("malicious" if i <= (detections - 1))
+      | &nbsp;
+  td
+    - if app_result.details.country
+      = image_tag "flags/#{app_result.details.country.downcase}.png", title: COUNTRIES[app_result.details.country].dig("full_name")
+    - else
+      = (show_text ? sanitize("<i>None</i>") : " - ")
+  - if show_details
+    - if show_for_reporting
+      td.breezy-pdf-remove = link_to "Details", device_r_breach_url(app_result.device, anchor: "app-result-#{app_result.id}")
+    - else
+      td.pr-0.text-right
+        a data-toggle="modal" data-target="#app_results_modal" data-content-target="app-result-#{app_result.id}-detail" Details

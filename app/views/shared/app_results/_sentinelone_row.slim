@@ -1,0 +1,50 @@
+- show_checkbox = nil if local_assigns[:show_checkbox].nil?
+- show_details = nil if local_assigns[:show_details].nil?
+- show_customer = nil if local_assigns[:show_customer].nil?
+- show_customer_link = nil if local_assigns[:show_customer_link].nil?
+- show_text = nil if local_assigns[:show_text].nil?
+- display_admin = nil if local_assigns[:display_admin].nil?
+- query_params ||= nil
+
+tr.align-center
+  - if show_checkbox
+    td.pl-0 = check_box_tag "app_results[]", app_result.id, checked: true
+  - if show_text
+    td = app_result.verdict
+  - else
+    td
+      - if app_result.malicious?
+        span.text-danger title="Malicious"
+          i.fa.fa-exclamation-triangle
+      - if app_result.suspicious?
+        span.text-warning title="Suspicious"
+          i.fa.fa-exclamation-triangle
+      - if app_result.informational?
+        span.text-informational title="Informational"
+          i.fa.fa-exclamation-triangle
+  td = l app_result.detection_date, format: :digital
+  - if show_customer
+    - if app_result.customer.nil?
+      td = (sanitize("<i>None</i>") if show_text)
+    - else
+      td.customer
+        - if show_customer_link
+          = link_to app_result.customer.name, account_triage_url(app_result.customer, (query_params || {}).merge(switch_account_id: app_result.customer.id, host: ENV.fetch(I18n.t('application.host')), protocol: 'https')), target: "_blank", title: "Triage this App for #{app_result.customer.name}"
+        - else
+          = app_result.customer.name
+  - if display_admin
+    td 
+      - if app_result.details&.is_paying 
+        span.text-success title="Paid for service" 
+          i.fa.fa-check 
+      - else  
+        span.text-warning title="Not paying for this service"
+          i.fa.fa-times-circle 
+  td = app_result.details&.agentcomputername
+  td = app_result.details&.threatname || (sanitize("<i>None</i>") if show_text)
+  td = app_result.details&.description
+  td = app_result.details&.mitigationstatus
+  td = app_result.details&.fileverificationtype
+  - if show_details
+    td.pr-0.text-right
+      a data-toggle="modal" data-target="#app_results_modal" data-content-target="app-result-#{app_result.id}-detail" Details

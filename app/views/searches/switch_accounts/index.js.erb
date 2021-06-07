@@ -1,0 +1,5 @@
+<% if @results.blank? %>
+  $('#switch-accounts-results').html('No results');
+<% else %>
+  $('#switch-accounts-results').html('<%= render partial: "results", locals: { results: @results } %>');
+<% end %>

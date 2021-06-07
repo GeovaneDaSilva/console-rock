@@ -1,0 +1,52 @@
+section.panel.user
+  .panel-body.nopadding-left.nopadding-right
+    .row.nomargin
+      .col-xs-12
+        h4.nomargin
+          = user.name
+          - if user.max_login_attempts?
+            = link_to administration_user_unlock_path(user), method: :put, data: { confirm: "Are you sure you want to unlock this user?" }, class: "btn btn-link" do
+              i.icon-append.fa.fa-lock
+          - if !user.encrypted_otp_secret_key.nil?
+            = link_to administration_user_un2fa_path(user), method: :put, data: { confirm: "Are you sure you want to delete 2FA for this user?" }, class: "btn btn-link" do
+              i.icon-append.fa.fa-mobile
+          - if policy(:administration).edit_users?
+            .pull-right
+              = link_to "Edit", edit_administration_user_path(user), class: "btn btn-link"
+
+        p = user.email
+        dl.dl-horizontal
+          dt Account created:
+          dd.margin-bottom-0 = user.created_at.in_time_zone(user.timezone)
+
+          - if user.sign_in_count.positive?
+            dt Timezone:
+            dd.margin-bottom-0 = user.timezone
+            dt Last sign in:
+            dd.margin-bottom-0 = user.last_sign_in_at.in_time_zone(user.timezone)
+            dt Last sign in IP:
+            dd.margin-bottom-0 = user.last_sign_in_ip
+          - if user.invitation_sent_at
+            dt Invited:
+            dd.margin-bottom-0 = user.invitation_sent_at.in_time_zone(user.timezone)
+            dt Invitation Accepted:
+            dd.margin-bottom-0 = user.invitation_accepted_at&.in_time_zone(user.timezone)
+
+    - user.roles.each do |role|
+      hr
+      .row.nomargin
+        .col-xs-12.col-md-6
+          div
+            strong
+              ' Account:
+            = role.account.name
+          div
+            strong
+              ' Role:
+            = role.role.humanize
+        .col-xs-12.col-md-6.text-right
+          - if policy(role.account).make_current?
+            = link_to "Make Current", account_current_path(role.account), method: :post
+            '  |
+          - if policy(role.account).edit?
+            = link_to "View Details", provider_path(role.account)

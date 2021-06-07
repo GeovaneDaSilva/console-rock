@@ -1,0 +1,46 @@
+div data-controller="api-test"
+  = bootstrap_form_tag url: dns_filter_auth_create_path(customer_id: account.id), method: :post do |f|
+    - credential = account&.dns_filter_credential
+    - has_credential = account.dns_filter_credential?
+    p.hidden data-target="api-test.type"
+      | dns_filter
+
+    - if has_credential
+      .d-flex.flex-wrap
+        .w-100
+          - organizations = account.dns_filter_credential&.organizations&.invert || {}
+          - acm = (antivirus_customer_maps || []).inject({}) { |r, s| r.merge!({s["antivirus_id"] => s})}
+          - if organizations.present?
+            table.table.fullwidth id="tbl_mapping"
+              thead
+                tr
+                  td = "DNS Filter Organization Id"
+                  td = "Organization Name"
+                  td = "Customer"
+              tbody
+                - organizations.each do |id, c|
+                  tr data-target="tbl-row-editor.row" data-controller="tbl-row-editor"
+                    td
+                      input type='text' name="map[#{id}][organization_id]" value=id readonly=true data-target="tbl-row-editor.text"
+                    td
+                      input type='text' name="map[#{id}][organization_name]" value=c readonly=true data-target="tbl-row-editor.text"
+                    td
+                      = select_tag "map[#{id}][account_id]", options_for_select((current_account.self_and_all_descendant_customers.collect { |a| [a.name, a.id] }), acm&.dig(id.to_s)&.account_id), class: "form-control", include_blank: true
+
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.text_field :dns_filter_username, label: "Username", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.username" }, value: credential&.dns_filter_username, readonly: has_credential
+      .w-50.pr-5
+        = f.text_field :dns_filter_password, label: "Password", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.password" }, value: integrations_mask(credential&.dns_filter_password), readonly: has_credential
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+
+    p.padding-10 data-target="api-test.outputDisplay"
+
+    .w-100.text-right.padding-10
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#"
+        | Credential Test
+      - if has_credential
+        = f.submit value: "Save Map", class: "btn btn-primary margin-right-10"
+        = link_to "Clear Existing Credential", dns_filter_auth_destroy_path(customer_id: account.id), class: "btn btn-primary", :method => :delete
+      - else
+        = f.submit value: "Authenticate", class: "btn btn-primary"

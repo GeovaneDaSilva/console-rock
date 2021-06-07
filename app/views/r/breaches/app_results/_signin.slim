@@ -1,0 +1,10 @@
+table.table-fixed.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+  thead
+    tr
+      th Detected
+      th User
+      th Location
+      th Reputation
+      th Result
+  tbody
+    = render partial: "r/breaches/app_result/signin", collection: app_results, as: :app_result, cache: proc { |ar| ["v1", ar, current_user&.timezone] }

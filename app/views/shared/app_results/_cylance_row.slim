@@ -1,0 +1,36 @@
+- show_checkbox = nil if local_assigns[:show_checkbox].nil?
+- show_details = nil if local_assigns[:show_details].nil?
+- query_params ||= nil
+- show_customer_link ||= true
+
+tr
+  - if show_checkbox
+    td.pl-0 = check_box_tag "app_results[]", app_result.id, checked: true
+  td
+    - if app_result.malicious?
+      span.text-danger title="Malicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.suspicious?
+      span.text-warning title="Suspicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.informational?
+      span.text-informational title="Informational"
+        i.fa.fa-exclamation-triangle
+
+  | &nbsp;
+  td = l app_result.detection_date, format: :digital
+  - if app_result.customer.nil?
+    td
+  - else
+    - if show_customer_link
+      td.customer = link_to app_result.customer.name, account_triage_url(app_result.customer, (query_params || {}).merge(switch_account_id: app_result.customer.id, host: ENV.fetch(I18n.t('application.host')), protocol: 'https')), target: "_blank", title: "Triage this App for #{app_result.customer.name}"
+    - else
+      td.customer
+        | #{app_result.customer.name.titleize}
+  td = app_result.details&.device_name
+  td = app_result.details&.threat_name
+  td = app_result.details&.file_status
+  td = app_result.details&.file_path
+  - if show_details
+    td.pr-0.text-right
+      a data-toggle="modal" data-target="#app_results_modal" data-content-target="app-result-#{app_result.id}-detail" Details

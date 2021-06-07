@@ -1,0 +1,14 @@
+table.table-fixed.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+  thead
+    tr
+      th File Name
+      th Detected
+      th Discoveries
+      th Owner
+      th.breezy-pdf-remove
+  tbody
+    = render partial: "devices/r/breaches/app_result/data_discovery", collection: app_results, as: :app_result, locals: { app: app },  cache: proc { |app_result| ["v1", app_result, current_user&.timezone, policy(device).destroy?]}
+
+    - if app_results.size.zero?
+      tr
+        td.text-center colspan="7" No results

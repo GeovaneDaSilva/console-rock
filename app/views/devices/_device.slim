@@ -1,0 +1,30 @@
+- unless device.marked_for_deletion?
+  tr.device data-controller="device-status" data-device-status-id=(device.id) class="row_#{device.id}"
+    td = check_box_tag "devices[]", device.id, checked: true
+    td
+      span data-target="device-status.indicator"
+        .indicator class=(device.connectivity)
+      |  #{device.hostname}
+    td = device.ipv4_address
+    td.hidden-sm.hidden-xs = link_to device.customer.name, account_current_path(device.customer), method: :post
+    td.hidden-xs = link_to device.family_version_edition, searches_path(query: device.family_version_edition)
+    td = device.last_connected_at.present? ? "#{distance_of_time_in_words_to_now(device.last_connected_at)} ago" : ""
+    td = device.suspicious_count
+    td = device.malicious_count
+    td.comments = device.details.dig("comments")
+    - if policy(current_account).can_comment_firewalls_and_devices?
+      td.text-right
+        a data-toggle="modal" data-target="#device_#{device.id}" data-content-target="device_#{device.id}"
+          | Add Comment
+    td.text-right = link_to "Details", device_path(device)
+
+.modal.fade tabindex="-1" role="dialog" aria-hidden="true" id="device_#{device.id}" data-backdrop="static" data-keyboard="false" data-controller="comment-updater" data-value="#{device.id}" data-type="device"
+  .modal-dialog
+    .modal-content.padding-10
+      button type="button" class="close" data-dismiss="modal" aria-label="Close"
+        span aria-hidden="true" &times;
+      = text_area_tag "comment", device.details.dig("comments"), { rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "Comments", class: "w-100", "data-target": "comment-updater.device" }
+      .text-right.margin-top-10
+        button.btn.btn-primary.margin-right-10 data-action="click->comment-updater#update"
+          | Save
+        button.btn.btn-default data-dismiss="modal" Close

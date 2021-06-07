@@ -1,0 +1,23 @@
+= f.text_field :name, label: "Group name"
+hr
+= f.text_field :query, label: "Search", class: "reload-on-change"
+= f.form_group :query_fields, label: { text: "Search these fields" } do
+  = hidden_field_tag "group[query_fields][]", "none"
+  br
+  = f.check_box :query_fields, { label_class: "checkbox", inline: true, multiple: true, class: "reload-on-change", include_hidden: false }, :hostname do
+    i
+    |  Hostname
+
+  br
+  = f.check_box :query_fields, { label_class: "checkbox", inline: true, multiple: true, class: "reload-on-change", include_hidden: false }, :mac_address do
+    i
+    |  MAC Address
+
+  br
+  = f.check_box :query_fields, { label_class: "checkbox", inline: true, multiple: true, class: "reload-on-change", include_hidden: false }, :ipv4_address do
+    i
+    |  IP Address
+hr
+= f.select :network, @networks, { include_blank: "Any network" }, { class: "reload-on-change" }
+= f.select :family_version_and_edition, @operating_systems, { label: "Operating System", include_blank: "Any operating system" }, { class: "reload-on-change" }
+= f.select :public_ip, @public_ips, { label: "Public Egress IP Address", include_blank: "Any public egress IP address" }, { class: "reload-on-change" }

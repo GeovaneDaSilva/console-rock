@@ -1,0 +1,62 @@
+div data-controller="dual-list-box"
+  .d-flex.flex-row
+    .w-100
+      .panel.panel-default.mb-0
+        .panel-heading
+          h3.nomargin= collection_name
+        .panel-body
+          .col-xs-12
+            .row.mb-0
+              .form-group
+                .input-group
+                  input.form-control type="search" name="search_items" id="search_items" placeholder="Search" data-target="dual-list-box.itemsFilter"
+                  span.input-group-addon
+                    i.fa.fa-search
+            .row.mb-0
+              ul.list-unstyled
+                li
+                  .form-group
+                    label.check-inline.checkbox
+                      = check_box_tag "toggle_all_items", nil, false, data: { target: "dual-list-box.toggleItemsCheckbox" }
+                      i
+                      | Select all
+                  ul.list-box.items
+                    - collection.each do |item_name, item_id|
+                      li
+                        .form-group
+                          label.check-inline.checkbox
+                            = check_box_tag "#{collection_name.downcase}[#{item_name}]", item_id, false, class: "item"
+                            i
+                            = item_name
+    .d-flex.align-items-center
+      .action-buttons.ml-10.mr-10
+        .w-50
+          button.btn.btn-default.btn-lg.mb-10.select-items-button type="button" data-target="dual-list-box.selectItemsButton"
+            span.i.fa.fa-chevron-right
+        .w-50
+          button.btn.btn-default.btn-lg.mb-10.deselect-items-button type="button" data-target="dual-list-box.deselectItemsButton"
+            span.i.fa.fa-chevron-left
+    .w-100
+      .panel.panel-default.mb-0
+        .panel-heading
+          h3.nomargin= "Selected #{collection_name}"
+        .panel-body
+          .col-xs-12
+            .row.mb-0
+              .form-group
+                .input-group
+                  input.form-control type="search" name="search_selected_items" id="search_selected_items" placeholder="Search" data-target="dual-list-box.selectedItemsFilter"
+                  span.input-group-addon
+                    i.fa.fa-search
+            .row.mb-0
+              ul.list-unstyled
+                li
+                  .form-group
+                    label.check-inline.checkbox
+                      = check_box_tag "toggle_all_selected_items", nil, false, data: { target: "dual-list-box.toggleSelectedItemsCheckbox" }
+                      i
+                      | Select all
+                  ul.list-box.selected-items
+
+  .pull-right
+    = submit_tag "Create #{collection_name}", class: "btn btn-primary btn-lg mt-10 mb-10", data: { target: "dual-list-box.submitButton" }

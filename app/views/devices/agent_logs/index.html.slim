@@ -1,0 +1,31 @@
+- content_for(:page_header) do
+  = page_header(current_account.name, [link_to_current_account(current_account.name), link_to("Devices", devices_path), link_to(@device.hostname, device_path(@device)), "Agent Logs"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-body.nopadding
+        - cache ["v1", @agent_logs], expires_in: 60.minutes do
+          table.fullwidth.table
+            thead
+              tr
+                th Filename
+                th Size
+                th Uploaded
+                th &nbsp;
+            tbody
+              - @agent_logs.each do |agent_log|
+                tr
+                  td = agent_log.upload.filename
+                  td = number_to_human_size agent_log.upload.size
+                  td data-controller="datetime" datetime=(agent_log.created_at)
+                  td.text-right = link_to "View", agent_log.upload.url
+
+              - if @agent_logs.size.zero?
+                tr
+                  td.text-center colspan="4"
+                    | No agent logs uploaded for this device
+
+        - if @pagination.pages > 1
+          .text-center
+            == pagy_bootstrap_nav @pagination

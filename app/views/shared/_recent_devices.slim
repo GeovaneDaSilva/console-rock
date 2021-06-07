@@ -1,0 +1,7 @@
+
+= render partial: "devices/device", collection: devices, cache: true
+- unless devices.size.positive?
+  tr
+    td.text-center colspan="4"
+      i.fa.fa-exclamation-triangle.text-warning
+      |  No devices registered yet

@@ -1,0 +1,4 @@
+#!/bin/bash
+
+bundle exec rake parallel:spec --trace
+bundle exec rubocop --parallel

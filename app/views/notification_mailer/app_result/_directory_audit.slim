@@ -1,0 +1,5 @@
+table.table.fullwidth
+  thead.bg-transparent
+    = render partial: "shared/app_results/directory_audit_header", locals: { show_text: true }
+  tbody
+    = render partial: "shared/app_results/directory_audit_row", collection: similar_detections, as: :app_result, cache: proc { |ar| ["v1", ar, current_user&.timezone] }, locals: { show_text: true }

@@ -1,0 +1,84 @@
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent class=("noborder" if app_result_iteration.last?)
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="##{scope}" href="#defender-app-result-#{app_result.id}" aria-expanded="true"
+        .d-flex.flex-wrap
+          .w-50
+            - if app_result.pre_action?
+              div class=(finding_text_class(app_result.verdict))
+                i.fa.fa-exclamation-circle
+                |  #{app_result.details.threat_name}
+            - elsif app_result.with_action?
+              div class=(finding_text_class(app_result.action_state))
+                i class=(action_state_icon(app_result.action_state))
+                |  #{app_result.details.threat_name}
+
+          .w-50.text-right
+            i
+              ' Detected
+              span datetime=(app_result.detection_date) data-controller="datetime" title=(l app_result.detection_date, format: :digital)
+
+  .margin-bottom-3 id="defender-app-result-#{app_result.id}" class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      .d-flex.flex-wrap
+        .w-50
+          strong
+            ' Type:
+          = app_result.details.threat_type
+        .w-50.text-right
+          = link_to "Threat Information", app_result.details.threat_url, target: "_blank", rel: "nofollow"
+        .w-50
+          strong
+            ' Category:
+          = app_result.details.threat_category
+        .w-50.text-right
+          strong
+            ' Severity:
+          = app_result.details.severity
+
+        .w-50
+        .w-50.text-right
+          strong
+            ' Detected:
+          = l app_result.detection_date, format: :digital
+
+        - if app_result.details.files
+          .w-100
+            strong
+              ' Detected #{"File".pluralize(app_result.details.files.to_a.length)}:
+            br
+            - app_result.details.files.to_a.each do |file|
+              = file
+              br
+
+        - if app_result.details.process_name.present?
+          .w-100
+            strong
+              ' Process:
+            br
+            = app_result.details.process_name
+
+        - if app_result.details.message.present?
+          .w-100
+            pre.mb-0.mt-5 = app_result.details.message
+
+        - if app_result.pre_action? && app_result.details.suggested_actions
+          .w-100.text-right
+            - app_result.details.suggested_actions.sort.each do |action|
+              = button_to device_defender_action_path(device, app_result), method: :put, params: { defender_action: action.parameterize }, class: "btn pr-0 #{defender_action_class(action)}", form_class: "btn btn-link pr-0", data: { confirm: "Are you sure?" } do
+                i class=(defender_action_icon(action))
+                |  #{action.humanize}
+        - elsif app_result.requested?
+          .w-100.text-right
+            - requestor = User.find(app_result.action_result.dig("request", "requestor_id"))
+            | #{requestor.short_name} requested the #{app_result.action_result.dig("request", "action").to_s.humanize} action for this threat. Waiting for the agent to act upon this request.
+
+        - elsif app_result.resolved?
+          .w-100.text-right
+            - requestor = User.find(app_result.action_result.dig("request", "requestor_id"))
+            | #{requestor.short_name} requested the #{app_result.action_result.dig("request", "action").to_s.humanize} action for this threat. The agent was successful in taking this action.#{app_result.action_result.dig("resolved", "success", "message")} on #{l(parsed_time(app_result.action_result.dig("resolved", "date"), app_result.updated_at))}
+
+        - elsif app_result.errored?
+          .w-100.text-right
+            - requestor = User.find(app_result.action_result.dig("request", "requestor_id"))
+            | #{requestor.short_name} requested the #{app_result.action_result.dig("request", "action").to_s.humanize} action for this threat. The agent was not successful in taking this action. #{app_result.action_result.dig("errored", "error", "message")} on #{l(parsed_time(app_result.action_result.dig("errored", "date"), app_result.updated_at))}

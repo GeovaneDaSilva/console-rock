@@ -1,0 +1,24 @@
+- if !defined?(ttps) || ttps.nil?
+  - ttp = TTP.find(app_result.details.ttp_id)
+- else
+  - ttp = ttps.find { |ttp| ttp.id == app_result.details.ttp_id }
+tr
+  td
+    - if app_result.malicious?
+      span.text-danger title="Malicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.suspicious?
+      span.text-warning title="Suspicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.informational?
+      span.text-informational title="Informational"
+        i.fa.fa-exclamation-triangle
+
+    | &nbsp;
+    = link_to app_result.device.hostname, "##{app_result.device.id}", data: { turbolinks: false }
+
+  td = l app_result.detection_date, format: :digital
+  td
+    - if ttp
+      = link_to ttp.technique, "#ttp-#{ttp.id}", data: { turbolinks: false }
+  td.breezy-pdf-remove = link_to "Details", device_r_breach_url(app_result.device, anchor: "app-result-#{app_result.id}")

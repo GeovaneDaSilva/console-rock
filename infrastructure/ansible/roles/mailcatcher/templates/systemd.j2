@@ -1,0 +1,17 @@
+[Unit]
+Description=Mailcatcher SMTP server
+After=network.target
+
+[Service]
+# Foreground process (do not use --daemon in ExecStart or config.rb)
+Type=simple
+
+# Preferably configure a non-privileged user
+User={{ user_name }}
+
+ExecStart=/bin/bash -l -c 'mailcatcher --verbose --foreground --ip 0.0.0.0 --smtp-ip 0.0.0.0 >> {{ app_logs_path }}/mailcatcher.log'
+
+Restart=always
+
+[Install]
+WantedBy=multi-user.target

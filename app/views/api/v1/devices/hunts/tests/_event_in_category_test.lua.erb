@@ -1,0 +1,2 @@
+<% conditions = test.conditions.order(:order) -%>
+table.insert(hunt_results.test_results, find_event_in_category_with_message(<%= test.id %>, [[<%= conditions.first.condition %>]], [[<%= conditions[1].condition %>]], [[<%= conditional(conditions.last.operator, conditions.last.condition) %>]]))

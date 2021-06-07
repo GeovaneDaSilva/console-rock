@@ -1,0 +1,8 @@
+.file-picker {
+  position: relative;
+
+  input[type="file"] {
+    position: absolute;
+    left: -10000px;
+  }
+}

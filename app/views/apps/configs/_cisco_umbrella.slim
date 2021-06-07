@@ -1,0 +1,24 @@
+</form>
+= form_with(url: cisco_umbrella_auth_create_path, :method => :post) do |g|
+  - if account.cisco_umbrella_credential?
+    p
+      b
+        |
+          You have an active credential.
+  p
+    b
+      |
+        App Key.
+      .w-100.pr-5
+        = g.text_field :app_key, label: "Enter your Cisco Umbrella Key", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100"
+  p
+    b
+      |
+        App Secret.
+      .w-100.pr-5
+        = g.text_field :app_secret, label: "Enter your Cisco Umbrella Secret", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100"
+  
+  .pull-right.margin-top-20
+    = g.submit class: "btn btn-primary"
+    | &nbsp;
+    = link_to "Delete", cisco_umbrella_auth_destroy_path(customer_id: account.id), class: "btn btn-primary", :method => :delete

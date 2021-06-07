@@ -1,0 +1,10 @@
+
+- if analysis.clear?
+  i.fa.fa-check-circle.text-success
+  |  #{number_to_percentage 100.0 - analysis.confidence, precision: 0} confidence this file is benign.
+- elsif analysis.suspicious?
+  i.fa.fa-exclamation-triangle.text-warning
+  |  #{number_to_percentage analysis.confidence, precision: 0} confidence this file is suspicious.
+- elsif analysis.compromise?
+  i.fa.fa-exclamation-triangle.text-danger
+  |  #{number_to_percentage analysis.confidence, precision: 0} confidence this file is malicious.

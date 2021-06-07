@@ -1,0 +1,6 @@
+---
+  ec2_security_group: "staging-utility"
+  ec2_instance_type: "t2.nano"
+  ec2_tag_type: "utility"
+  ec2_count: 1
+  elastic_ip: 35.167.237.197

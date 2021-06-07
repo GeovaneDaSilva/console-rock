@@ -1,0 +1,160 @@
+meta name="breezy-pdf-filename" content="#{current_account.name.parameterize}-executive-summary-#{l(DateTime.current).parameterize}"
+meta name="breezy-pdf-timeout" content="1"
+
+.reports
+  header#header
+    .container
+      .row
+        .col-xs-12
+          .header-container
+            .logo
+              a(href="/" aria-label="Back to dashboard" data={ turbolinks: false })
+                - if current_provider.logo
+                  = image_tag current_provider.logo.url, 'aria-label': 'Company logo'
+                - else
+                  = image_tag I18n.t('application.report_logo'), 'aria-label': 'Company logo'
+            .text-center.header
+              .heading-border-bottom
+                h2.margin-bottom-0.margin-top-10
+                  ' Security Executive
+                  span.green Report
+              p.margin-bottom-10
+                = "#{l start_date, format: :long} - #{l end_date, format: :long}"
+              table.table-bordered.table-vertical-middle.bg-white.mb-10
+                tbody
+                  tr
+                    td Prepared for:
+                    td
+                      strong
+                        - if data.account.provider?
+                          = "#{data.account.name} (MSP)"
+                        - else
+                          = data.account.name
+                  tr
+                    td Generated at:
+                    td
+                      strong
+                        - if data.cache_updated_at
+                          = data.cache_updated_at.in_time_zone(Time.zone).to_formatted_s(:long)
+            .menu
+              ul.mb-0
+                - if Flipper.enabled?('reporting/executive-summary/pdf-generation', current_user) && data.all_queries_cached?
+                  li
+                    = link_to "Download PDF", r_executive_summary_path(format: :pdf, pdf: true), data: { turbolinks: false }
+
+
+  - if data.all_queries_cached?
+    section.box-light
+      .container
+        section.box-light
+          .container.margin-top-20
+          .row.d-flex.align-items-stretch.avoid-page-break-inside
+            .col-xs-6
+              .col-xs-6
+                .box-inner.h-100
+                  h2.text-center Devices Monitored
+                  .size-30.padding-15.text-success.text-center = data.totals[:device_count].to_s(:delimited)
+              .col-xs-6
+                .box-inner.h-100
+                  h2.text-center Mailboxes Monitored
+                  .size-30.padding-15.text-success.text-center = data.totals[:office_365_mailboxes_count].to_s(:delimited)
+              .col-xs-6.margin-top-10
+                .box-inner.h-100
+                  h2.text-center Firewalls Monitored
+                  .size-30.padding-15.text-success.text-center = data.totals[:firewall_count].to_s(:delimited)
+              .col-xs-6.margin-top-10
+                .box-inner.h-100
+                  h2.text-center.text-success Overall Health
+                  .size-30.padding-15.text-success.text-center = "Good"
+            .col-xs-6
+              .col-xs-6
+                .box-inner.h-100
+                  h2.text-center Total Detections
+                  .size-30.padding-15.text-danger.text-center = data.detections_total.to_s(:delimited)
+              .col-xs-6
+                .box-inner.h-100
+                  h2.text-center Total Threat Detections
+                  .size-30.padding-15.text-warning.text-center = data.detections_threat_total.to_s(:delimited)
+              .col-xs-6
+                .box-inner.h-100.margin-top-10
+                  h2.text-center Resolved Incidents
+                  .size-30.padding-15.text-success.text-center = data.incidents_resolved_total.to_s(:delimited)
+              .col-xs-6.margin-top-10
+                .box-inner.h-100
+                  h2.text-center Open Incidents
+                  .size-30.padding-15.text-warning.text-center = data.incidents_open_total.to_s(:delimited)
+
+    section.box-light.reports
+      .container
+        .row.d-flex.align-items-stretch.avoid-page-break-inside
+          .col-xs-6
+            .box-inner.h-100
+              - if data.vulnerable_mailboxes.present?
+                #top-apps-graph(data-controller="horizontal-bar-chart" data-horizontal-bar-chart-data=data.vulnerable_mailboxes.to_json data-title="Vulnerable Office365 Mailboxes" data-series-name="Vulnerable mailbox")
+              - else
+                .no-data-container
+                  h2 Vulnerable Office365 Mailboxes
+                  p No threats were detected in the given reporting timeframe.
+          .col-xs-6
+            .box-inner.h-100
+              - if data.attack_countries.size > 0
+                h2.margin-bottom-0 Attack Sources
+                table.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+                  thead
+                    tr
+                      th Country
+                      th Detections
+                  tbody
+                    - data.attack_countries.each do |country, count|
+                      tr
+                        td
+                          - if country
+                            img src=asset_url("flags/#{country.downcase}.png")
+                            |  #{COUNTRIES[country.upcase]&.fetch("full_name", "Unknown")}
+                          - else
+                            | Unknown
+                        td
+                          = count.to_s(:delimited)
+              - else
+                .no-data-container
+                  h2 Attack Sources
+                  p No threats were detected in the given reporting timeframe.
+
+    section.box-light.reports
+      .container
+        .row.d-flex.align-items-stretch.avoid-page-break-inside
+          .col-xs-6
+            .box-inner.h-100
+              - if data.threat_detections_by_app.present?
+                #pie-chart(data-controller="pie-chart" data-pie-chart-data=data.threat_detections_by_app.to_json data-title="Threat detections by app" data-series-name="App Detections")
+              - else
+                .no-data-container
+                  h2 Threat detections by app
+                  p No threats were detected in the given reporting timeframe.
+          .col-xs-6
+            .box-inner.h-100
+              - if data.detections_by_status?
+                #results-funnel(data-controller="funnel-chart" data-funnel-chart-data=data.detections_by_status.to_json data-title="Threats by incident status" data-series-name="Detections")
+              - else
+                .no-data-container
+                  h2 Threats by incident status
+                  p No incidents were created or updated in the given reporting timeframe.
+  - else
+    .container
+      .row
+        .col-xs-6.col-xs-offset-3
+          h2.mt-10.mb-10 Building your report...
+          p
+            |
+              We&apos;re putting your report together for you. Please stay on the page,
+              or come back later to view your results.
+          - with_stimulus_controller('job-status-v2') do
+            = form_tag job_status_path, method: :post, data: { remote: true, controller: stimulus_controller, interval: 5000, message_container: '#jobStatusMessages', loading_container: '#jobStatusLoading' } do |f|
+              = hidden_field_tag :job_id, data.job_id
+              p#jobStatusMessages Fetching job status...
+              p.text-center(style="font-size: 2em;")
+                i#jobStatusLoading.fa.fa-spinner.spin
+
+
+  - unless rendered_for_pdf?
+    = render partial: "shared/pdf_download"

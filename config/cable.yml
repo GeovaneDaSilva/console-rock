@@ -1,0 +1,8 @@
+development:
+  adapter: redis
+
+test:
+  adapter: redis
+
+production:
+  adapter: redis

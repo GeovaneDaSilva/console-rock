@@ -1,0 +1,91 @@
+ul.nav.nav-tabs
+  li.active
+    a href="#suspicious_event_windows" data-toggle="tab" aria-expanded="true"
+      i.fa.fa-windows
+      |  Windows
+  li
+    a href="#suspicious_event_mac" data-toggle="tab" aria-expanded="false"
+      i.fa.fa-apple
+      |  MacOS
+
+.tab-content.border.border-top-none.padding-15.margin-bottom-5
+  #suspicious_event_windows.tab-pane.active
+    .mb-5 Enabled Events
+    .d-flex.flex-wrap
+      - config.dig("enabled_events").each_slice(2).each do |group|
+        - group.each do |event|
+          .w-50.pr-5
+            = render partial: "apps/configs/additional_attribute", locals: { f: f, input_name: "config[enabled_events][#{event[0]}]", value: event[1]}
+            = f.switch "config[enabled_events][#{event[0]}][enabled]", { label_name: [event[1]["event_id"], event[1]["log_name"], event[1]["publisher"], event[1]["channel_path"]].compact.join(" - "), checked: config.dig("enabled_events", event[0], "enabled") == true }, "true", "false"
+            .mb-5
+              = event[1]["description"]
+
+
+    #custom-event.accordion.panel-group.w-100.mt-5.mb-0
+      .panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+        .panel-heading.noborder.no-box-shadow
+          h4.panel-title
+            a data-toggle="collapse" data-parent="#custom-event" href="#log" aria-expanded="false" + Add Custom Event From Log
+        #log.margin-bottom-3 class="collapse" aria-expanded="false"
+          .panel-body.transparent.d-flex.flex-wrap
+            .w-50.pr-5
+              = f.hidden_field "custom[suspicious_event][log_enabled]", value: true
+              = f.text_field "custom[suspicious_event][log_event_id]", label: "Event ID", data: { required: true }, placeholder: "4649", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+            .w-50
+              = f.select "custom[suspicious_event][log_name]", options_for_select(%w(Application Security System)), include_blank: true, label: "Log", data: { required: true }
+            .w-50.pr-5
+              = f.text_field "custom[suspicious_event][log_description]", label: "Description", data: { required: true }, placeholder: "A replay attack was detected.", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+            .w-50
+              = f.select "custom[suspicious_event][log_verdict]", options_for_select(%w(Malicious Suspicious Informational)), include_blank: true, label: "Verdict", data: { required: true }
+
+      .panel.panel-default.nomargin.no-box-shadow.noradius.transparent.noborder
+        .panel-heading.noborder.no-box-shadow
+          h4.panel-title
+            a data-toggle="collapse" data-parent="#custom-event" href="#channel" aria-expanded="false" + Add Custom Event From Channel
+        #channel.margin-bottom-3 class="collapse" aria-expanded="false"
+          .panel-body.transparent.d-flex.flex-wrap
+            .w-50.pr-5
+              = f.hidden_field "custom[suspicious_event][channel_enabled]", value: true
+              = f.text_field "custom[suspicious_event][channel_event_id]", label: "Event ID", data: { required: true }, placeholder: "4649", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+            .w-50
+              = f.text_field "custom[suspicious_event][channel_description]", label: "Description", data: { required: true }, placeholder: "A replay attack was detected.", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+
+            .w-50.pr-5
+              = f.text_field "custom[suspicious_event][channel_path]", label: "Channel Path", placeholder: "Microsoft-Windows-PowerShell/Operational", data: { required: true }, autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+            .w-50
+              = f.select "custom[suspicious_event][channel_verdict]", options_for_select(%w(Malicious Suspicious Informational)), include_blank: true, label: "Verdict", data: { required: true }
+            .w-50.pr-5
+              = f.text_field "custom[suspicious_event][query]", label: "Query", placeholder: "*", data: { required: true }, autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false", value: "*"
+
+  #suspicious_event_mac.tab-pane
+    .mb-5 Enabled Events
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.switch "config[macos_log_privacy]", { label_name: "Log Privacy", checked: config.dig("macos_log_privacy") == true, help: "Privatize log content that contains usernames, ip addresses, and other sensitive information." }, "true", "false"
+      .w-50.pr-5
+        = f.number_field "config[macos_check_frequency]", label: "Event Log Poll Frequency", data: { required: true }, value: config.dig("macos_check_frequency"), help: "Interval defined in seconds"
+    .d-flex.flex-wrap
+      - config.dig("macos_enabled_events").each_slice(2).each do |group|
+        - group.each do |event|
+          .w-50.pr-5
+            = render partial: "apps/configs/additional_attribute", locals: { f: f, input_name: "config[macos_enabled_events][#{event[0]}]", value: event[1]}
+            = f.switch "config[macos_enabled_events][#{event[0]}][enabled]", { label_name: event[1]["event_id"], checked: config.dig("macos_enabled_events", event[0], "enabled") == true }, "true", "false"
+            .mb-5
+              = event[1]["description"]
+
+    div data-controller="toggler"
+      .mb-5
+        .btn.btn-link.pl-0.toggler data-action="click->toggler#toggle"
+          i.fa.fa-plus-square-o
+          i.fa.fa-minus-square-o
+          |  Add a Custom Event
+      .d-flex.flex-wrap.collapse data-target="toggler.collapseable"
+        .w-50.pr-5
+          = f.hidden_field "custom[macos_suspicious_event][enabled]", value: true
+          = f.text_field "custom[macos_suspicious_event][event_id]", label: "Event ID", data: { required: true }, placeholder: "4649", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+        .w-50
+          = f.text_field "custom[macos_suspicious_event][filter]",  label: "Filter", data: { required: true }, autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+        .w-50.pr-5
+          = f.text_field "custom[macos_suspicious_event][description]", label: "Description", data: { required: true }, placeholder: "A replay attack was detected.", autocomplete: "off", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+        .w-50
+          = f.select "custom[macos_suspicious_event][verdict]", options_for_select(%w(Malicious Suspicious Informational)), include_blank: true, label: "Verdict", data: { required: true }

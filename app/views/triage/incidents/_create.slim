@@ -1,0 +1,32 @@
+.panel-body
+  .row.mb-0
+    .col-xs-12
+      .pull-left
+        h3.nomargin
+          | CREATE INCIDENT
+        h4.text-muted.mb-10 = f.object.account.name
+
+  - if f.object.errors[:result_account_paths].present?
+    .alert.alert-danger
+      strong Warning!
+      p Not all of the requested results belong to the same Customer. These results will not be added to the incident.
+
+  .row
+    .col-xs-12
+      = f.text_field :title
+      = f.text_area :description
+      = f.text_area :remediation
+
+      hr
+    = render partial: "triage/incidents/app_results"
+
+.panel-footer
+  .pull-left
+
+  .pull-right.text-right
+    .form-group.d-inline-block
+      label.checkbox
+        = check_box_tag :publish_immediately, true, false, id: "publish_immediately_create"
+        i
+        | Publish Immediately
+    = submit_tag "Create", class: "btn btn-primary margin-left-10"

@@ -1,0 +1,20 @@
+table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+  thead
+    tr
+      th Product Name
+      th Edition
+      th Release
+      th Software Type
+      th Installation Type
+      th System Root
+      th Updated
+  tbody
+    - device.inventory.fetch("upgrades", []).each do |software|
+      tr
+        td = software.fetch("product_name", "N/A")
+        td = software.fetch("edition", "N/A")
+        td = software.fetch("release", "N/A")
+        td = software.fetch("software_type", "N/A")
+        td = software.fetch("installation_type", "N/A")
+        td = software.fetch("system_root", "N/A")
+        td = software.fetch("updated", "N/A")

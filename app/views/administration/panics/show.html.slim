@@ -1,0 +1,13 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    = link_to "Destroy", administration_panic_path(@panic.id), method: :delete, class: "btn btn-link text-danger"
+  = page_header("Panics", [link_to("All Panics", administration_panics_path), @panic.id])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        h4.nomargin Panic for #{link_to @panic.device.hostname, device_path(@panic.device, switch_account_id: @panic.device.customer_id)}
+
+      .panel-body
+        pre = JSON.pretty_generate(@panic.as_json)

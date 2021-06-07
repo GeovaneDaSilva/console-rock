@@ -1,0 +1,11 @@
+- content_for(:page_header) do
+  = page_header("New TTP", [link_to("TTP", administration_ttps_path), "New TTP"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong New TTP
+      .panel-body
+        = bootstrap_form_for @ttp, url: administration_ttps_path do |f|
+          = render partial: "form", locals: { f: f }

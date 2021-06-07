@@ -1,0 +1,24 @@
+- content_for(:page_header) do
+  = page_header("Search", [params[:query]].reject(&:blank?))
+
+#content
+  .panel.panel-default
+    .panel-body
+      h6.nomargin
+        | #{@pagination.count} results found
+      hr.nomargin-bottom.margin-top-10
+
+      /  Dance to protect text search ranking
+      - results_as_array = @results.to_a
+      - %w[Device Customer Provider Group].each do |type|
+        - results_as_array.select { |result| result.searchable_type == type }.each do |result|
+          = render partial: "searches/#{result.searchable.class.name.underscore}", locals: { result: result.searchable }
+
+      - if @results.blank?
+        .margin-top-20
+          h4.text-center No Results Found :(
+
+
+      - if @pagination.pages > 1
+        .text-center.margin-top-20
+          == pagy_bootstrap_nav @pagination

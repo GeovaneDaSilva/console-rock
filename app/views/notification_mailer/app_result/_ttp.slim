@@ -1,0 +1,16 @@
+table.table.fullwidth
+  thead.bg-transparent
+    tr
+      th Verdict
+      th Detected
+      th.device Device
+      th Filename
+      th Technique
+  tbody
+    - similar_detections.each do |app_result|
+      tr.align-center
+        td = app_result.verdict
+        td = l app_result.detection_date, format: :digital
+        td.device = link_to app_result.device.hostname, device_triage_url(app_result.device, {}), target: "_blank", title: "Triage this App for #{app_result.device.hostname}"
+        td = app_result.details.file_name || app_result.details.process.try(:file_name) || sanitize("<i>None</i>")
+        td = app_result.ttp&.technique || sanitize("<i>None</i>")

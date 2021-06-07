@@ -1,0 +1,37 @@
+doctype html
+html
+  head
+    = render partial: "shared/head"
+  body class="min" data-controller="pin-menu"
+    = render "shared/banner_flash"
+    #wrapper.clearfix
+      - if current_user
+        - if current_account && policy(current_account).can_see_nav?
+          = render "shared/nav"
+
+        = render "shared/header"
+
+        - if current_user.accepted_tos_at.blank?
+          = render "shared/accept_tos"
+
+        section#middle data-target="pin-menu.middletag" style="margin-left: 0"
+          - if content_for?(:page_header)
+            #page-header
+              = yield :page_header
+
+          - if content_for?(:inset)
+            #inset
+              = yield :inset
+
+          #content.padding-20
+            = yield
+      - else
+        = yield
+
+    = yield :modals
+    = yield :sub_modals
+
+    = javascript_include_tag "body", "data-turbolinks-track": "reload"
+    = yield :body_end
+
+    = render partial: "shared/flash"

@@ -1,0 +1,32 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+
+    - if policy(:administration).manage_system_hunts?
+      = link_to "Edit", edit_administration_hunt_path(@hunt), class: "btn btn-link"
+
+    - if policy(:administration).manage_system_hunts?
+      = link_to administration_hunt_path(@hunt), method: :delete, class: "btn btn-danger", data: { confirm: "Are you sure?" } do
+        i.fa.fa-trash
+        | Delete
+
+  = page_header(@hunt.name, [link_to("System Hunts", administration_hunts_path)])
+
+#hunt.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-body.nopadding
+        .row
+          .col-xs-12
+            - cache ["v1", @hunt] do
+              .padding-10
+                p = @hunt.description
+                p
+                  strong Updated:
+                  |  #{l @hunt.updated_at, format: :digital}
+
+                - cache ["v1/tests", @hunt.tests_for_revision] do
+                  = render partial: "hunts/test", collection:  @hunt.tests_for_revision, cache: true, locals: { hunt: @hunt }
+
+                - if @hunt.revision_tests.size.zero?
+                  .conditional-option.padding-10.text-center
+                    | No Hunt Tests

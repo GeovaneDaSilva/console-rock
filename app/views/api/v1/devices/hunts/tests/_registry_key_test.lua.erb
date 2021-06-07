@@ -1,0 +1,9 @@
+<% conditions = test.conditions.order(:order) -%>
+<% if conditions.last.operator == "exists" -%>
+table.insert(hunt_results.test_results, find_registry_key_with_value(<%= test.id %>, [[<%= path conditions.first.condition %>]], true))
+<% elsif conditions.last.operator == "does_not_exist" -%>
+table.insert(hunt_results.test_results, find_registry_key_with_value(<%= test.id %>, [[<%= path conditions.first.condition %>]], false))
+<% else -%>
+table.insert(hunt_results.test_results, find_registry_key_with_values(<%= test.id %>, [[<%= path conditions.first.condition %>]], [[<%= path conditional(conditions.last.operator, conditions.last.condition) %>]]))
+<% end %>
+

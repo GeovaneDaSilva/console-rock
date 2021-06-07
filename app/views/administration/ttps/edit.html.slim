@@ -1,0 +1,11 @@
+- content_for(:page_header) do
+  = page_header("Edit TTP", [link_to("TTPs", administration_ttps_path), link_to(@ttp.technique, administration_ttp_path(@ttp))])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Edit TTP
+      .panel-body
+        = bootstrap_form_for @ttp, url: administration_ttp_path(@ttp) do |f|
+          = render partial: "form", locals: { f: f }

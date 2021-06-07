@@ -1,0 +1,9 @@
+var tab = document.getElementById('url-hunt-tab');
+
+<%- if @on_demand_url.valid? && @hunt.persisted? %>
+  // Visit hunt
+  Turbolinks.visit('<%= hunt_path(@hunt) %>')
+<%- else %>
+  // Replace form with one that has errors
+  tab.innerHTML = '<%= j render partial: "accounts/hunts/url", locals: { on_demand_url: @on_demand_url } %>'
+<%- end %>

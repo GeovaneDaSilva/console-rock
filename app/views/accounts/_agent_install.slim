@@ -1,0 +1,18 @@
+.panel-heading
+  strong Agent Installation
+.panel-body data-controller="clipboard"
+  p.margin-bottom-10 Run this command on your devices to install the #{I18n.t('application.name')} agent.
+  .form-group
+    .input-group
+      span.input-group-addon
+        i.fa.fa-key
+      input.form-control id="cli-install" type="text" readonly=true value=%{powershell "(New-Object Net.WebClient).DownloadFile('#{api_customer_support_url(current_account.license_key, #{I18n.t('agent.installer_name')})}',\\"$env:temp/
+      #{I18n.t('agent.installer_name')}\\");"%TEMP%\\#{I18n.t('agent.installer_name')} /S /license_key #{current_account.license_key} /url #{request.host}"}
+      span.input-group-btn
+        button.btn.btn-default data-action="click->clipboard#copy" data-value="cli-install"
+          i.fa.fa-clipboard
+          | Copy
+.panel-footer.text-center
+  = link_to customer_agents_path(current_account) do
+    ' Other Deployment Options
+    i.fa.fa-long-arrow-right

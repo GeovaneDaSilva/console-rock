@@ -1,0 +1,40 @@
+- content_for(:page_header) do
+  .pull-right.margin-top-5
+    = link_to "< Back to Incident", account_apps_incident_path(account, incident)
+
+  = page_header("Remediations for Incident #{incident.title}")
+
+#hunt.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-body.nopadding
+        .row
+          #conditions.col-sm-4
+            .padding-10
+              - unless incident.nil?
+                strong = incident.title
+
+                p = incident.description
+
+          #results.col-sm-8
+            = link_to "Succeeded", request.params.merge(status: :complete), class: "btn margin-left-10 margin-right-10 #{request.params[:status] == 'complete' ? 'btn-success' : ''}"
+            = link_to "Failed", request.params.merge(status: :failed), class: "btn margin-right-10 #{request.params[:status] == 'failed' ? 'btn-danger' : ''}"
+            = link_to "All", request.params.except(:status), class: "btn margin-top-10 margin-bottom-10 #{request.params.has_key?(:status) ? '' : 'btn-primary'}"
+            ' #{@remediations.size} / #{@total_remediations} Remediations
+            - if !@remediations.blank?
+              table.fullwidth.table.m-0.noborder
+                - @remediations.each do |remediation|
+                  tr data-controller="remediation-status" data-remediation-status-id=remediation.id
+                    td data-target="remediation-status.status"
+                    td = remediation.hostname
+                    td data-target="remediation-status.detail"
+                    td.text-right
+                      a data-toggle="modal" data-target="#remediations_modal" data-content-target="remediation-#{remediation.id}-detail" Details
+
+              - if @pagination.pages > 1
+                .text-center.border-top
+                  == pagy_bootstrap_nav @pagination
+            - else
+              .text-center No Remediations for the Incident
+
+= render partial: "accounts/apps/remediations/modals"

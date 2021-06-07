@@ -1,0 +1,23 @@
+  tr
+    td
+      - if hunt_result.malicious?
+        span.text-danger title="Malicious"
+          i.fa.fa-exclamation-triangle
+      - if hunt_result.suspicious?
+        span.text-warning title="Suspicious"
+          i.fa.fa-exclamation-triangle
+      - if hunt_result.informational?
+        span.text-informational title="Informational"
+          i.fa.fa-exclamation-triangle
+
+      |  #{link_to hunt_result.device.hostname, "##{hunt_result.device.id}", "data-turbolinks": "false"}
+    td = l hunt_result.created_at, format: :digital
+    td = hunt_result.hunt.name
+    td
+      - if hunt_result.hunt.feed_result
+        | Threat Intel Feed
+      - elsif hunt_result.hunt.on_demand
+        | On-demand
+      - else
+        | Ad-Hoc
+    td.text-center.breezy-pdf-remove = link_to "Details", device_r_hunt_url(hunt_result.device, hunt_result)

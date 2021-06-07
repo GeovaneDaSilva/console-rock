@@ -1,0 +1,28 @@
+table.table.fullwidth
+  thead.bg-transparent
+    tr
+      th Verdict
+      th Detected
+      th.customer Customer
+      th Device
+      th Local Port
+      th Remote Port
+      th Protocol
+      th Type
+      th Country
+  tbody
+    - similar_detections.each do |app_result|
+      tr.align-center
+        td = app_result.verdict
+        td = l app_result.detection_date, format: :digital
+        td.customer = link_to app_result.customer.name, account_triage_url(app_result.customer, query_params.merge(switch_account_id: app_result.customer.id)), target: "_blank", title: "Triage this App for #{app_result.customer.name}"
+        td = app_result.details.fw_mac_add || sanitize("<i>None</i>")
+        td = app_result.details.local_port
+        td = app_result.details.remote_port
+        td = app_result.details.protocol
+        td = app_result.value || sanitize("<i>None</i>")
+        td
+          - if app_result.details.country
+             = image_tag "flags/#{app_result.details.country.downcase}.png", title: COUNTRIES[app_result.details.country].dig("full_name")
+          - else
+            = sanitize("<i>None</i>")

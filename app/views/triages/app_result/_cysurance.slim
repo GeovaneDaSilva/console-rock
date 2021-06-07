@@ -1,0 +1,48 @@
+table.table.fullwidth data-controller="checkbox-selectable"
+  thead.bg-transparent
+    = render partial: "shared/app_results/cysurance_header", locals: { show_checkbox: true, show_details: true }
+  tbody
+    = render partial: "shared/app_results/cysurance_row", collection: similar_detections, as: :app_result, locals: { show_checkbox: true, show_details: true, query_params: query_params }, cache: proc { |ar| ["v1", ar, current_user&.timezone] }
+
+= link_to "Cysurance Ransom Protect PDF", cysurance_download_pdf_url, target: "_blank", class: "pull-right"
+
+
+- content_for :modals do
+  .modal.fade tabindex="-1" role="dialog" aria-hidden="true" id="app_results_modal" data-controller="carousel-modal"
+    .modal-dialog.modal-lg
+      .modal-content data-target="carousel-modal.content"
+
+  .modal-content-options hidden=true
+    - similar_detections.each do |app_result|
+      div id="app-result-#{app_result.id}-detail"
+        .modal-header.clearfix
+          .row.no-margin
+            .col-xs-12
+              .row
+                .col-xs-10
+                  h2.pull-left.nomargin
+                    span.text-informational title="Informational"
+                      i.fa.fa-exclamation-triangle
+                    |  #{l app_result.detection_date, format: :digital}
+                .col-xs-2
+                  .pull-right
+                    button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                      span aria-hidden="true" &times;
+                    = form_tag triage_path, method: :post, remote: true do
+                      = hidden_field_tag :app_id, app_result.app_id
+                      = hidden_field_tag :app_result_id, app_result.id
+                      .input-group
+                        span.input-group-addon
+                          i.fa.fa-cloud-download
+                        span.input-group-btn
+                          input.btn.btn-default type="submit" name="export" value="JSON"
+        .modal-body
+          = render partial: "devices/r/breaches/details", locals: { details: app_result.details, key: "" }
+          .row
+            .col-12.padding-30
+              = link_to "Cysurance Ransom Protect PDF", cysurance_download_pdf_url, target: "_blank"
+
+        .modal-footer
+          .text-right
+
+            button.btn.btn-default data-dismiss="modal" Close

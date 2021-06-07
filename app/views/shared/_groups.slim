@@ -1,0 +1,13 @@
+table.table
+  thead
+    tr
+      td Name
+      td.hidden-md Total devices
+      td &nbsp;
+  tbody
+    - groups.each do |group|
+      - if group.device_query.response
+        tr
+          td = group.name
+          td.hidden-md = group.device_query.response["hits"]["total"] if group.device_query.response
+          td.text-right = link_to "View", group_path(group)

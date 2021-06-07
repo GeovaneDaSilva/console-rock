@@ -1,0 +1,36 @@
+- content_for(:page_header) do
+  = page_header("My Customers", ["All Customers"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading.no-height.padding-bottom-0.border-bottom-0
+        strong Customers
+        ul.options.pull-right.relative.list-unstyled
+          li
+            form.fancy-form action=customers_path method="get"
+              - params.permit!.except(:action, :controller, :filter).each do |k, v|
+                = hidden_field_tag k, v
+              .input-group style="width: 200px"
+                input.form-control.nomargin type="search" name="filter" placeholder="Filter" value=params[:filter]
+                .input-group-btn
+                  button.btn.btn-primary.btn-sm
+                    i.fa.fa-filter.nomargin.nopadding
+
+      .panel-body.nopadding
+        table.fullwidth.table.m-0
+          thead.bg-white
+            tr
+              th = sortable "Customer", :customers, :name
+              th.hidden-sm.hidden-xs = sortable "Provider", :customers, "path"
+              th Devices
+              th License Key
+              th Office 365 Mailboxes
+              th Firewall Count
+              th &nbsp;
+          tbody
+            = render partial: "customers/customer", collection: @customers
+
+        - if @pagination.pages > 1
+          .text-center.border-top
+            == pagy_bootstrap_nav @pagination

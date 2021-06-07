@@ -1,0 +1,24 @@
+strong.mb-5 Enabled Installer Signatures
+.d-flex.flex-wrap
+  - config["enabled_installer_signatures"].each_slice(2).each do |group|
+    - group.each do |signature|
+      .w-50.pr-5
+        = render partial: "apps/configs/additional_attribute", locals: { f: f, input_name: "config[enabled_installer_signatures][#{signature[0]}]", value: signature[1]}
+
+        = f.switch "config[enabled_installer_signatures][#{signature[0]}][enabled]", { label_name: signature[1]["description"], checked: config.dig("enabled_installer_signatures", signature[0], "enabled") == true }, "true", "false"
+
+
+
+strong Enabled Filename Signatures:
+.d-flex.flex-wrap
+  - config["enabled_filename_signatures"].each_slice(2).each do |group|
+    - group.each do |signature|
+      .w-50.pr-5
+        = render partial: "apps/configs/additional_attribute", locals: { f: f, input_name: "config[enabled_filename_signatures][#{signature[0]}]", value: signature[1]}
+
+        = f.switch "config[enabled_filename_signatures][#{signature[0]}][enabled]", { label_name: signature[1]["description"], checked: config.dig("enabled_filename_signatures", signature[0], "enabled") == true }, "true", "false"
+
+
+.d-flex.flex-wrap
+  .w-100
+    = f.text_area "config[excluded_paths_to_array]", label: "Excluded Paths", value: config.fetch("excluded_paths", APP_CONFIGS[:suspicious_tools][:excluded_paths]).join("\n"), help: "One path per line", placeholder: "C:\\Folder1\\Folder\2", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"

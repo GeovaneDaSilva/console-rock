@@ -1,0 +1,51 @@
+- content_for(:page_header) do
+  = page_header("New Rule", ["Administration", link_to("Triage Rules", administration_logic_rules_path), "New Rule"])
+
+- with_stimulus_controller('triage-rules') do
+  = bootstrap_form_for @logic_rule, url: administration_logic_rules_path, method: :post, data: { controller: stimulus_controller } do |f|
+    .row.app-index-wrapper
+      .col-xs-12.col-lg-10.col-lg-offset-1.app-card
+        .panel.panel-default
+          .panel-heading
+            strong Create a new rule
+          .panel-body
+            .row.mb-0
+              .col-xs-12
+                .form-group
+                  = hidden_field_tag :user_id, @logic_rule.user_id
+                  label.margin-right-10 App
+                  = hidden_field_tag "app_type", @apps.first.configuration_type, data: { target: "triage-rules.appType" }
+                  = select_tag "logic_rule[app_id]", options_for_select(@app_options, @logic_rule.app_id), class: "form-control margin-right-10", data: { action: stimulus_action('change', 'refreshAvActions'), target: stimulus_target('appSelect'), lookup: @apps.pluck(:id, :configuration_type).to_h.to_json }
+                  br
+                  label.margin-right-10 Accounts
+                  br
+
+                  / Account type selector (all accounts or a specific account)
+                  - has_account_id = @logic_rule.account_id.present?
+                  label
+                    = radio_button_tag :account_target, :all, !has_account_id, data: { action: stimulus_action('click', 'showToggle'), target: stimulus_target('accountSelectTypeAllAccounts') }
+                    | All accounts
+                  br
+                  label
+                    = radio_button_tag :account_target, :specific, has_account_id, data: { action: stimulus_action('click', 'showToggle') }
+                    | Specific account ID
+                  br
+                  = text_field_tag :account_id, @logic_rule.account_id, placeholder: 'Account ID'
+                .form-group.margin-top-6.include-descendants.hidden
+                  label.switch.switch-rounded
+                    = hidden_field_tag "logic_rule[include_descendants]", false
+                    = check_box_tag "logic_rule[include_descendants]", true, class: "form-control"
+                    span.switch-label data-on="YES" data-off="NO"
+                    span Include all descendants?
+            .row.mb-0
+              hr
+            .row.mb-0
+              .col-xs-12
+                .form-group
+                  = label_tag "logic_rule[description]", "Description"
+                  = text_area_tag "logic_rule[description]", nil, required: true, class: "form-control margin-right-10"
+            = render partial: "administration/logic_rules/form"
+          .panel-footer
+            .pull-left
+            .pull-right.text-right
+              = f.submit "Save", class: "btn btn-primary"

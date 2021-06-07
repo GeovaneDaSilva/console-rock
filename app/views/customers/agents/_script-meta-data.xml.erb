@@ -1,0 +1,40 @@
+<%- @script_guid = SecureRandom.uuid %>
+<ScriptMetaData>
+  <Script>
+    <ScriptGuid><%= @script_guid %></ScriptGuid>
+    <Version>1.0.20201020</Version>
+    <Author>
+    </Author>
+    <Category>Install/Remove/Update</Category>
+    <DateCreated>2020-10-19T20:43:38.437</DateCreated>
+    <DateModified>2020-10-20T15:53:02.143</DateModified>
+    <EarliestMWVersionSupported>9.0</EarliestMWVersionSupported>
+    <UseLegacyDeploymentPath>false</UseLegacyDeploymentPath>
+    <RunOnOnsiteManager>false</RunOnOnsiteManager>
+    <RunExclusively>false</RunExclusively>
+    <HideScriptFromUI>false</HideScriptFromUI>
+    <ScriptName><%=I18n.t('agent.display_name')%> Deployment</ScriptName>
+    <ScriptDescription>Installs the managed soc agent</ScriptDescription>
+    <EntryPointFileName><%= script_file %></EntryPointFileName>
+    <EntryPointFileNames>
+    </EntryPointFileNames>
+    <ScriptFileName><%= script_file %></ScriptFileName>
+    <ScriptFileMD5><%= file_hash %></ScriptFileMD5>
+  </Script>
+  <ScriptTargetOSLink>
+    <ScriptTargetOSID>1</ScriptTargetOSID>
+  </ScriptTargetOSLink>
+  <ScriptParameters>
+    <ScriptParameter>
+      <Key>license_key</Key>
+      <DefaultValue>
+      </DefaultValue>
+      <IsOptional>false</IsOptional>
+      <ScriptParameterTypeID>2</ScriptParameterTypeID>
+      <DisplayText>License Key</DisplayText>
+      <DisplayOrder>0</DisplayOrder>
+      <Length>
+      </Length>
+    </ScriptParameter>
+  </ScriptParameters>
+</ScriptMetaData>

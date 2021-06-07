@@ -1,0 +1,90 @@
+meta name="breezy-pdf-filename" content="#{device.hostname.parameterize}-threats"
+meta name="breezy-pdf-timeout" content="250"
+
+header#header
+  .container
+    .row
+      .col-xs-12
+        .logo
+          - if device.customer.provider.logo
+            = image_tag device.customer.provider.logo.url
+          - else
+            = image_tag I18n.t('application.report_logo'), alt: I18n.t('application.name')
+        .text-center
+          .heading-border-bottom
+            h2.margin-bottom-0.margin-top-10
+              ' Device Breach
+              span Report
+          p.margin-bottom-10
+            | Prepared for: #{device.hostname} @ #{device.customer.name}
+            br
+            = l device.updated_at.in_time_zone(device.timezone), format: :long
+
+section.box-light.page-break-after
+  .container
+    .row
+      .col-xs-12
+        .box-inner
+          #account-stats-graph data-controller="summary-graph" data-summary-graph-seed-data=(@graph_json) data-summary-graph-show-customers="false"
+
+    .row.margin-top-20
+      .col-xs-12.col-sm-6
+        .box-inner
+          h3.bold.size-18 Potential Breaches
+          .clearfix
+            .col-xs-6.text-center
+              .bold Malicious Detections
+              .size-30.padding-3.text-danger = number_with_delimiter totals[:malicious]
+            .col-xs-6.text-center
+              .bold Suspicious Detections
+              .size-30.padding-3.text-danger = number_with_delimiter totals[:suspicious]
+
+      .col-xs-12.col-sm-6
+        .box-inner
+          h3.bold.size-18 Device Details
+          table.fullwidth.nomargin
+            tr
+              td.bold Hostname
+              td.text-right = device.hostname
+            tr
+              td.bold Operating System
+              td.text-right = device.platform_family_and_version
+            tr
+              td.bold IP Address
+              td.text-right = device.ipv4_address
+
+section.box-light data-controller="device-report"
+  .container
+    = render partial: "app", collection: apps
+
+- if hunt_results.any?
+  section.box-light.page-break-before
+    .container
+      .row
+        .col-xs-12
+          h2.margin-bottom-0.text-center
+            ' Threat
+            span Hunting
+      .row
+        .col-xs-12
+          .box-inner
+            = render partial: "hunts", locals: { hunt_results: hunt_results }
+
+- if ttps.any?
+  section.box-light.page-break-before
+    .container
+      .row
+        .col-xs-12
+          h2.margin-bottom-0.text-center
+            ' Technical
+            span Details
+      .row
+        .col-xs-12
+          .box-inner
+            = render partial: "ttps", locals: { ttps: ttps }
+
+- unless rendered_for_pdf?
+  .text-center.m-10
+    = link_to "Download as PDF", device_r_breach_path(device, format: :pdf, pdf: true), class: "pdf-link"
+
+    = render partial: "shared/pdf_download"

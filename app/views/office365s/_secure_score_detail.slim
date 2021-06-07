@@ -1,0 +1,7 @@
+table.fullwidth.table.m-0.bg-silver
+  tr
+    td = "Remediation"
+    td = "User Impact of Remediation"
+  tr
+    td = result.details.dig("remediation").html_safe
+    td = result.details.dig("remediationImpact")

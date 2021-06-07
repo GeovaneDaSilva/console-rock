@@ -1,0 +1,38 @@
+<%- @script_guid = SecureRandom.uuid %>
+<?xml version="1.0" ?><LabTech_Expansion Name="LabTech Script Expansion" Type="PackedScript" Version="190.307">
+  <PackedScript>
+    <NewDataSet>
+      <Table>
+        <ScriptId>382</ScriptId>
+        <FolderId>34</FolderId>
+        <ScriptName><%=I18n.t('agent.display_name')%> Deployment - <%= @customer.name %> - <%= @customer.license_key %></ScriptName>
+        <ScriptNotes>Deploys the <%= I18n.t("agent.display_name") %> Agent to Windows Devices.
+
+For more information on deploying this script please visit: <%= I18n.t("helpdocs.labtech_rmm")%></ScriptNotes>
+        <Permission>0,</Permission>
+        <EditPermission>0,</EditPermission>
+        <ComputerScript>1</ComputerScript>
+        <LocationScript>0</LocationScript>
+        <MaintenanceScript>0</MaintenanceScript>
+        <FunctionScript>0</FunctionScript>
+        <LicenseData><%=raw Base64.encode64 gzip_string(%(<LicenseData><Type>1</Type><RunCounter>0</RunCounter><ExpireDate>Wednesday, July 1, 2030 11:59:59 PM</ExpireDate><ScriptVersion>0</ScriptVersion><ScriptGuid>#{ @script_guid }</ScriptGuid></LicenseData>)) %></LicenseData>
+        <ScriptData><%=raw Base64.encode64 gzip_string(render(partial: "labtech_script_data")) %>
+</ScriptData>
+        <ScriptVersion>1</ScriptVersion>
+        <ScriptGuid><%= @script_guid %></ScriptGuid>
+        <ScriptFlags>0</ScriptFlags>
+        <Parameters/>
+      </Table>
+    </NewDataSet>
+    <ScriptFolder>
+      <NewDataSet>
+        <Table>
+          <FolderID>34</FolderID>
+          <ParentID>0</ParentID>
+          <Name>Software</Name>
+          <GUID>31866f37-8f0a-47b9-b1fd-11bd855f8391</GUID>
+        </Table>
+      </NewDataSet>
+    </ScriptFolder>
+  </PackedScript>
+</LabTech_Expansion>

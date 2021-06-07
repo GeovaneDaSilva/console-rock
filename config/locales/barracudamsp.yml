@@ -1,0 +1,72 @@
+# domain: managedsoc.barracudamsp.com
+barracudamsp:
+  application:
+    name: "Barracuda"
+    full_name: "Barracuda Managed SOC"
+    favicon: "barracuda.ico"
+    base_logo: "logo_barracuda.png"
+    report_logo: "report_logo_barracuda.png"
+    mail_base_logo: "logo_barracuda_color.png"
+    address_line_1: "100 Apollo Drive"
+    address_line_2: "Chelmsford, MA 01824, United States"
+    address: "100 Apollo Drive, Chelmsford, MA 01824, United States"
+    support_email: "BARRACUDA_SUPPORT_EMAIL"
+    notification_email: "BARRACUDA_NOTIFICATION_EMAIL"
+    noreply_email: "BARRACUDA_NOREPLY_EMAIL"
+    company_website: "BARRACUDA_WEBSITE"
+    host: "BARRACUDA_HOST"
+    tos_label: "End User License Agreement"
+    color1: "#0088CE"
+    api_syslog_target: "syslog.barracudamsp.com"
+
+  devise:
+    mailer:
+      invitation_instructions:
+        user_subject: "Complete your Trial Activation for Barracuda Managed SOC"
+
+  agent:
+    service_name: "threatmonitoragent"
+    display_name: "ThreatMonitorAgent"
+    ini_path : "$env:programfiles\\threatmonitoragent\\threatmonitoragent.ini"
+    installer_name: "threat-agent-setup.exe"
+
+  helpdocs:
+    base: "https://campus.barracuda.com/product/managedsoc/"
+    # Antivirus
+    antivirus_mapping: "https://campus.barracuda.com/doc/93880796/"
+    bitdefender: "https://campus.barracuda.com/doc/93880778/"
+    cylance: "https://campus.barracuda.com/doc/93880765/"
+    deep_instinct: "https://campus.barracuda.com/doc/93880891/"
+    hibp: "https://campus.barracuda.com/doc/93882930/"
+    sentinelone: "https://campus.barracuda.com/doc/93880567/"
+    webroot: "https://campus.barracuda.com/doc/93880570/"
+    sophos_av: ""
+    # Email
+    ironscales: "https://campus.barracuda.com/doc/93882640/"
+    barracuda_ess: "https://campus.barracuda.com/doc/94539425/"
+    barracuda_sen: "https://campus.barracuda.com/doc/94539432/"
+    # Office 365
+    o365: "https://campus.barracuda.com/doc/93882921/"
+    # MFA
+    passly: ""
+    # Firewall
+    syslog: "https://campus.barracuda.com/doc/93880944/"
+    # Deployment/RMMs
+    labtech_rmm: "https://campus.barracuda.com/doc/93882455/"
+    kaseya_rmm: "https://campus.barracuda.com/doc/93882447/"
+    barracuda_rmm: "https://campus.barracuda.com/doc/93882428/"
+    syncro_rmm: "https://campus.barracuda.com/doc/93882459/"
+    datto_rmm: "https://campus.barracuda.com/doc/93882472/"
+    solarwinds_rmm: "https://campus.barracuda.com/doc/93882476/"
+    ninja_rmm: "https://campus.barracuda.com/doc/93882474/"
+    # Network tools
+    dns_filter: ""
+    # 2FA
+    2fa_setup: "https://campus.barracuda.com/doc/93882854/"
+    # AutoTask Notification (LEGACY)
+    # autotask_notification: "https://campus.barracuda.com/doc/93882569/"
+    # Custom whitelist instructions
+    custom_whitelisting: "https://campus.barracuda.com/doc/93882511/"
+    # RocketCyber API
+    api_swagger: "http://download.mw-rmm.barracudamsp.com/ManagedSOC/barracuda_soc.json"
+    api_postman: "http://download.mw-rmm.barracudamsp.com/ManagedSOC/BarracudaManagedSOC_API.postman_collection.json"

@@ -1,0 +1,25 @@
+@import "_vars/colors";
+
+.indicator {
+  display: inline-block;
+  border-radius: 50%;
+  background: #EEE;
+  height: 0.8em;
+  width: 0.8em;
+  box-shadow: 0px 0px 5px -2px #EEE;
+
+  &.online {
+    background: $rcGreen;
+    box-shadow: 0px 0px 5px -1px $rcGreen;
+  }
+
+  &.offline {
+    background: $warningYellow;
+    box-shadow: 0px 0px 5px -1px $warningYellow;
+  }
+
+  &.isolated {
+    background: $errorRed;
+    box-shadow: 0px 0px 5px -1px $errorRed;
+  }
+}

@@ -1,0 +1,18 @@
+.app-panel.disabled data-controller="app-card" data-app-card-scope-account-id=current_account.id data-app-card-app-id=app.id data-app-card-show-app=(request.params[:show_app_id] == app.id.to_s ? 1 : 0)
+  .panel.panel-default.w-100
+    .panel-heading class=("discreet-app" if app.discreet?)
+      h4.nomargin.text-center = app.title
+
+    .panel-body.d-flex
+      = render partial: "apps/app_panel_body", locals: { app: app, device: nil }
+
+    - if app.configuration_type? && policy(current_account).can_manage_apps?
+      .panel-footer.clearfix.disabled-hidden
+        .pull-left.text-muted
+          - if !current_account&.root? && current_account.app_configs.where(app: app).first
+            i.fa.fa-info-circle title="Configured specifically for this #{current_account.class.name.downcase} and devices"
+        a.text-muted.pull-right href="#" data-toggle="modal" data-target="#config-#{app.id}"
+          i.fa.fa-gear
+          |  Configure
+        - content_for :modals do
+          = render partial: "accounts/apps/configuration_modal", locals: { account: current_account, app: app }

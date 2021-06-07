@@ -1,0 +1,80 @@
+p.text-muted
+  i.fa.fa-exclamation-triangle.text-warning
+  |  Modification of plan pricing attributes after they have a charge generated is not allowed so that we can maintain for historical data accuracy. If you find you need to edit a plan's pricing after it has charges, you're better off creating a new plan and migrating all customers to it.
+
+= bootstrap_form_for [:administration, plan] do |f|
+  .clearfix
+    = f.switch :published, label: "Published for User Selection"
+    br
+    = f.switch :trial, label: "Trial Plan"
+    br
+    = f.switch :hide_unassigned_apps, label: "Hide Apps in App Store if not included in plan"
+    = f.text_field :name
+    = f.text_area :description
+    = f.select :frequency, Plan.frequencies.collect { |k, v| [k.humanize, k] }, label: "Charge Frequency"
+
+    - unless policy(plan).line_items?
+      = f.number_field :price_per_frequency, label: "Base Price (USD)", step: "0.01", help: "Charge this amount once per subscription renewal"
+    - unless policy(plan).device_line_items?
+      = f.number_field :price_per_device_overage, label: "Price per active device (USD)", step: "0.01", help: "Charge this amount for every device which is active since the last subscription renewal"
+    - unless policy(plan).office_365_mailbox_line_items?
+      = f.number_field :price_per_office_365_mailbox_overage, label: "Price per licensed Office 365 Mailbox (USD)", step: "0.01", help: "Charge this amount for every mailbox which is active since the last subscription renewal"
+    - unless policy(plan).firewall_line_items?
+      = f.number_field :price_per_firewall_overage, label: "Price per lFirewall (USD)", step: "0.01", help: "Charge this amount for every firewall which is active since the last subscription renewal"
+
+    = f.number_field :included_devices, label: "Included devices", step: "1", help: "Skip charging for up-to-this-many active devices (i.e. provide the first X devices without additional active device charges)"
+
+    = f.number_field :included_office_365_mailboxes, label: "Included Office 365 Mailboxes", step: "1", help: "Skip charging for up-to-this-many active Office 365 Mailboxes (i.e. provide the first X mailboxes without additional active mailbox charges)"
+
+    = f.number_field :included_firewalls, label: "Included Firewalls", step: "1", help: "Skip charging for up-to-this-many active Firewalls (i.e. provide the first X mailboxes without additional active firewall charges)"
+
+    div
+      = f.switch :threat_hunting
+    div
+      = f.switch :threat_intel_feeds
+
+    div
+      = f.switch :managed
+    div
+      = f.switch :hide_billing
+
+    = f.form_group :on_demand_analysis_types, label: { text: "On-demand Analysis Types" } do
+      - Plan.values_for_on_demand_analysis_types.each do |type|
+        .form-group
+          = f.check_box :on_demand_analysis_types, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false }, type do
+            i
+            |  #{type.to_s.humanize.titlecase }
+
+    = f.form_group :on_demand_hunt_types, label: { text: "On-demand Hunt Types" } do
+      = hidden_field_tag "plan[on_demand_hunt_types][]", "none"
+      - Plan.values_for_on_demand_hunt_types.each do |type|
+        .form-group
+          = f.check_box :on_demand_hunt_types, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false }, type do
+            i
+            |  #{type.to_s.humanize.titlecase }
+
+
+    = f.form_group :subscribed_hooks, label: { text: "Subscribed Hooks" } do
+      = hidden_field_tag "plan[subscribed_hooks][]", ""
+      - f.object.class.subscribed_hook_flags.each do |hook|
+        .form-group
+          = f.check_box :subscribed_hooks, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false, checked: f.object.send(hook) }, hook do
+            i
+            |  #{hook.to_s.humanize.titlecase }
+
+    = f.form_group :unsubscribed_hooks, label: { text: "Unsubscribed Hooks" } do
+      = hidden_field_tag "plan[unsubscribed_hooks][]", ""
+      - f.object.class.unsubscribed_hook_flags.each do |hook|
+        .form-group
+          = f.check_box :unsubscribed_hooks, { label_class: "checkbox", inline: true, multiple: true, include_hidden: false, checked: f.object.send(hook)}, hook do
+            i
+            |  #{hook.to_s.humanize.titlecase }
+
+    = f.form_group :plan_apps, label: { text: "Included Apps" } do
+      = f.fields_for :plan_apps do |ff|
+        = ff.hidden_field :id
+        = ff.hidden_field :app_id
+        div
+          = ff.switch :_destroy, { label_name: ff.object.app.title, checked: ff.object.persisted? }, 0, 1
+  .pull-right
+    = f.submit class: "btn btn-primary"

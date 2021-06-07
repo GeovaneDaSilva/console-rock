@@ -1,0 +1,44 @@
+<% if app_result.is_a?(Apps::DeviceResult) %>
+  <% if app_result.ttp? %>
+    <% ttp = TTP.find(app_result.details.ttp_id) %>
+    <p>
+      <strong style="color:#5ba346;">Tactic:</strong>
+      <br />
+      <%= ttp.tactic %>
+    </p>
+
+    <p>
+      <strong style="color:#5ba346;">Technique:</strong>
+      <br />
+      <%= ttp.technique %>
+    </p>
+  <% end %>
+<% end %>
+<p>
+  <%= app_result.app.title %>
+</p>
+
+<p>
+    <%= app_result.app.description %>
+</p>
+<p>
+    Customer: <%= app_result.customer&.name %> Device: <%= app_result.is_a?(Apps::DeviceResult) ? app_result.device.hostname  : "--" %>
+
+</p>
+<p>
+  On <%= app_result.is_a?(Apps::DeviceResult) ? (l app_result.detection_date.in_time_zone(app_result.device.timezone), format: :full) : (l app_result.detection_date.in_time_zone(UserRole.where(account: app_result.customer&.self_and_all_ancestors).first&.user&.timezone), format: :full) %> <%= app_result.app.title %> detected an incident that <%= app_result.malicious? ? " indicates malicious activity." : " indicates suspicious activity." %>
+</p>
+
+<% if app_result.is_a?(Apps::DeviceResult) %>
+  <p style="margin:35px 0px 15px;">
+    <%= link_to device_r_breach_url(app_result.device, host: ENV.fetch("HOST", "example.com"), switch_account_id: app_result.customer&.id) do %>
+      <img src="<%= asset_url "notification_mailer/button_view-details.gif" %>" border="0" />
+    <% end %>
+  </p>
+<% else %>
+  <p style="margin:35px 0px 15px;">
+    <%= link_to r_breaches_url(host: ENV.fetch("HOST", "example.com"), switch_account_id: app_result.customer&.id) do %>
+      <img src="<%= asset_url "notification_mailer/button_view-details.gif" %>" border="0" />
+    <% end %>
+  </p>
+<% end %>

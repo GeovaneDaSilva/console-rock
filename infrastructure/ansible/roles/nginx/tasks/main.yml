@@ -1,0 +1,27 @@
+---
+- name: Install nginx
+  apt: name=nginx
+  tags: nginx
+
+- name: Disable default nginx site
+  file: path=/etc/nginx/sites-enabled/default state=absent
+  tags: nginx
+
+- name: Copy nginx configuration
+  template: src=nginx_puma.conf.j2 dest=/etc/nginx/sites-available/{{ server_name }}.conf
+  tags: nginx
+
+- name: Symlink nginx configuration
+  file: src=/etc/nginx/sites-available/{{ server_name }}.conf dest=/etc/nginx/sites-enabled/{{ server_name }}.conf state=link
+  tags: nginx
+
+- name: Create nginx.conf
+  template: src=nginx.conf.j2 dest=/etc/nginx/nginx.conf
+  tags: nginx
+
+- name: Create certificates directory
+  file: path={{ ssl_certificate_path|dirname }} recurse=yes state=directory
+  tags: nginx
+
+- name: Restart nginx
+  service: name=nginx state=restarted

@@ -1,0 +1,31 @@
+- unless current_account.distributor?
+  = render partial: "choose_a_plan"
+
+  = render partial: "incidents"
+
+  .row
+    .col-xs-12
+      .panel.panel-default
+        .panel-body.p-0
+          .d-flex.flex-row.flex-wrap.w-100
+            .d-flex.flex-grow-1.p-20 data-controller="account-template" data-account-template-id=(current_account.id) data-account-template-template="devices_online"
+                = render partial: "devices_online", locals: { loading: true }
+
+            .d-flex.flex-grow-1.p-20 data-controller="account-template" data-account-template-id=(current_account.id) data-account-template-template="devices_offline"
+                = render partial: "devices_offline", locals: { loading: true }
+
+            .d-flex.flex-grow-1.p-20 data-controller="account-template" data-account-template-id=(current_account.id) data-account-template-template="office_mailboxes"
+                = render partial: "office_mailboxes", locals: { loading: true }
+
+            .d-flex.flex-grow-1.p-20 data-controller="account-template" data-account-template-id=(current_account.id) data-account-template-template="firewalls"
+                = render partial: "firewalls", locals: { loading: true }
+
+  - if current_account && (policy(current_account).can_on_demand_hunt? || policy(current_account).can_on_demand_analyze?)
+    .row
+      - if policy(current_account).can_on_demand_hunt?
+        = render partial: "hunts"
+      - if policy(current_account).can_on_demand_analyze?
+        = render partial: "analysis"
+
+  .row
+    = render partial: "accounts/apps", locals: { apps: apps }

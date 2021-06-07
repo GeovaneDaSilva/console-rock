@@ -1,0 +1,12 @@
+- if indicator.file_hash?
+  tr
+    td = l date.in_time_zone(timezone), format: :digital
+    td = details["owner"]
+    td = details["command_line"].presence || details["file_path"]
+    td = details.dig("parent", "command_line") || details.dig("parent", "file_path")
+
+- if indicator.url?
+   tr
+    td = l date.in_time_zone(timezone), format: :digital
+    td = details["user"]
+    td = details.dig("browser")

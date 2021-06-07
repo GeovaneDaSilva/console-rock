@@ -1,0 +1,74 @@
+.panel-body
+  .row.mb-0
+    .col-xs-12
+      .pull-left
+        h3.nomargin
+          | ADD TO INCIDENT
+        h4.text-muted.mb-10 = f.object.account.name
+
+  - if f.object.errors[:result_account_paths].present?
+    .alert.alert-danger
+      strong Warning!
+      p Not all of the requested results belong to the same Customer. These results will not be added to the incident.
+
+  .row
+    .col-xs-12
+      = f.form_group :id do
+        - if @open_incidents.any?
+          h4.mb-5 Open Incidents
+
+          - @open_incidents.each do |incident|
+            div
+              - if incident.published?
+                span.text-warning title="Open"
+                  i.fa.fa-exclamation-circle
+              - elsif incident.draft?
+                span.text-info title="Draft"
+                  i.fa.fa-question-circle
+              - else
+                span.text-success title="Resolved"
+                  i.fa.fa-check-circle
+              | &nbsp;
+              = f.radio_button :id, incident.id, label: incident.title
+              = "created by #{incident.creator.name}"
+              | &nbsp;
+              = "@ #{l incident.created_at, format: :digital}"
+          - if @open_incidents_pagination.pages > 1
+            .text-center.border-bottom
+              == pagy_bootstrap_nav @open_incidents_pagination
+
+        - if @resolved_incidents_pagination.count > 0
+          h4.mb-5 Recently Resolved Incidents
+          - @resolved_incidents.each do |incident|
+            div
+              - if incident.published?
+                span.text-warning title="Open"
+                  i.fa.fa-exclamation-circle
+              - elsif incident.draft?
+                span.text-info title="Draft"
+                  i.fa.fa-question-circle
+              - else
+                span.text-success title="Resolved"
+                  i.fa.fa-check-circle
+              | &nbsp;
+              = f.radio_button :id, incident.id, label: "#{incident.title}"
+              = "created by #{incident.creator.name}"
+              | &nbsp;
+              = "@ #{l incident.created_at, format: :digital}"
+          - if @resolved_incidents_pagination.pages > 1
+            .text-center.border-bottom
+              == pagy_bootstrap_nav @resolved_incidents_pagination
+
+
+      hr
+    = render partial: "triage/incidents/app_results"
+
+.panel-footer
+  .pull-left
+  .pull-right.text-right
+    .form-group.d-inline-block
+      label.checkbox
+        = check_box_tag :publish_immediately, true, false, id: "publish_immediately_add"
+        i
+        | Publish immediately unless already published
+    = submit_tag "Add", class: "btn btn-primary margin-left-10"

@@ -1,0 +1,27 @@
+tr data-controller="hunt-status" data-hunt-status-id=(hunt.id)
+  td.truncate title=(hunt.name) = truncate hunt.name, length: 70
+  td
+    - if hunt.group.account_id == current_account.id
+      = hunt.group.name
+    - else
+      | #{hunt.group.name} (#{hunt.group.account.name})
+  td.text-right title="Reported Devices"
+    .inline-guage.success.margin-right-3 hidden="true" data-target="hunt-status.hiddens"
+      .inline-guage-dial data-percentage="0" data-target="hunt-status.reportedDevices"
+  td.text-left title="Reported Devices"
+    = inline_loader(data: { target: "hunt-status.loaders"})
+    span data-target="hunt-status.hiddens hunt-status.reportedDevices"
+    span hidden="true" data-target="hunt-status.hiddens"
+      | /
+    span data-target="hunt-status.totalDevices"
+  td.text-right title="Devices with Positive Results"
+    .inline-guage.danger.margin-right-3 hidden="true" data-target="hunt-status.hiddens"
+      .inline-guage-dial data-percentage="0" data-target="hunt-status.positiveDevices"
+  td.text-left title="Devices with Positive Results"
+    = inline_loader(data: { target: "hunt-status.loaders"})
+    span data-target="hunt-status.positiveDevices"
+    span hidden="true" data-target="hunt-status.hiddens"
+      | /
+    span data-target="hunt-status.totalDevices"
+  td.text-right
+    = link_to "Details", hunt_path(hunt)

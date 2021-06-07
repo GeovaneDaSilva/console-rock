@@ -1,0 +1,20 @@
+- show_checkbox = nil if local_assigns[:show_checkbox].nil?
+- show_details = nil if local_assigns[:show_details].nil?
+- display_admin = nil if local_assigns[:display_admin].nil?
+
+tr
+  - if show_checkbox
+    th.pl-0
+      = check_box_tag "check_all", false, nil, checked: true, data: { action: "checkbox-selectable#toggleAll" }
+      | &nbsp;
+  th
+  th Detected
+  th.customer Customer
+  - if display_admin
+    th Plan
+  th Last Action
+  th Type
+  th Repeats
+  th Hostname
+  - if show_details
+    th.pr-0

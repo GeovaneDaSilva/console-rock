@@ -1,0 +1,5 @@
+.d-flex.flex-wrap
+  .w-50.pr-5
+    = f.text_area "config[malicious_paths_to_array]", label: "Monitored Paths and Files (Malicious)", value: (config.dig("paths") || APP_CONFIGS[:file_integrity][:malicious_paths]).join("\n"), help: "One path per line", placeholder: "C:\\Folder1\\Folder\2\nC:\\Folder1\\file.exe", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+  .w-50.pr-5
+    = f.text_area "config[suspicious_paths_to_array]", label: "Monitored Paths Files (Suspicious)", value: (config.dig("paths") || APP_CONFIGS[:file_integrity][:suspicious_paths]).join("\n"), help: "One path per line", placeholder: "C:\\Folder1\\Folder\2\nC:\\Folder1\\file.exe", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"

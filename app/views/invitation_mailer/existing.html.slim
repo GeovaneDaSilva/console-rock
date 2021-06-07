@@ -1,0 +1,24 @@
+- self.message.from = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+- self.message.reply_to = [ENV.fetch(I18n.t("application.noreply_email"), 'no-reply')]
+
+- if @invited_by
+  p
+    | #{@invited_by.name} has invited you to collaborate with your team on #{I18n.t('application.name', default: 'ACME, Inc')}.
+- else
+  | You have been invited to collaborate with your team on #{I18n.t('application.name', default: 'ACME, Inc')}.
+p
+  | What you can do with #{I18n.t('application.name', default: 'ACME, Inc')} Managed SOC:
+  ul
+    li Continuously monitor cloud, network and endpoints for suspicious and malicious activity
+    li Integrate your security stack into a single interface (AV, Firewall, Mail Security & More)
+    li Perform automated threat hunting across your entire fleet of devices
+    li Manage all your customers from one console
+
+- if @account
+  p.text-center
+    = link_to "Log in", root_url(switch_account_id: @account.id, host: ENV[I18n.t('application.host')], protocol: 'https'), class: "btn"
+- else
+  p.text-center
+    = link_to "Reset Password", new_user_password_url(host: ENV[I18n.t('application.host')]), class: "#{I18n.locale}"
+  p.text-center
+    = link_to "Log in", new_user_session_url(host: ENV[I18n.t('application.host')]), class: "btn"

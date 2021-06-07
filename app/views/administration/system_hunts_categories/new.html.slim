@@ -1,0 +1,11 @@
+- content_for(:page_header) do
+  = page_header("New Category", [link_to("System Hunt Categories", administration_system_hunts_categories_path), "New Category"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong New System Hunt Category
+      .panel-body
+        = bootstrap_form_for @category, url: administration_system_hunts_categories_path do |f|
+          = render partial: "form", locals: { f: f }

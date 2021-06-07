@@ -1,0 +1,35 @@
+@import "_vars/colors";
+
+.stoplight {
+  border-radius: 50%;
+  background: #EEE;
+  height: 0.6em;
+  width: 0.6em;
+
+  display: inline-block;
+
+  &.malicious {
+    background: $errorRed;
+    box-shadow: 0px 0px 5px -2px $errorRed;
+  }
+
+  &.draft {
+    background: blue;
+    box-shadow: 0px 0px 5px -2px blue;
+  }
+
+  &.complete {
+    background: green;
+    box-shadow: 0px 0px 5px -2px green;
+  }
+
+  &.in_progress {
+    background: yellow;
+    box-shadow: 0px 0px 5px -2px yellow;
+  }
+
+  &.failed {
+    background: $errorRed;
+    box-shadow: 0px 0px 5px -2px $errorRed;
+  }
+}

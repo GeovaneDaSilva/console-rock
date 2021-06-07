@@ -1,0 +1,43 @@
+- cache ["v3/plan-description", plan] do
+  h2.margin-bottom-0 = plan.name
+
+  - if plan.minimum_charge.zero?
+
+  - elsif plan.price_per_frequency.zero?
+    h3.price
+      span.amount #{humanized_money_with_symbol(plan.price_per_device_overage, no_cents_if_whole: true)}
+      |  per device / #{plan.human_frequency}
+  - else
+    h3.price
+      span.amount = humanized_money_with_symbol plan.price_per_frequency, no_cents_if_whole: true
+      |  / #{plan.human_frequency}
+    h4.sub-price
+      span.amount +#{humanized_money_with_symbol(plan.price_per_device_overage, no_cents_if_whole: true)}
+      |  per device
+
+  p = plan.description&.html_safe
+  ul.list-unstyled
+    - if plan.included_devices.to_i.positive?
+      li
+        | #{plan.included_devices.to_s(:delimited)} included devices
+
+    - if plan.threat_hunting?
+      li Threat Hunting
+
+    - if plan.threat_intel_feeds?
+      li Threat Intel Feeds
+
+    - if plan.on_demand_analysis_types.any?
+      li On-demand #{plan.on_demand_analysis_types.collect! {|s| prettify(s) }.to_sentence} analysis
+
+    - if plan.on_demand_hunt_types.any?
+      li On-demand #{plan.on_demand_hunt_types.collect!(&:to_s).collect!(&:humanize).collect! {|s| prettify(s) }.to_sentence} hunting
+
+    - if plan.apps.none?
+      li All Free Apps
+
+  - if plan.apps.any?
+    strong All Free Apps, plus
+    ul.list-unstyled
+      - plan.apps.each do |app|
+        li = app.title

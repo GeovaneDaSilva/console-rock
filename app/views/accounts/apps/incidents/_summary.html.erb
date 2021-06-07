@@ -1,0 +1,18 @@
+<p>
+  <%= incident.title %>
+</p>
+<p>
+  Customer: <%= incident.account.name %>
+</p>
+<p>
+  Description: <%= incident.description %>
+</p>
+<p>
+  Remediation: <%= incident.remediation %>
+</p>
+
+<p style="margin:35px 0px 15px;">
+  <%= link_to account_apps_incident_url(incident.account, incident, host: ENV[I18n.t('application.host')], protocol: 'https').remove(/:\d+/) do %>
+    <img src="<%= asset_url "notification_mailer/button_view-details.gif" %>" border="0" />
+  <% end %>
+</p>

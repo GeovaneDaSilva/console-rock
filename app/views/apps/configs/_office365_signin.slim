@@ -1,0 +1,53 @@
+.mb-5 Signin Monitor Configuration
+p
+  |
+    All API setup has been moved to
+  = link_to " our integrations tab ", account_integrations_path(current_account, anchor: "microsoft")
+  | on the nav menu
+
+hr
+
+div data-controller="countries-toggler" data-modal="report_traffic_modal" data-control="enable_all_countries"
+  .d-flex.flex-wrap
+    = f.switch :enable_all_countries, { label_name: "Enable All Countries", checked: false, data: { action: "click->countries-toggler#click", target: "countries-toggler.control" } }, onkeydown: "return false"
+  .mb-5 Do not alert on logins from the following countries
+  .d-flex.flex-wrap
+    - APP_CONFIGS[:office365_signin][:signin_excluded_countries].each_slice(2).each do |group|
+      - group.each do |country|
+        - if country[0] == "US"
+          .w-50 data-controller="modal-confirm" data-modal="report_modal_#{country[0]}"
+            - key = country[0]
+            - country_config = config["signin_excluded_countries"][country[0]]
+
+            - country_config.each do |k, v|
+              = f.hidden_field "config[signin_excluded_countries][#{key}][#{k}]", value: v
+
+            = f.switch "config[signin_excluded_countries][#{key}][enabled]", { label_name: country_config["full_name"], checked: config.dig("signin_excluded_countries", key, "enabled"), data: { target: "countries-toggler.country modal-confirm.control", action: "click->modal-confirm#click" } }, "true", "false"
+            = render partial: "shared/apps/configs/report_traffic_modal", locals: { id: "report_modal_#{country[0]}" }
+
+    .d-flex.flex-wrap
+    - additional_config_countries2(:office365_signin, :signin_excluded_countries).each_slice(2).each do |group|
+      - group.each do |country|
+        .w-50
+          - key = country[0]
+          - country_config = country[1]
+
+          - country_config.each do |k, v|
+            = f.hidden_field "config[signin_excluded_countries][#{key}][#{k}]", value: v
+
+          = f.switch "config[signin_excluded_countries][#{key}][enabled]", { label_name: country_config["full_name"], checked: config.dig("signin_excluded_countries", key, "enabled"), data: { target: "countries-toggler.country" } }, "true", "false"
+
+  = render partial: "shared/apps/configs/report_traffic_modal"
+
+hr
+
+.d-flex.flex-wrap
+  .w-50.pr-5
+    = f.text_area "config[signin_excluded_ips_to_array]", label: "Excluded IP Addresses", value: config.fetch("signin_excluded_ips", APP_CONFIGS[:office365_signin][:signin_excluded_ips]).join("\n"), help: "One IP per line", rows: "3", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: %(127.0.0.1\n8.8.8.8)
+.d-flex.flex-wrap
+  .w-50
+    = f.switch "config[signin_only_report_bad_reputation_connections]", label_name: "Only report bad reputation connections", checked: config.fetch("signin_only_report_bad_reputation_connections", APP_CONFIGS[:office365_signin][:signin_only_report_bad_reputation_connections])
+  .w-50
+    = f.switch "config[signin_report_all_failed_logins]", label_name: "Report all failed logins (even if from whitelisted country)", checked: config.fetch("signin_report_all_failed_logins", APP_CONFIGS[:office365_signin][:signin_report_all_failed_logins])
+  .w-50
+    = f.switch "config[signin_report_only_successful_logins]", label_name: "Report ONLY successful malicious logins (this will reduce attack visibility)", checked: config.fetch("signin_report_only_successful_logins", APP_CONFIGS[:office365_signin][:signin_report_only_successful_logins])

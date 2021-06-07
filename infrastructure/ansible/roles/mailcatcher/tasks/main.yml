@@ -1,0 +1,17 @@
+---
+- name: Install apt dependencies
+  apt: name=libsqlite3-dev
+
+- name: Install mailcatcher
+  shell: /bin/bash -l -c 'gem install mailcatcher --no-ri --no-rdoc' chdir={{ app_path }}
+  become: yes
+  become_user: "{{ user_name }}"
+
+- name: Create systemd config
+  template: src=systemd.j2 dest=/lib/systemd/system/mailcatcher.service
+
+- name: Install new config
+  shell: systemctl daemon-reload && systemctl enable mailcatcher.service
+
+- name: Restart Mailcatcher
+  service: name=mailcatcher state=restarted

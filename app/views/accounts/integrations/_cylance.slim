@@ -1,0 +1,32 @@
+div data-controller="api-test"
+  = bootstrap_form_tag url: cylance_auth_create_path, method: :post, remote: (current_account.is_a?(Provider)) do |f|
+    - credential = account&.cylance_credential || Credentials::Cylance.where(account_id: account.id).first
+    - has_credential = credential.present? || account.cylance_credential?
+    p.hidden data-target="api-test.type"
+      | cylance
+    p
+      |
+        For <a href="#{I18n.t('helpdocs.cylance')}">configuration instructions</a>, see the #{I18n.t("application.name")} help docs.
+
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.text_field :tenant_id, label: "Enter your Cylance Tenant ID", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.tenantId" }, value: integrations_mask(credential&.tenant_id), readonly: has_credential
+      .w-50.pr-5
+        = f.text_field :cylance_app_id, label: "Enter your Cylance App ID", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.appId" }, value: integrations_mask(credential&.cylance_app_id), readonly: has_credential
+      .w-50.pr-5
+        = f.text_field :cylance_app_secret, label: "Enter your Cylance App Secret", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.appSecret" }, value: integrations_mask(credential&.cylance_app_secret), readonly: has_credential
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+        - unless has_credential
+          = f.hidden_field :customer_id, value: account.id
+      .w-50.pr-5
+        = f.text_field :base_url, label: "Enter your Cylance URL", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.baseUrl" }, placeholder: "https://protectapi-euc1.cylance.com", pattern: 'https://.*[^/]', value: credential&.base_url, readonly: has_credential
+
+    p.padding-10 data-target="api-test.outputDisplay"
+
+    .w-100.text-right.padding-10
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#" data-account=account.id
+        | Credential Test
+      - if account.cylance_credential?
+        = link_to "Clear Existing Credential", cylance_auth_destroy_path(customer_id: account.id), class: "btn btn-primary", :method => :delete
+      - else
+        = f.submit value: "Authenticate", class: "btn btn-primary"

@@ -1,0 +1,9 @@
+# {{ ansible_managed }}
+
+if [ -f {{ environment_file }} ]; then
+  source {{ environment_file }}
+elif [[ {{ env }} == "development" ]]; then
+  source {{ environment_file }}
+fi
+
+export DISPLAY=":0"

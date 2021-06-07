@@ -1,0 +1,93 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    = link_to "Destroy Release", administration_agent_release_path(@agent_release), class: "btn btn-danger", method: :delete, data: { confirm: "Are you sure?" }
+  = page_header("Agent Releases", ["Manage Agent Release"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        span.elipsis
+          strong Agent Release #{@agent_release.id}
+
+      .panel-body
+        dl.dl-horizontal
+          dt Created
+          dd.mb-10 = l @agent_release.created_at, format: :digital
+          dt Duration
+          dd.mb-10 = @agent_release.period.humanize
+          dt Estimated Completion
+          dd.mb-10 = l @agent_release.created_at + @agent_release.period_before_type_cast, format: :digital
+          dt Creator
+          dd.mb-10 = @agent_release.creator.name
+          dt Targets
+          dd.mb-10 = @agent_release.agent_release_group_names.collect(&:humanize).to_sentence
+          dt Released
+          dd.mb-10 #{(@agent_release.release_progress * 100).round}% of targeted customers
+
+        .navbar.navbar-default.bg-white
+          ul.nav.navbar-nav.mr-0.ml-0
+            li.active
+              a href="#customers" data-turbolinks="false" Customers
+            li
+              a href="#uploads" data-turbolinks="false" Support Files
+            li
+              a href="#not-targeted-customers" data-turbolinks="false" Not Targeted Customers
+
+        div data-controller="tab-contents"
+          #customers.col-xs-12 data-target="tab-contents.tabs"
+            .pull-right.margin-bottom-10
+              = form_tag administration_agent_release_path(@agent_release), method: "get", class: "fancy-form" do |f|
+                i.fa.fa-search
+                input.form-control type="search" name="search" value="#{params[:search]}" placeholder="Filter"
+            table.table
+              thead
+                tr
+                  th Customer
+                  th.text-right Released
+              tbody
+                - @customers.each do |customer|
+                  tr
+                    td = customer.name
+                    td.text-right
+                      - if customer.agent_release_id == @agent_release.id
+                        | Released
+                      - else
+                        = link_to "Force Release", administration_agent_release_path(@agent_release, customer_id: customer.id), method: :put
+            - if @customers_pagination.pages > 1
+              .text-center
+                == pagy_bootstrap_nav @customers_pagination
+
+          #uploads.col-xs-12 data-target="tab-contents.tabs"
+            - cache ["v1/agent-release/uploads", @agent_release] do
+              table.table
+                thead
+                  tr
+                    td Filename
+                    td Hash
+                    td Uploaded By
+                    td Uploaded
+                    td Protected
+                    td &nbsp;
+                tbody
+                  = render partial: "administration/support_files/support_file", collection: @agent_release.uploads
+
+          #not-targeted-customers.col-xs-12 data-target="tab-contents.tabs"
+            table.table
+              thead
+                tr
+                  th Customer
+                  th Release Group
+                  th.text-right Current Release
+              tbody
+                - @not_targeted_customers.each do |customer|
+                  tr
+                    td = customer.name
+                    td = customer.agent_release_group.humanize
+                    td.text-right
+                      = customer.agent_release_id
+
+            - if @not_targeted_pagination.pages > 1
+              .text-center
+                == pagy_bootstrap_nav @not_targeted_pagination
+

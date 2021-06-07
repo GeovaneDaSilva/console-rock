@@ -1,0 +1,11 @@
+.progress {
+  position: relative;
+
+  .text {
+    position: absolute;
+    width: 100%;
+    height: 100%;
+    color: #FFF;
+    mix-blend-mode: difference;
+  }
+}

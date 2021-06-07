@@ -1,0 +1,5 @@
+- include_vars: "../vars/{{env}}/librato.yml"
+
+- name: "Install agent"
+  shell: 'curl -s {{librato_agent_url}} | sudo bash'
+  become: yes

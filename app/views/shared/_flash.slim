@@ -1,0 +1,23 @@
+javascript:
+  toastr.options= {
+    progressBar: true,
+    positionClass: 'toast-bottom-right'
+  }
+
+  toastr.remove();
+
+- unless flash[:error].blank?
+    javascript:
+      toastr.error('#{flash[:error]}')
+
+- unless flash[:failure].blank?
+    javascript:
+      toastr.error('#{flash[:failure]}')
+
+- unless flash[:notice].blank?
+    javascript:
+      toastr.success('#{flash[:notice]}')
+
+- unless flash[:info].blank?
+    javascript:
+      toastr.info('#{flash[:info]}')

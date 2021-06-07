@@ -1,0 +1,42 @@
+- content_for(:page_header) do
+  - if policy(@group).destroy?
+    .action-links.pull-right.margin-top-5
+      = link_to group_path(@group), method: :delete, class: "btn btn-danger" do
+        i.fa.fa-trash
+        | Delete
+
+  = page_header("Edit Group", [link_to_current_account(current_account.name), link_to("Groups", groups_path), "New Group"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Edit Group
+      .panel-body
+        .row.nomargin
+          .col-md-4
+            = bootstrap_form_for @group, url: group_path(@group), data: { onChangeSubmitPath: edit_group_path(@group) } do |f|
+              = render partial: "form", locals: { f: f }
+
+              .pull-right
+                = f.submit "Update", class: "btn btn-primary"
+                | &nbsp;
+                = link_to "Reset", edit_group_path(@group), class: "btn btn-default"
+
+          .col-md-8
+            h3 Group devices
+            table.table
+              thead
+                tr
+                  td Hostname
+                  td IP Address
+                  td.hidden-sm.hidden-xs Network
+                  td.hidden-xs Operating System
+                  td.hidden-md.hidden-sm.hidden.xs MAC Address
+                  td &nbsp;
+              tbody
+                = render partial: "devices/device", collection: @devices, cache: true
+
+            - if @pagination.pages > 1
+              .margin-top-20.text-center
+                == pagy_bootstrap_nav @pagination

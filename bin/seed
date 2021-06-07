@@ -1,0 +1,2 @@
+#!/bin/bash
+rails db:drop parallel:drop db:setup parallel:prepare

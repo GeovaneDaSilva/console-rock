@@ -1,0 +1,61 @@
+= form_tag whitelist_path, method: :post, remote: true do
+    = hidden_field_tag :app_id, params[:app_id]
+    = hidden_field_tag :incident_id, params[:incident_id]
+    .row.app-index-wrapper
+      .col-xs-12.col-sm-8.col-sm-offset-2.app-card
+        .panel.panel-default
+          .panel-body
+            .row.app-title
+              .col-xs-12
+                .pull-left
+                  h3.nomargin
+                    | ADD TO WHITELIST
+                  h4.text-muted.nomargin
+                    - if defined?(device)
+                      | #{device.hostname} - #{device.customer.name}
+                    - else
+                      = account.name
+
+                .pull-right
+                  = link_to "< Back to Results", source_page
+
+            .row.app-description
+              .col-xs-12
+                p Select the entries below you'd like to create whitelist rules for. These values will be added to the #{app.title} App configuration for #{defined?(device) ? device.hostname : account.name}.
+
+            - if whitelist_options.keys.none?
+              .row
+                .col-xs-12
+                  p No whitelist options can be derived from the select results.
+
+            - whitelist_options.each do |type, options|
+              - if options.any?
+                .row
+                  .col-xs-12
+                    table.table.fullwidth data-controller="checkbox-selectable"
+                      thead.bg-transparent
+                        tr
+                          th.pl-0
+                            = check_box_tag "check_all", false, nil, checked: true, data: { action: "checkbox-selectable#toggleAll" }
+                            | &nbsp;
+                          th style="vertical-align: top;" Whitelist Rule
+                      tbody
+                        - options.each do |option|
+                          tr
+                            td.pl-0 = check_box_tag "whitelist[#{type}][]", option, checked: true
+                            td #{type}: #{option}
+
+          .panel-footer
+            .pull-left
+              = link_to "Custom", account_triage_custom_whitelist_path(account, query_params.merge(app_results: params[:app_results])), class: "btn"
+
+            .pull-right.text-right
+              .form-group.d-inline-block.margin-right-10
+                = check_box_tag :remove_existing, true, false
+                | &nbsp;
+                label for="remove_existing"
+                  | Remove Existing Results
+              .form-group.d-inline-block.margin-right-10
+                = link_to "View All Whitelists", account_apps_whitelists_path(account), class: "btn btn-default"
+
+              = submit_tag "Add", class: "btn btn-primary"

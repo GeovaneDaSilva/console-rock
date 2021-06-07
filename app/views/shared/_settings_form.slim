@@ -1,0 +1,180 @@
+.d-flex.flex-wrap data-controller="modal-confirm" data-modal="uninstall_agents_modal"
+  - if policy(f.object.account).can_set_customize_logo?
+    .w-33.pr-5
+      .field-group
+        = f.switch :can_customize_logo, { label_name: "Can customize logo", label_class: "switch-success switch-round" }
+  - if policy(f.object.account).can_set_uninstall?
+    .w-33.pr-5
+      .field-group
+        = f.switch :uninstall, label_name: "Uninstall agents", label_class: "switch-success switch-round", data: { action: "modal-confirm#click", target: "modal-confirm.control" }, onkeydown: "return false"
+  - if policy(f.object.account).can_set_super?
+    .w-33.pr-5
+      .field-group
+        = f.switch :super, label_name: "Operate the agents in super mode", label_class: "switch-success switch-round"
+  - if policy(f.object.account).can_set_offline?
+    .w-33.pr-5
+      .field-group
+        = f.switch :offline, label_name: "Operate the agents in offline mode", label_class: "switch-success switch-round"
+  - if policy(f.object.account).can_set_report_agent_errors?
+    .w-33.pr-5
+      .field-group
+        = f.switch :report_agent_errors, label_name: "Report agent errors", label_class: "switch-success switch-round"
+  - if policy(f.object.account).editor?
+    .w-33.pr-5
+      .field-group
+        - two_factors = f.object.account.setting.two_factors
+        - two_factors_accounts = two_factors&.dig("accounts").to_s.downcase == "true" ? true : false
+        - two_factors_sub_accounts = two_factors&.dig("sub_accounts").to_s.downcase == "true" ? true : false
+        label.switch.switch-success.switch-round
+          input name="provider[setting_attributes][two_factors][accounts]" type="hidden" value="false"
+          input type="checkbox" value="true" name="provider[setting_attributes][two_factors][accounts]" id="provider[setting_attributes][two_factors][accounts]" checked=two_factors_accounts
+          span.switch-label.switch-success.switch-round data-on="YES" data-off="NO"
+          span
+            | Require 2FA for all users of this account
+    .w-33.pr-5
+      .field-group
+        label.switch.switch-success.switch-round
+          input name="provider[setting_attributes][two_factors][sub_accounts]" type="hidden" value="false"
+          input type="checkbox" value="true" name="provider[setting_attributes][two_factors][sub_accounts]" id="provider[setting_attributes][two_factors][sub_accounts]" checked=two_factors_sub_accounts
+          span.switch-label.switch-success.switch-round data-on="YES" data-off="NO"
+          span
+            | Require 2FA for all sub-accounts
+
+  .modal.fade id="uninstall_agents_modal" tabindex="2" role="dialog" aria-hidden="true"
+    .modal-dialog.modal-lg
+      .modal-content
+        .modal-header
+          i.fa.fa-exclamation-circle
+          b
+            |  Uninstall Agents
+        .modal-body
+          | This will uninstall all device agents! Caution is advised. This option uninstalls the agent on the actual device.
+        .modal-footer
+          button.btn.btn-default data-dismiss="modal"
+            | Cancel
+          a.btn.btn-danger.btn-ok
+            | Proceed
+
+- if policy(f.object.account).can_set_remediate?
+  .field-group
+    = f.switch :auto_remediate, label_name: "Automatically apply all generated remediations", label_class: "switch-success switch-round"
+
+    span.label.label-warning DANGER!
+    |  Automatically applying remediations means that you will not have a chance to validate uninstalls before they execute.
+
+
+- if policy(f.object.account).can_set_channel?
+  .field-group
+    = f.select :channel, Setting.channels.map { |k, _v| [k.humanize, k] }, include_blank: false, label: "Agent release channel"
+
+- if policy(f.object.account).can_set_user_session_timeout?
+  = f.number_field :user_session_timeout, label: "Automatically log users out after (minutes)"
+
+hr
+.d-flex.flex-wrap
+  .field-group
+    label
+      strong Basic Device Settings
+    .d-flex.flex-wrap
+      - if policy(f.object.account).can_set_verbosity?
+        .w-50.pr-5
+          .field-group
+            = f.select :verbosity, Setting.verbosities.map { |k, v| ["#{v} - #{k.humanize}", k] }
+      - if policy(f.object.account).can_change_max_cpu_usage?
+        .w-50.pr-5
+          .field-group
+            = f.number_field :max_cpu_usage, { label: "Maximum CPU Usage (1-100)", min: 1, max: 100, step: 1, help: "Windows 8+ only" }
+      - if policy(f.object.account).can_change_max_memory_usage?
+        .w-50.pr-5
+          .field-group
+            = f.number_field :max_memory_usage, { label: "Maximum Memory Usage (in bytes)", min: 75_000_000, step: 1_000_000, help: "Windows only" }
+      - if policy(f.object.account).can_change_max_sustained_memory_usage?
+        .w-50.pr-5
+          .field-group
+            = f.number_field :max_sustained_memory_usage, { label: "Maximum Sustained Memory Usage (in seconds)", min: 300, step: 1, help: "Windows only" }
+
+hr
+.d-flex.flex-wrap
+  .field-group
+    label
+      strong Device Inactivity Thresholds
+      |  (in seconds)
+    .d-flex.flex-wrap
+      - Device.device_types.keys.each do |device_type|
+        .w-50.pr-5
+          label.control-label #{device_type.capitalize}
+          = number_field_tag "device_inactivity_thresholds[#{device_type}]", f.object.device_inactivity_thresholds&.dig(device_type), class: "form-control", name: "device_inactivity_thresholds[#{device_type}]"
+
+hr
+.d-flex.flex-wrap
+  .field-group
+    label
+      strong Advanced Device Settings
+    .d-flex.flex-wrap
+      - if policy(f.object.account).can_set_polling?
+        .w-50.pr-5
+          .field-group
+            = f.number_field :polling, label: "Polling interval in seconds"
+      - if policy(f.object.account).can_change_parallel_sub_task_count?
+        .w-50.pr-5
+          .field-group
+            = f.number_field :parallel_sub_task_count, { label: "Number of Parallel Sub-tasks per Agent" }
+      - if policy(f.object.account).can_change_file_hash_refresh_interval?
+        .w-50.pr-5
+          .field-group
+            = f.number_field :file_hash_refresh_interval, { label: "File Hash Database Cache Age", help: "In seconds" }
+      - if policy(f.object.account).can_change_app_result_cache_age?
+        .w-50.pr-5
+          .field-group
+            = f.number_field :app_result_cache_age, { label: "Agent App Result Cache Age", help: "In seconds" }
+      - if policy(f.object.account).can_change_disk_scan_time?
+        .w-50.pr-5
+          .field-group
+            = f.number_field :full_disk_scan_time, { label: "Full Disk Scan Start (hrs after midnight)", help: "Ex: '1' means the scan will start at 1:00 A.M. local time" }
+      - if policy(f.object.account).can_set_device_expiration?
+        .w-50.pr-5
+          .field-group
+            = f.number_field :device_expiration, { label: "Expire and purge devices automatically after (days offline)" }
+hr
+
+
+hr
+.d-flex.flex-wrap
+  - if policy(f.object.account).can_set_url?
+      .field-group
+        span.label.label-warning DANGER!
+        |  Setting the URL and license key is dangerous! Both must be changed at the same time to proper values, or agents will require a manual redeployment.
+        .d-flex.flex-wrap
+          .w-50.pr-5
+            = f.text_field :url
+          .w-50.pr-5
+            = f.text_field :license_key
+  - if policy(f.object.account).can_modify_settings_admin_configs?
+    .w-50.pr-5
+      .field-group
+        strong Admin Config
+        .d-flex.flex-wrap
+          - f.object.admin_config.each do |key, value|
+            .w-50.mt-10
+              .form-group
+                label.control-label #{key}: #{value}
+                = hidden_field_tag "admin_config[#{key}]", value
+
+            - if f.object.read_attribute(:admin_config).keys.include?(key)
+              .w-50.mt-10
+                label.switch.switch-rounded
+                  input type="checkbox" value="_destroy" name="admin_config[#{key}]" id="admin_config[#{key}][_destroy]"
+                  span.switch-label data-on="YES" data-off="NO"
+                  span Remove
+
+            .w-100
+              hr.nomargin
+
+          .w-50.pr-5.mt-10
+            .form-group
+              label.control-label for="admin_config_new_key" Config Key
+              = text_field_tag "admin_config_new_key", nil, class: "form-control"
+          .w-50.mt-10
+            .form-group
+              label.control-label for="admin_config_new_value" Config Value
+              = text_field_tag "admin_config_new_value", nil, class: "form-control"

@@ -1,0 +1,28 @@
+- content_for(:page_header) do
+  - if policy(:administration).manage_ttps?
+    .action-links.pull-right.margin-top-5
+      = link_to new_administration_ttp_path, class: "btn btn-primary" do
+        i.fa.fa-plus
+        | New TTP
+  = page_header("TTPs", ["Manage TTPs"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong TTPs
+        .pull-right
+          = form_tag administration_ttps_path, method: "get", class: "fancy-form" do |f|
+            i.fa.fa-search
+            input.form-control type="search" name="search" value="#{params[:search]}"
+      .panel-body.nopadding
+        - if @ttps.any?
+          - cache ["v1/administration", @ttps] do
+            table.fullwidth.table.m-0
+              = render partial: "ttp", collection: @ttps, cache: true
+
+            - if @pagination.pages > 1
+              .text-center.border-top
+                == pagy_bootstrap_nav @pagination
+        - else
+          .text-center No TTPs

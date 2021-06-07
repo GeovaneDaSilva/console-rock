@@ -1,0 +1,36 @@
+- content_for(:page_header) do
+  - if policy(:administration).manage_ttps?
+    .action-links.pull-right.margin-top-5
+      = link_to "Edit", edit_administration_ttp_path(@ttp), class: "btn btn-link"
+
+      = link_to administration_ttp_path(@ttp), method: :delete, class: "btn btn-danger", data: { confirm: "Are you sure?" } do
+        i.fa.fa-trash
+        | Delete
+
+  = page_header("TTP", [link_to("TTPs", administration_ttps_path)])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong ID: #{@ttp.id}
+      .panel-body.nopadding
+        p.padding-15
+          strong Tactic:
+          |  #{@ttp.tactic}
+          br
+          strong Technique:
+          |  #{@ttp.technique}
+          br
+          strong
+            ' URL:
+          a href="#{@ttp.url}" target="_blank" = @ttp.url
+
+        p.padding-15.pt-0.newline-wrap
+          = @ttp.description
+
+        - if @ttp.remediation.present?
+          p.padding-15.pt-0.newline-wrap
+            strong Remediation:
+            br
+            = @ttp.remediation

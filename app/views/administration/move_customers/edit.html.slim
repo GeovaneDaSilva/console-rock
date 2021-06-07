@@ -1,0 +1,40 @@
+- content_for(:page_header) do
+  = page_header("Move Customer", [customer.name])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        span.elipsis
+          strong Select a new provider
+        .pull-right
+          = form_tag edit_administration_move_customer_path(customer), method: "get", class: "fancy-form" do |f|
+            i.fa.fa-search
+            input.form-control type="search" name="search" value="#{params[:search]}"
+
+      .panel-body
+        = form_tag administration_move_customer_path(customer), method: :put do
+          - if customer.root.children.providers.load.any?
+            .row
+              .col-xs-12
+                strong Sibling Providers
+
+              - customer.root.children.providers.where.not(id: customer.parent.id).each do |provider|
+                .col-xs-12
+                  = radio_button_tag :provider_id, provider.id
+                  | &nbsp;
+                  = label_tag "provider_id_#{provider.id}", provider.name
+            hr
+
+          .row
+            - providers.each do |provider|
+              .col-xs-12
+                  = radio_button_tag :provider_id, provider.id
+                  | &nbsp;
+                  = label_tag "provider_id_#{provider.id}", provider.name
+
+          .text-right
+            = submit_tag "Move", class: "btn btn-primary", data: { confirm: "Are you sure?" }
+          - if @pagination.pages > 1
+            .text-center
+              == pagy_bootstrap_nav @pagination

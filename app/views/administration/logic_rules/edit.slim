@@ -1,0 +1,217 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    - if policy(current_user).soc_team?
+      = link_to administration_logic_rule_path(@logic_rule), method: :delete, class: "btn btn-danger" do
+        i.fa.fa-trash
+        | Delete
+  = page_header(@logic_rule.description, ["Administration", link_to("Triage Rules", administration_logic_rules_path), link_to(@logic_rule.description, administration_logic_rule_path(@logic_rule))])
+
+- with_stimulus_controller('triage-rules') do
+  = bootstrap_form_for @logic_rule, url: administration_logic_rule_path, method: :patch, data: { controller: stimulus_controller } do |f|
+    .row.app-index-wrapper
+      .col-xs-12.col-lg-10.col-lg-offset-1.app-card
+        .panel.panel-default
+          .panel-heading
+            strong = @logic_rule.description
+          .panel-body
+            .row.mb-0
+              .col-xs-12
+                .form-group
+                  = hidden_field_tag :user_id, @logic_rule.user_id
+                  label.margin-right-10 App
+                  = hidden_field_tag "app_type", @logic_rule.app.configuration_type, data: { target: "triage-rules.appType" }
+                  = select_tag "logic_rule[app_id]", options_for_select(@app_options, @logic_rule.app_id), class: "form-control margin-right-10", data: { action: stimulus_action('change', 'refreshAvActions'), target: stimulus_target('appSelect'), lookup: @apps.pluck(:id, :configuration_type).to_h.to_json }
+                  br
+                  label.margin-right-10 Accounts
+                  br
+
+                  / Account type selector (all accounts or a specific account)
+                  - has_account_id = @logic_rule.account_id.present?
+                  label
+                    = radio_button_tag :account_target, :all, !has_account_id, data: { action: stimulus_action('click', 'showToggle'), target: stimulus_target('accountSelectTypeAllAccounts') }
+                    | All accounts
+                  br
+                  label
+                    = radio_button_tag :account_target, :specific, has_account_id, data: { action: stimulus_action('click', 'showToggle') }
+                    | Specific account ID
+                  br
+                  = text_field_tag :account_id, @logic_rule.account_id, placeholder: 'Account ID'
+                .form-group.margin-top-6.include-descendants.hidden
+                  label.switch.switch-rounded
+                    = hidden_field_tag "logic_rule[include_descendants]", false
+                    = check_box_tag "logic_rule[include_descendants]", true, class: "form-control"
+                    span.switch-label data-on="YES" data-off="NO"
+                    span Include all descendants?
+            .row.mb-0
+              hr
+            .row.mb-0
+              .col-xs-12
+                .form-group
+                  = label_tag "logic_rule[description]", "Description"
+                  = text_area_tag "logic_rule[description]", @logic_rule.description, required: true, placeholder: "Add description", class: "form-control margin-right-10"
+            .row.mb-0
+              .col-xs-12
+                .panel.panel-default
+                  .panel-body
+                    .col-xs-12
+                      - @rules.each do |rule|
+                        .row
+                          .form-inline
+                            .form-group
+                              label.margin-right-10 When
+                              - logic = rule[:logic] == "ALL" ? "and" : "or"
+                              = select_tag "logic_rule[rules][][logic]", options_for_select([["All", "and"], ["Any", "or"]], logic), class: "form-control margin-right-10"
+                              label.margin-right-10 of the following conditions are met:
+                            .pull-right
+                              .input-group
+                                span.input-group-btn
+                                  a.btn.btn-default.add-button data-action="click->triage-rules#addItem" data-target="triage-rules.addButton"
+                                    i.fa.fa-plus
+                                    | Add Condition
+                        .row.condition-template.hidden
+                          .form-inline
+                            .form-group
+                              = text_field_tag "logic_rule[rules][][conditions][][attribute]", nil, required: true, placeholder: "Field", class: "form-control margin-right-10", disabled: true
+                              = select_tag "logic_rule[rules][][conditions][][operator]", options_for_select(operator_options), class: "form-control margin-right-10", disabled: true
+                              = text_field_tag "logic_rule[rules][][conditions][][value]", nil, data: { required: true }, placeholder: "Value", class: "form-control margin-right-10", disabled: true
+                            .pull-right
+                              .input-group
+                                span.input-group-btn
+                                  a.btn.btn-default.remove-button data-action="click->triage-rules#removeItem" data-target="triage-rules.removeButton"
+                                    i.fa.fa-trash
+                                    | Remove
+                        .conditions
+                          - rule[:conditions].each do |condition|
+                            .row.condition
+                              .form-inline
+                                .form-group
+                                  = text_field_tag "logic_rule[rules][][conditions][][attribute]", condition[:attribute], data: { required: true }, placeholder: "Field", class: "form-control margin-right-10"
+                                  = select_tag "logic_rule[rules][][conditions][][operator]", options_for_select(operator_options, operator_to_text.key(condition[:operator])), class: "form-control margin-right-10"
+                                  = text_field_tag "logic_rule[rules][][conditions][][value]", condition[:value], data: { required: true }, placeholder: "Value", class: "form-control margin-right-10"
+                                .pull-right
+                                  .input-group
+                                    span.input-group-btn
+                                      a.btn.btn-default.remove-button data-action="click->triage-rules#removeItem" data-target="triage-rules.removeButton"
+                                        i.fa.fa-trash
+                                        | Remove
+            .row.mb-0
+              .col-xs-12
+                .panel.panel-default
+                  .panel-body
+                    .col-xs-12
+                      .row
+                        .form-inline
+                          .form-group
+                            label.margin-right-10 Perform the following actions:
+                          .pull-right
+                            .input-group
+                              span.input-group-btn
+                                a.btn.btn-default.add-action-button data-action="click->triage-rules#addAction" data-target="triage-rules.addActionButton"
+                                  i.fa.fa-plus
+                                  | Add Action
+                      .row.action-template.hidden
+                        .form-inline
+                          .form-group
+                            = select_tag "logic_rule[actions][][name]", options_for_select(action_options), class: "form-control margin-right-10 action-select", disabled: true, data: { action: "change->triage-rules#showActionInputs" }
+                            = select_tag "logic_rule[actions][][template_id]", options_for_select(incident_template_options), include_blank: true, class: "form-control margin-right-10 incident-template hidden", disabled: true
+                            label.check-inline.checkbox.consolidate-results.hidden
+                              = check_box_tag "consolidate_results", nil, false, class: "hidden", data: { action: "click->triage-rules#toggleConsolidateInputs" }
+                              i
+                              | Consolidate results?
+                            = text_field_tag "logic_rule[actions][][reset_time]", nil, required: true, placeholder: "Reset (hours)", size: 11, class: "form-control margin-right-10 consolidate-input hidden", disabled: true
+                            = text_field_tag "logic_rule[actions][][matching_fields]", nil, placeholder: "Matching fields", size: 15, class: "form-control margin-right-10 consolidate-input hidden", disabled: true
+
+                            = hidden_field_tag "logic_rule[actions][][av_vendor]", @logic_rule.app.configuration_type, class: "av-vendor", disabled: true
+                            = select_tag "logic_rule[actions][][av_action]", [], class: "form-control margin-right-10 av-action hidden", disabled: true, data: { action: "change->triage-rules#refreshAvActionOptions" }
+                            = select_tag "logic_rule[actions][][av_action_option]", [], class: "form-control margin-right-10 av-action-option hidden", disabled: true
+                          .pull-right
+                            .input-group
+                              span.input-group-btn
+                                a.btn.btn-default.remove-action-button data-action="click->triage-rules#removeAction" data-target="triage-rules.removeActionButton"
+                                  i.fa.fa-trash
+                                  | Remove
+                      .actions
+                        - @logic_rule.actions.each do |action|
+                          - action_name, template_id, reset_time, *fields = action.split(",")
+                          .row.action
+                            .form-inline
+                              .form-group
+                                = select_tag "logic_rule[actions][][name]", options_for_select(action_options, action_name), class: "form-control margin-right-10 action-select", data: { action: "change->triage-rules#showActionInputs" }
+                                - if action_name == "Pipeline::Actions::CreateIncident"
+                                  = select_tag "logic_rule[actions][][template_id]", options_for_select(incident_template_options, template_id), include_blank: true, class: "form-control margin-right-10 incident-template"
+                                  label.check-inline.checkbox.consolidate-results
+                                      = check_box_tag "consolidate_results", nil, (!reset_time.blank? || !fields.blank?), class: "hidden", data: { action: "click->triage-rules#toggleConsolidateInputs" }
+                                      i
+                                      | Consolidate results?
+                                  - if !reset_time.blank? || !fields.blank?
+                                    = text_field_tag "logic_rule[actions][][reset_time]", reset_time, required: true, placeholder: "Reset (hours)", size: 11, class: "form-control margin-right-10 consolidate-input"
+                                    = text_field_tag "logic_rule[actions][][matching_fields]", fields.join(","), placeholder: "Matching fields", size: 15, class: "form-control margin-right-10 consolidate-input"
+                                  - else
+                                    = text_field_tag "logic_rule[actions][][reset_time]", nil, required: true, placeholder: "Reset (hours)", size: 11, class: "form-control margin-right-10 consolidate-input hidden", disabled: true
+                                    = text_field_tag "logic_rule[actions][][matching_fields]", nil, placeholder: "Matching fields", size: 15, class: "form-control margin-right-10 consolidate-input hidden", disabled: true
+                                - elsif action_name == "Pipeline::Actions::PerformAvAction"
+                                  = hidden_field_tag "logic_rule[actions][][av_vendor]", @logic_rule.app.configuration_type, class: "av-vendor"
+                                  = select_tag "logic_rule[actions][][av_action]", options_for_select(av_action_options, reset_time), class: "form-control margin-right-10 av-action", data: { action: "change->triage-rules#refreshAvActionOptions" }
+                                  = select_tag "logic_rule[actions][][av_action_option]", options_for_select(av_action_value_options(reset_time), fields.first), class: "form-control margin-right-10 av-action-option"
+                                - else
+                                  = select_tag "logic_rule[actions][][template_id]", options_for_select(incident_template_options), include_blank: true, class: "form-control margin-right-10 incident-template hidden"
+                                  label.check-inline.checkbox.consolidate-results.hidden
+                                    = check_box_tag "consolidate_results", nil, false, class: "hidden", data: { action: "click->triage-rules#toggleConsolidateInputs" }
+                                    i
+                                    | Consolidate results?
+                                  = text_field_tag "logic_rule[actions][][reset_time]", nil, required: true, placeholder: "Reset (hours)", size: 11, class: "form-control margin-right-10 consolidate-input hidden", disabled: true
+                                  = text_field_tag "logic_rule[actions][][matching_fields]", nil, placeholder: "Matching fields", size: 15, class: "form-control margin-right-10 consolidate-input hidden", disabled: true
+
+                                  = hidden_field_tag "logic_rule[actions][][av_vendor]", @logic_rule.app.configuration_type, class: "av-vendor", disabled: true
+                                  = select_tag "logic_rule[actions][][av_action]", [], class: "form-control margin-right-10 av-action hidden", disabled: true, data: { action: "change->triage-rules#refreshAvActionOptions" }
+                                  = select_tag "logic_rule[actions][][av_action_option]", [], class: "form-control margin-right-10 av-action-option hidden", disabled: true
+                              .pull-right
+                                .input-group
+                                  span.input-group-btn
+                                    a.btn.btn-default.remove-action-button data-action="click->triage-rules#removeAction" data-target="triage-rules.removeActionButton"
+                                      i.fa.fa-trash
+                                      | Remove
+            .row.mb-0
+              .col-xs-12
+                .panel.panel-default
+                  .panel-body
+                    .col-xs-12
+                      .row
+                        .form-inline
+                          .form-group
+                            label.margin-right-10 Add dependencies:
+                          .pull-right
+                            .input-group
+                              span.input-group-btn
+                                a.btn.btn-default.add-dependency-button data-action="click->triage-rules#addDependency" data-target="triage-rules.addDependencyButton"
+                                  i.fa.fa-plus
+                                  | Add Dependency
+                      .row.dependency-template.hidden
+                        .form-inline
+                          .form-group
+                            = select_tag "logic_rule[dependencies][][target]", options_for_select(dependency_options), class: "form-control margin-right-5", disabled: true
+                            = text_field_tag "logic_rule[dependencies][][attribute]", nil, required: true, placeholder: "enabled_countries", class: "form-control margin-right-5", disabled: true
+                          .pull-right
+                            .input-group
+                              span.input-group-btn
+                                a.btn.btn-default.remove-dependency-button data-action="click->triage-rules#removeDependency" data-target="triage-rules.removeDependencyButton"
+                                  i.fa.fa-trash
+                                  | Remove
+                      .dependencies
+                        - @logic_rule.dependencies.each do |dependency|
+                          - target, attribute = dependency.split(",")
+                          .row.dependency
+                            .form-inline
+                              .form-group
+                                = select_tag "logic_rule[dependencies][][target]", options_for_select(dependency_options, target), class: "form-control margin-right-5"
+                                = text_field_tag "logic_rule[dependencies][][attribute]", attribute, class: "form-control margin-right-5"
+                              .pull-right
+                                .input-group
+                                  span.input-group-btn
+                                    a.btn.btn-default.remove-dependency-button data-action="click->triage-rules#removeDependency" data-target="triage-rules.removeDependencyButton"
+                                      i.fa.fa-trash
+                                      | Remove
+          .panel-footer
+            .pull-left
+            .pull-right.text-right
+              = f.submit "Save", class: "btn btn-primary"

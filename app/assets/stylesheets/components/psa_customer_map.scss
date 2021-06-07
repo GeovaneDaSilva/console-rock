@@ -1,0 +1,84 @@
+@import '../_vars/colors';
+
+.psa-customer-map-form {
+  [hidden] {
+    display: none !important;
+  }
+
+  &__headings,
+  &__search-forms,
+  &__tables,
+  &__actions {
+    [class|='col'] + [class|='col'] {
+      border-left: 1px solid rgba($primaryGrey, 0.3);
+    }
+  }
+
+  .row {
+    display: flex;
+    align-items: stretch;
+  }
+
+  .table {
+    background-color: white;
+
+    &.table-hover {
+      tr {
+        &.bg-primary {
+          &:hover,
+          &:focus {
+            background-color: #0E4B83;
+          }
+        }
+      }
+    }
+  }
+
+  .panel {
+    padding-bottom: 16px;
+    border-radius: 4px;
+  }
+
+  .checkbox {
+    padding-left: 0;
+
+    input {
+      left: initial;
+    }
+  }
+
+  .radio {
+    display: block;
+  }
+
+  .customer-row {
+    cursor: pointer;
+
+    &.bg-danger {
+      color: black;
+    }
+  }
+
+  &__flash-notifications {
+    border-radius: 4px;
+
+    &.bg-danger,
+    &.bg-success {
+      color: white;
+    }
+
+    &__messages {
+      padding: 12px;
+
+      p {
+        margin-top: 0;
+        margin-bottom: 0;
+      }
+    }
+
+    &__loader {
+      padding-top: 12px;
+      padding-left: 12px;
+    }
+  }
+}

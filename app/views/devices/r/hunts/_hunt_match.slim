@@ -1,0 +1,38 @@
+#hunt_match
+
+javascript:
+  // Build the chart
+  Highcharts.chart('hunt_match', {
+    chart: {
+      plotBackgroundColor: null,
+      plotBorderWidth: null,
+      plotShadow: false,
+      type: 'pie'
+    },
+    colors: #{raw chart_color_json},
+    title: {
+      text: 'Hunt Test Match'
+    },
+    tooltip: {
+      pointFormat: '{series.name}: <b>{point.percentage:.1f}% ({point.y})</b>'
+    },
+    plotOptions: {
+      pie: {
+          allowPointSelect: true,
+          cursor: 'pointer',
+          dataLabels: {
+            enabled: false
+          },
+          showInLegend: true
+      }
+    },
+    series: [{
+      name: 'Networks',
+      colorByPoint: true,
+      innerSize: '80%',
+      data: [
+        { name: "Positive Match", y: #{hunt_result.test_results.select { |tr| tr.positive? }.size} },
+        { name: "Negative Match", y: #{hunt_result.test_results.select { |tr| tr.negative? }.size} },
+      ]
+    }]
+  });

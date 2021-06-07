@@ -1,0 +1,11 @@
+table.table
+  thead
+    tr
+      td Name
+      td &nbsp;
+  tbody
+    - customers.each do |customer|
+      tr
+        td = customer.name
+        td.text-right
+          = link_to "Quick Switch", account_current_path(customer), method: :post

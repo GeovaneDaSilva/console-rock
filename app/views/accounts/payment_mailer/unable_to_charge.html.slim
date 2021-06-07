@@ -1,0 +1,13 @@
+- self.message.from = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+- self.message.reply_to = [ENV.fetch(I18n.t("application.noreply_email"), 'no-reply')]
+
+p
+  | We were unable to successfully charge your credit card on file. As a result, your account is now past due. You can easily update by clicking on the link below.
+
+p.text-center
+  = link_to "Update Payment Information", new_account_credit_card_url(@account, host: ENV[I18n.t('application.host')], protocol: 'https'), class: "btn"
+
+p
+  | Thanks,
+  br
+  | #{I18n.t('application.name', default: 'ACME, Inc')} Team

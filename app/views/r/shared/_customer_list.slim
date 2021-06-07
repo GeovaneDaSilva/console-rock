@@ -1,0 +1,34 @@
+.reports
+  header#header
+    .container
+      .row
+        .col-xs-12
+          .header-container
+            .logo
+              a(href="/" aria-label="Back to dashboard" data={ turbolinks: false })
+                - if current_provider.logo
+                  = image_tag current_provider.logo.url, 'aria-label': 'Company logo'
+                - else
+                  = image_tag I18n.t('application.report_logo'), 'aria-label': 'Company logo'
+            .text-center.header
+              .heading-border-bottom
+                h2.margin-bottom-0.margin-top-10
+                  ' #{title}
+                  span.green Report
+              - if time_range_enabled
+                p.margin-bottom-10
+                  = "#{l start_date, format: :long} - #{l end_date, format: :long}"
+            .menu
+              ul.mb-0
+  .customer-list
+    br
+    p.text-center
+      |
+        Please select a customer to to continue.
+    ul.center-block(style="width: 25%; min-width: 30em;")
+      - paginator, customers = pagy(current_account.all_descendant_customers.order(name: :asc))
+      - customers.each do |customer|
+        li = link_to(customer.name, report_path_resolver(account: customer), { data: { turbolinks: false } })
+
+    .text-center
+      = pagy_nav(paginator).html_safe

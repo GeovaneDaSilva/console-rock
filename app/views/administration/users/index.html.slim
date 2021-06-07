@@ -1,0 +1,21 @@
+- content_for(:page_header) do
+  = page_header("Users", ["All Users"])
+
+.row
+  .col-md-4
+    .panel.panel-default
+      .panel-heading
+        h4.nomargin Filter users
+      .panel-body
+        = bootstrap_form_tag url: administration_users_path, method: :get do |f|
+          = f.search_field :search, value: params[:search], help: "Search by user email or name"
+          hr
+          = submit_tag "Filter", class: "btn btn-primary"
+
+  .col-md-8
+    .users
+      = render partial: "user", collection: @users.includes(roles: [:account]), cache: Proc.new{ |user| ["administration", user] }
+
+    - if @pagination.pages > 1
+      .text-center
+        == pagy_bootstrap_nav @pagination

@@ -1,0 +1,14 @@
+doctype html
+html
+  head
+    = render partial: "shared/head"
+  body
+    #wrapper.clearfix
+      = yield
+
+    = yield :modals
+
+    = javascript_include_tag "body", "data-turbolinks-track": "reload"
+    = yield :body_end
+
+    = render partial: "shared/flash"

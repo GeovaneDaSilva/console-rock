@@ -1,0 +1,120 @@
+link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css"
+link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css.map"
+script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"
+
+</form>
+- cysurance_result = Apps::CysuranceResult.where(account_path: account.path).first
+- details = cysurance_result&.details
+= bootstrap_form_tag url: cysurance_index_path(account_id: account.id), method: :post,
+  data: { controller: "us-state-select confirm-modal" } do |g|
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5
+      .form-group.margin-right-10
+        label.d-block Effective Date
+        .input-group.input-daterange data-provide="datepicker"
+          = text_field_tag :eff_date, (details&.eff_date || Time.current.strftime("%m/%d/%Y")), class: "form-control", data: { "date-format" => "mm/dd/yyyy" }, help: "Start date of product subscription in simple US mm/dd/yy"
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5
+      - if account.is_a? Customer
+        = g.text_field :in_company_name, label: "Company Name", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "Insured Company Name", value: (details&.in_company_name ||account.name), readonly: true
+      - else
+        label.control-label
+          | Company Name
+        - company_names = account.all_descendant_customers.pluck(:name)
+        = select_tag :in_company_name, options_for_select(company_names, details&.in_company_name), data: { target: "us-state-select.countryInput", action: "change->us-state-select#toggle"}, class: "w-100 bg-white"
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5
+      = g.text_field :in_name, label: "Contact Name", autocorrect: "off", autocapitalize: "off", spellcheck: "false", required: true, placeholder: "Contact Name for Company", value: details&.in_name
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5
+      = g.text_field :in_contact_phone, label: "Contact Phone", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "Phone number for contact", value: details&.in_contact_phone
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5
+      = g.text_field :in_email, label: "Contact Email", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "Email address for Contact", value: details&.in_email
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5
+      = g.text_area :in_address1, label: "Address", required: true, placeholder: "Company Address Line 1", value: details&.in_address1
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5
+      = g.text_area :in_address2, label: "Suite, etc.", placeholder: "Company Address Line 2", value: details&.in_address2
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5
+      = g.text_field :in_city, label: "City", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "City", value: details&.in_city
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5 data-target="us-state-select.stateContainer"
+      label.control-label
+        | State
+      = select_tag :state_us, options_for_select(states_for_country(["US"]), details&.in_state), class: "states state_us margin-bottom-10 w-100 bg-white"
+      = select_tag :state_ca, options_for_select(states_for_country(["CA"]), details&.in_state), class: "states state_ca hidden margin-bottom-10 w-100 bg-white"
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5
+      = g.text_field :in_zip, label: "ZIP/Postal Code", autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "Company Zip/Postal Code", value: details&.in_zip
+
+  .d-flex.flex-wrap.margin-bottom-30
+    .w-50.pr-5
+      label.control-label
+        | Country
+      - countries_options = [Country['US'], Country['CA']]
+      = select_tag :in_country, options_from_collection_for_select(countries_options, :alpha2, :name, details&.in_country), data: { target: "us-state-select.countryInput", action: "change->us-state-select#toggle"}, class: "w-100 bg-white"
+
+  .d-flex.flex-wrap.margin-bottom-10 data-controller="cysurance-premium-computer"
+    .w-50.pr-5
+      label.control-label
+        | Reimbursement Amount
+      - coverage_limit = details&.coverage_limit ? "$#{details.coverage_limit}" : nil
+      = select_tag :coverage_limit, options_for_select(["$5000", "$10000", "$15000", "$20000", "$25000", "$50000", "$100000"], coverage_limit), class: "w-100 bg-white margin-bottom-20", required: true, placeholder: "Whole dollars of PROTECT reimbursement cap desired", data: { target: "cysurance-premium-computer.coverage", action: "change->cysurance-premium-computer#toggle" }
+
+      label.control-label
+        | Monthly Fee
+      - premium = details&.premium ? "$#{details.premium}" : nil
+      = text_field_tag :premium, premium, class: "form-control", readonly: true, data: { target: "cysurance-premium-computer.premium"}
+
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50.pr-5
+      label.control-label.w-50
+        | Send confirmation email to contact (Y/N)? ?
+      = g.radio_button :conf_email_yn, true, label: "Yes", class: "collapse-trigger", checked: true
+      = g.radio_button :conf_email_yn, false, label: "No", class: "collapse-trigger"
+
+  .d-flex.flex-wrap.margin-bottom-50
+    .w-100.pr-5
+      - if cysurance_result.nil?
+        a.btn.btn-primary.margin-right-10.pull-right data-target="#confirm" data-message="Enroll in Cysurance Protect?" data-action="click->confirm-modal#show" href="#"
+          | Save
+      - else
+        a.btn.btn-primary.margin-right-10.pull-right data-target="#confirm" data-message="Are you sure you want to cancel your Protect Policy?" data-action="click->confirm-modal#show" data-form-method="delete" href="#"
+          | Cancel
+        = link_to "destroy", cysurance_destroy_path(account), method: :delete, class: "hidden", id: "link_destroy", data: { target: "confirm-modal.delete" }
+
+  .modal.fade id="confirm" role="dialog" data-target="confirm-modal.modal"
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h5.modal-title = "Confirmation"
+        .modal-body
+        .modal-footer
+          a.btn.btn-primary data-action="click->confirm-modal#save" href="#"
+            | Yes
+          a.btn.btn-primary data-action="click->confirm-modal#close" href="#"
+            | No
+
+  .modal.fade id="loading" role="dialog" data-target="confirm-modal.loading" data-backdrop="static" data-keyboard="false"
+    .modal-dialog
+      .modal-content
+        .modal-header
+          h3.modal-title = "Please wait..."
+        .modal-body.text-center
+          | Please wait while we process your request.
+        .padding-3.text-center
+          h1
+            i.fa.fa-spinner.spin

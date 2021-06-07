@@ -1,0 +1,45 @@
+- content_for :modals do
+  .modal.fade tabindex="-1" role="dialog" aria-hidden="true" id="app_results_modal" data-controller="carousel-modal"
+    a.prev href="#" data-action="carousel-modal#clickPrev"
+    a.next href="#" data-action="carousel-modal#clickNext"
+
+    .modal-dialog.modal-lg
+      .modal-content data-target="carousel-modal.content"
+
+  .modal-content-options hidden=true
+    - similar_detections.each do |app_result|
+      div id="app-result-#{app_result.id}-detail"
+        .modal-header.clearfix
+          .row.no-margin
+            .col-xs-12
+              .row
+                .col-xs-10
+                  h2.pull-left.nomargin
+                    - if app_result.malicious?
+                      span.text-danger title="Malicious"
+                        i.fa.fa-exclamation-triangle
+                    - if app_result.suspicious?
+                      span.text-warning title="Suspicious"
+                        i.fa.fa-exclamation-triangle
+                    - if app_result.informational?
+                      span.text-informational title="Informational"
+                        i.fa.fa-exclamation-triangle
+                    |  #{l app_result.detection_date, format: :digital}
+                .col-xs-2
+                  .pull-right
+                    button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                      span aria-hidden="true" &times;
+                    = form_tag triage_path, method: :post, remote: true do
+                      = hidden_field_tag :app_id, app_result.app_id
+                      = hidden_field_tag :app_result_id, app_result.id
+                      .input-group
+                        span.input-group-addon
+                          i.fa.fa-cloud-download
+                        span.input-group-btn
+                          input.btn.btn-default type="submit" name="export" value="JSON"
+        .modal-body
+          = render partial: "devices/r/breaches/details", locals: { details: app_result.details, key: "" }
+
+        .modal-footer
+          .text-right
+            button.btn.btn-default data-dismiss="modal" Close

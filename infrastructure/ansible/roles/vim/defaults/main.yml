@@ -1,0 +1,3 @@
+---
+vim_autoload_path: '{{ user_home_path }}/.vim/autoload'
+vim_bundle_path: '{{ user_home_path }}/.vim/bundle'

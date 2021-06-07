@@ -1,0 +1,21 @@
+$('body').append('<%= render(partial: "shared/report_generating", locals: { id: @job_id }).squish.html_safe %>');
+var $modal = $('#<%= @job_id %>');
+$modal.modal('show')
+
+var reportInterval = setInterval(function() {
+  $.ajax({
+      url: '<%= polled_task_path(@job_id) %>'
+    }).done(function (data, status) {
+      if (data["url"] && data["url"].length > 1) {
+        $modal.modal('hide');
+
+        clearInterval(reportInterval);
+        Turbolinks.clearCache();
+        window.location = data["url"]
+      };
+    });
+}, 1000);
+
+$('#<%= @job_id %> button[data-dismiss]').on("click", function() {
+  clearInterval(reportInterval);
+});

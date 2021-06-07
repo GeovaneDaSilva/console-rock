@@ -1,0 +1,5 @@
+tr data-cable-hunt-status=(hunt.id)
+  td.truncate title=(hunt.name) = truncate hunt.name, length: 70
+  td = l hunt.updated_at, format: :digital
+  td.text-right
+    = link_to "Details", administration_hunt_path(hunt)

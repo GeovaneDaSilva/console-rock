@@ -1,0 +1,11 @@
+- content_for(:page_header) do
+  = page_header("New App", [link_to("App", administration_apps_path), "New App"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong New App
+      .panel-body
+        = bootstrap_form_for @app, url: administration_apps_path do |f|
+          = render partial: "form", locals: { f: f }

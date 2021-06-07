@@ -1,0 +1,20 @@
+.row
+  .col-xs-5.text-left
+    | When:
+  .col-xs-7
+    = l app_result.detection_date, format: :digital
+.row
+  .col-xs-5.text-left
+    | File Name:
+  .col-xs-7
+    = app_result.details.file_name
+.row
+  .col-xs-5.text-left
+    | Total Discoveries:
+  .col-xs-7
+    = app_result.details.total_discoveries
+.row
+  .col-xs-5.text-left
+    | File Owner:
+  .col-xs-7
+    = app_result.details.file_owner

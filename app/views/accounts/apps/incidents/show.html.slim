@@ -1,0 +1,104 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    - if incident.psa_id
+      span.badge title="PSA ticket created" PSA
+      | &nbsp
+    - if incident.published?
+      span.text-warning.size-16.d-inline-block.pt-5 title="Open"
+        i.fa.fa-exclamation-circle
+        |  Open
+    - elsif incident.draft?
+      span.text-info.size-16.d-inline-block.pt-5 title="Draft"
+        i.fa.fa-question-circle
+        |  Draft
+    - else
+      span.text-success.size-16.d-inline-block.pt-5 title="Resolved"
+        i.fa.fa-check-circle
+        |  Resolved
+
+    - if policy(incident).publish?
+      = link_to account_apps_incident_publish_path(account, incident), method: :put, class: "btn btn-primary ml-10" do
+        i.fa.fa-paper-plane
+        |  Publish
+
+    - if policy(incident).resolve?
+      = link_to account_apps_incident_resolve_path(account, incident), method: :put, class: "btn btn-success ml-10" do
+        i.fa.fa-check-circle
+        |  Resolve
+
+    - if policy(incident).notify?
+      = link_to account_apps_incident_notify_path(account, incident), method: :put, class: "btn btn-primary ml-10" do
+        i.fa.fa-paper-plane
+        |  Notify
+
+    - if policy(incident).edit?
+      = link_to edit_account_apps_incident_path(account, incident), class: "btn btn-primary ml-10" do
+        i.fa.fa-pencil
+        |  Edit
+
+    - if policy(incident).destroy?
+      = link_to account_apps_incident_path(account, incident), method: :delete, class: "btn btn-danger ml-10" do
+        i.fa.fa-trash
+        |  Delete
+
+  = page_header("Incident", [link_to("All Incidents", account_apps_incidents_path(account)), "Incident ##{incident.id}"])
+
+  - if current_user.admin?
+    .row
+      .col-xs-2
+       .panel.panel-default
+         .mb-10
+           strong Created By
+           p = incident.creator.name
+
+  .row
+    .col-xs-12
+      .panel.panel-default
+        .panel-heading
+          strong
+            = render_with_allowed_tags incident.title
+          .pull-right
+            strong
+              = link_to account_apps_incident_export_path(account, incident, export: "JSON"), method: :post, remote: true do
+                span.fa.fa-cloud-download
+                  | JSON
+        .panel-body
+          .mb-10
+            p = render_with_allowed_tags incident.description
+          .mb-10
+            strong Remediation Steps
+            p = render_with_allowed_tags incident.remediation
+
+          - incident.results.apps.each do |app|
+            - app_scope = incident.results.where(app: app)
+            - app_pagination, app_current_results = pagy(app_scope, items: 10, page_param: "app_#{app.id}_page")
+
+            = form_tag triage_path, method: :post, remote: false do
+              = hidden_field_tag :app_id, app.id
+              = hidden_field_tag :incident_id, incident.id
+              hr
+              h4.mb-5 = app.title
+              p = app.description
+              = render partial: "triage/incidents/app_result/#{app.report_template}", locals: { app_results: app_current_results, params: { active_incident: true}, query_params: { app_id: app.id } }
+              - if app_pagination.pages > 1
+                .text-center
+                  == pagy_bootstrap_nav(app_pagination)
+              .panel-footer
+                .text-right
+                  .btn-group.margin-left-10
+                    button.btn.btn-primary.dropdown-toggle data-toggle="dropdown" aria-expanded="false"
+                      ' Action
+                      span.caret
+                    ul.dropdown-menu.right-0.left-auto role="menu"
+                      li
+                        input.btn.btn-link.text-primary.padding-10 type="submit" name="whitelist" value="Add to Whitelist"
+                      - if policy(account).perform_antivirus_actions? && app.report_template == "sentinelone"
+                        li.padding-6
+                          input.btn.btn-link type="submit" name="antivirus_actions" value="Perform AV Actions"
+                      - if policy(incident).remediate? && !incident.resolved? && !incident.remediation_plan&.remediations.blank?
+                        li
+                          = link_to account_apps_incident_remediate_path(account, incident), class: "btn btn-link text-primary height-auto padding-top-10" do
+                            span.pull-left
+                              | Remediate
+
+              = render partial: "triages/modals", locals: { similar_detections: app_current_results }

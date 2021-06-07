@@ -1,0 +1,18 @@
+- hunt_results = hunt.hunt_results.where(device: device).positive.order("created_at DESC")
+
+td.nopadding colspan="5"
+  table.fullwidth
+    tr
+      td colspan="3"
+        = link_to hunt.name, hunt_path(hunt)
+      td.text-right colspan="2"
+        = inline_loader
+        '  Monitoring
+
+      - if hunt_results.any?
+        - hunt_results.limit(5).each do |hunt_result|
+          tr
+            = render partial: "hunts/device_hunt_results", locals: { status: hunt_result.prevailing_status, name: nil, hostname: device.hostname, timestamp: hunt_result.created_at, result_path: device_r_hunt_path(device, hunt_result), device: device, hunt: hunt }
+      - else
+        tr.text-center
+          td colspan="5" No Detections

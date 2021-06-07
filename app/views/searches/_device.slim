@@ -1,0 +1,12 @@
+= link_to device_path(result, switch_account_id: result.customer_id) do
+  .clearfix.search-result.device
+    h4
+      span.label.label-info Device
+      | &nbsp;
+      = result.hostname
+    p.margin-top-10
+      ul.list-inline.nomargin
+        li IP Address: #{result.ipv4_address}
+        li Network: #{result.network}
+        li OS: #{result.os}
+        li Public IP: #{result.ipv4_address}

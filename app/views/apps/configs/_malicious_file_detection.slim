@@ -1,0 +1,5 @@
+.d-flex.flex-wrap
+  .w-50.pr-5
+    = f.text_area "config[excluded_paths_to_array]", label: "Excluded Paths", value: (config.dig("excluded_paths") || APP_CONFIGS[:malicious_file_detection][:excluded_paths]).join("\n"), help: "One path per line", placeholder: "C:\\Folder1\\Folder\2", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+  .w-50.pr-5
+    = f.text_area "config[excluded_hashes_to_array]", label: "Excluded File Hashes", value: (config.dig("excluded_hashes") || APP_CONFIGS[:malicious_file_detection][:excluded_hashes]).join("\n"), help: "One MD5, SHA1, or SHA2 file hashes per line", placeholder: "1c2e2125180b5c0a45afc61870e3b528", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"

@@ -1,0 +1,50 @@
+---
+- hosts: all
+  roles:
+    - {
+        role: deploy,
+        this_release_path: "{{ releases_path }}/{{ lookup('env', 'RELEASE_ID') }}",
+        keep_releases: 5,
+      }
+
+- hosts: tag_type_utility
+  tasks:
+  - name: Database version
+    shell: /bin/bash -lc 'bundle exec rails db:version'
+    register: database_version
+    ignore_errors: yes
+    args:
+      chdir: "{{ releases_path }}/{{ lookup('env', 'RELEASE_ID') }}"
+    become: yes
+    become_user: "{{ user_name }}"
+
+  - name: Create database
+    shell: /bin/bash -lc 'bundle exec rails db:create'
+    args:
+      chdir: "{{ releases_path }}/{{ lookup('env', 'RELEASE_ID') }}"
+    become: yes
+    become_user: "{{ user_name }}"
+    when: database_version|failed
+
+- hosts: all
+  tasks:
+  - name: Precompile assets
+    shell: /bin/bash -lc 'bundle exec rails assets:precompile'
+    args:
+      chdir: "{{ releases_path }}/{{ lookup('env', 'RELEASE_ID') }}"
+    become: yes
+    become_user: "{{ user_name }}"
+
+  - name: Make assets accessible to nginx
+    file: src="{{ releases_path }}/{{ lookup('env', 'RELEASE_ID') }}/public" dest={{ app_public_path }} state=link force=yes
+    become: yes
+    become_user: "{{ user_name }}"
+
+- hosts: tag_type_utility
+  tasks:
+  - name: Migrate database
+    shell: /bin/bash -lc 'bundle exec rails db:migrate'
+    args:
+      chdir: "{{ releases_path }}/{{ lookup('env', 'RELEASE_ID') }}"
+    become: yes
+    become_user: "{{ user_name }}"

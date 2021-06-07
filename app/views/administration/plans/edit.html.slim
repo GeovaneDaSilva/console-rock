@@ -1,0 +1,11 @@
+= content_for(:page_header) do
+  = page_header(@plan.name, ["Edit Payment Plan"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        span.elipsis
+          strong Edit Plan
+      .panel-body
+        = render partial: "form", locals: { plan: @plan }

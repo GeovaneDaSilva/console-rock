@@ -1,0 +1,53 @@
+---
+- name: Add postgresql repo key
+  apt_key:
+    url: https://www.postgresql.org/media/keys/ACCC4CF8.asc
+
+- name: Add postgresql repo
+  apt_repository:
+    repo: deb http://apt.postgresql.org/pub/repos/apt/ trusty-pgdg main
+    state: present
+    update_cache: "yes"
+
+- name: Install packages
+  apt: name={{ item }}
+  with_items:
+    - libpq-dev
+    - postgresql-9.6
+    - postgresql-contrib-9.6
+    - python-pip
+    - python-dev
+
+- name: Configure PostgreSQL - postgresql.conf
+  template: src=postgresql.conf.j2 dest=/etc/postgresql/{{ postgresql_version }}/main/postgresql.conf
+  notify: restart postgresql
+
+- name: Configure PostgreSQL - pg_hba.conf
+  template: src=pg_hba.conf.j2 dest=/etc/postgresql/{{ postgresql_version }}/main/pg_hba.conf
+  notify: restart postgresql
+
+
+- name: Install required Python modules
+  pip: name=psycopg2
+
+- name: Create postgresql user
+  postgresql_user: name={{ postgresql_db_user }} password={{ postgresql_db_password }} role_attr_flags=CREATEDB,SUPERUSER,CREATEROLE
+  become: yes
+  become_user: postgres
+
+- name: Create postgresql database
+  postgresql_db: name={{ postgresql_db_name }} owner={{ postgresql_db_user }}
+  become: yes
+  become_user: postgres
+
+- name: Create postgresql test database
+  postgresql_db: name={{ postgresql_db_name }}_test owner={{ postgresql_db_user }}
+  become: yes
+  become_user: postgres
+
+- name: Assure that config dir exists
+  file: path={{ shared_config_path }} state=directory
+
+- name: Create config/database.yml
+  template: src=database.yml.j2 dest={{ shared_config_path }}/database.yml owner={{ user_name }} mode=0600 backup=yes
+  when: postgresql_orm in ['activerecord', 'sequel', 'datamapper']

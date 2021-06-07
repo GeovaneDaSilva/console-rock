@@ -1,0 +1,10 @@
+- if test.script_override?
+  p.nomargin
+    ' Test for a
+    strong Service
+    |  #{test.lua_script_description}
+- else
+  p.nomargin
+    ' Test for a
+    strong Service
+    |  with a name that #{test.conditions.first.operator.to_s.humanize.downcase} #{test.conditions.first.condition_to_sentence} that has a state of #{test.conditions.last.condition.humanize}.

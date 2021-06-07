@@ -1,0 +1,22 @@
+- if policy(current_account.parent).show?
+  li.border-bottom
+    = link_to account_current_path(current_account.parent), method: :post, class: "pt-5 pb-5 provider" do
+      i.fa class=(icon_for_account(current_account.parent))
+      |  #{current_account.parent.name}
+
+- if policy(current_account).show?
+  li
+    = link_to account_current_path(current_account), method: :post, class: "pt-5 pb-5 provider" do
+      i.fa class=(icon_for_account(current_account))
+      |  #{current_account.name} - MSP
+
+    - customers = current_account.self_and_all_descendant_customers.order_by_ids(recent_accounts).limit(10)
+    = render partial: "shared/customer_nav", locals: { customers: customers } if customers.size.positive?
+
+
+  - current_account.parent.descendants.providers.where.not(id: current_account.id).order_by_ids(recent_accounts).limit(3).each do |provider|
+    - if policy(provider).show?
+      li
+        = link_to account_current_path(provider), method: :post, class: "pt-5 pb-5 provider" do
+          i.fa class=(icon_for_account(provider))
+          |  #{provider.name} - MSP

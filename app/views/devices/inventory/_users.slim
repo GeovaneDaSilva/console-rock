@@ -1,0 +1,28 @@
+h4.nomargin.mb-10 Current Logged On User Information
+table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+  tbody
+    tr
+	- (device.inventory.dig("users", "current_user") || {}).each do |key, value|
+      tr
+        td #{key.gsub('_',' ').titlecase}
+      	td #{value}
+      tr
+
+h4.nomargin.mb-10 Local User Account Information
+table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+  tbody
+    tr
+	- (device.inventory.dig("users", "local_user_accounts") || {}).each do |key, value|
+      tr
+      	td #{key}
+      tr
+
+- (device.inventory.dig("users", "sessions") || []).each do |session|
+	<b>#{session.dig("winstation_name")} Session</b>
+	table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+			tbody
+	        - session.each do | att, val |
+      			td #{att.gsub('_',' ').titlecase}
+      			td #{val}
+      			tr
+      		tr

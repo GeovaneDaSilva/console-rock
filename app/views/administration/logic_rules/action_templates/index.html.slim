@@ -1,0 +1,41 @@
+- content_for(:page_header) do
+  - if policy(current_user).soc_team?
+    .action-links.pull-right.margin-top-5
+      = link_to new_administration_logic_rules_action_template_path, class: "btn btn-primary"
+        i.fa.fa-plus
+        | New Template
+  = page_header("Action Templates", ["Administration", "Triage Rules", "Action Templates"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Action Templates
+      .panel-body.nopadding
+        table.fullwidth.table.m-0
+          thead
+            tr
+              th Type
+              th Name
+              th Last Updated
+              th &nbsp;
+          tbody
+            - if @templates.present?
+              - @templates.each do |template|
+                tr
+                  td = template.titleized_type
+                  td = template.name
+                  td = l template.updated_at, format: :full
+                  td.text-right
+                    = link_to "View", administration_logic_rules_action_template_path(template), class: "margin-right-10"
+                    = link_to "Edit", edit_administration_logic_rules_action_template_path(template), class: "margin-right-10"
+                    = link_to "Remove", administration_logic_rules_action_template_path(template), method: :delete, class: "margin-right-10", data: { confirm: "Are you sure you want to remove this template?" }
+            - else
+              tr
+                td align="center" colspan="4"
+                  i.fa.fa-exclamation-triangle.text-warning
+                  |  No templates found
+
+        - if @pagination.pages > 1
+          .text-center
+            == pagy_bootstrap_nav @pagination

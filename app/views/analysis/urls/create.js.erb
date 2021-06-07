@@ -1,0 +1,9 @@
+var tab = document.getElementById('url-analysis-tab');
+
+<%- if @analysis.valid? && @analysis.persisted? %>
+  // Render analysis processing template
+  tab.innerHTML = '<%= j render partial: "show", locals: { analysis: @analysis } %>'
+<%- else %>
+  // Replace form with one that has errors
+  tab.innerHTML = '<%= j render partial: "form", locals: { analysis: @analysis } %>'
+<%- end %>

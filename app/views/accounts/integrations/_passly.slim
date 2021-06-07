@@ -1,0 +1,55 @@
+div data-controller="api-test"
+  = bootstrap_form_tag url: passly_auth_create_path, method: :post do |f|
+    - credential = account&.passly_credential
+    - has_credential = account.passly_credential?
+    p.hidden data-target="api-test.type"
+      | passly
+    p
+      |
+        For <a href="#{I18n.t('helpdocs.passly')}">configuration instructions</a>, see the #{I18n.t("application.name")} help docs.
+
+    - if has_credential
+      - if request.params[:show_app_id] == app_id.to_s
+        p
+          b
+            |
+              Please set the Passly Organization mapping to #{I18n.t("application.name")} Customer
+
+      .d-flex.flex-wrap
+        .w-100
+          - organizations = credential&.organizations&.inject({}) { |r, s| r.merge!({s["OrganizationId"] => s["OrganizationName"]})} || {}
+          - acm = (antivirus_customer_maps || []).inject({}) { |r, s| r.merge!({s["antivirus_id"] => s})}
+          - if organizations.present?
+            table.table.fullwidth id="tbl_mapping"
+              thead
+                tr
+                  td = "Organization Name"
+                  td = "Customer"
+                  td
+              tbody
+                - organizations.each do |id, name|
+                  tr
+                    td
+                      input type='text' name="map[#{id}][organization_name]" value="#{name}" readonly=true
+                    td
+                      = select_tag "map[#{id}][account_id]", options_for_select((current_account.self_and_all_descendant_customers.collect { |a| [a.name, a.id] }), acm&.dig(id.to_s)&.account_id), class: "form-control", include_blank: true
+
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.text_field :tenant_id, label: "Enter your Passly URL domain", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.tenantId" }, value: credential&.tenant_id, readonly: has_credential
+      .w-50.pr-5
+        = f.text_field :app_id, label: "Enter your Passly App ID", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.appId" }, value: integrations_mask(credential&.app_id), readonly: has_credential
+      .w-50.pr-5
+        = f.text_field :app_secret, label: "Enter your Passly App Secret", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.appSecret" }, value: integrations_mask(credential&.app_secret), readonly: has_credential
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+
+    p.padding-10 data-target="api-test.outputDisplay"
+
+    .w-100.text-right.padding-10
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#"
+        | Credential Test
+      - if has_credential
+        = f.submit value: "Save Map", class: "btn btn-primary margin-right-10"
+        = link_to "Clear Existing Credential", passly_auth_destroy_path(customer_id: account.id), class: "btn btn-primary", :method => :delete
+      - else
+        = f.submit value: "Authenticate", class: "btn btn-primary"

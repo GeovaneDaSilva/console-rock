@@ -1,0 +1,54 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5  data-controller="clipboard"
+    - if defined?(@agent_url)
+      input.send-to-back id="run-manually" type="text" readonly=true value=%{powershell "(New-Object Net.WebClient).DownloadFile('#{@agent_url}',\\"$env:temp/#{I18n.t('agent.installer_name')}\\");"%TEMP%\\#{I18n.t('agent.installer_name')} --license_key #{current_account.license_key} --url https://#{request.host} --huntid #{@hunt.id} --huntrev #{@hunt.revision}"}
+
+    - if policy(@hunt).edit?
+      = link_to "Edit", edit_hunt_path(@hunt), class: "btn btn-link"
+      = link_to "Run Now", hunt_manual_runs_path(@hunt), method: :post, remote: true, class: "btn btn-primary"
+    - if defined?(@agent_url)
+      button.btn.btn-default data-action="click->clipboard#copy" data-value="run-manually"
+        i.fa.fa-clipboard
+        | Run Manually
+
+    - if policy(@hunt).destroy?
+      = link_to hunt_path(@hunt), method: :delete, class: "btn btn-danger", data: { confirm: "Are you sure?" } do
+        i.fa.fa-trash
+        | Delete
+
+  = page_header(@hunt.name, [link_to_current_account(current_account.name), link_to("Hunts", hunts_path)])
+
+#hunt.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-body.nopadding
+        .row
+          #conditions.col-sm-4
+            - cache ["v1", @hunt] do
+              .padding-10
+                - if @hunt.feed_result
+                  p = @hunt.feed_result.description
+
+                  - if @hunt.feed.virus_total? && @hunt.feed_result.indicators.dig("permalink").present?
+                    p = link_to "Details", @hunt.feed_result.indicators.dig("permalink"), target: "_blank", rel: "noopener noreferrer"
+                - cache ["v1/tests", @hunt.tests_for_revision] do
+                  = render partial: "hunts/test", collection:  @hunt.tests_for_revision.limit(100), cache: true, locals: { hunt: @hunt }
+
+                - if @hunt.revision_tests.size.zero?
+                  .conditional-option.padding-10.text-center
+                    | No Hunt Tests
+
+          #results.col-sm-8
+            = link_to "Positive", request.params.merge(result: :positive), id: "positive", class: "btn margin-left-10 margin-right-10 #{request.params[:result] == 'positive' ? 'btn-success' : ''}"
+            = link_to "Negative", request.params.merge(result: :negative), id: "negative", class: "btn margin-right-10 #{request.params[:result] == 'negative' ? 'btn-danger' : ''}"
+            = link_to "All", request.params.except(:result), id: "any", class: "btn margin-top-10 margin-bottom-10 #{request.params.has_key?(:result) ? '' : 'btn-primary'}"
+            - if @devices.size.positive?
+              - cache ["v2/hunt", @hunt, @devices] do
+                table.fullwidth.table.m-0.noborder
+                  = render partial: "device", collection: @devices, locals: { hunt: @hunt, revision: @hunt.revision }, cache: proc { |device| ["v4", "device-hunt", @hunt, @device] }
+
+                - if @pagination.pages > 1
+                  .text-center.border-top
+                    == pagy_bootstrap_nav @pagination
+            - else
+              .text-center No Devices for Hunt

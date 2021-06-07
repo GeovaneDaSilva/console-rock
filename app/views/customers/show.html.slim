@@ -1,0 +1,41 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    = render partial: "actions", locals: { customer: @customer }
+  = page_header(@customer.name, provider_links(@customer, @customer.ancestors))
+
+- if policy(@customer).edit?
+  .row
+    .col-xs-12
+      .panel.panel-default
+        .panel-heading
+          ul.nav.nav-tabs.pull-left
+            li
+              a href="#details-and-settings" aria-expanded="true" data-toggle="tab" Details and Settings
+
+            - if policy(@customer).can_modify_plan?
+              li
+                a href="#billing" aria-expanded="false" data-toggle="tab" Billing
+            li
+              a href="#permissions" aria-expanded="false" data-toggle="tab" Permissions
+            - if !@customer.billing_account.managed?
+              li
+                a href="#integrations" aria-expanded="false" data-toggle="tab" Integrations
+            - if policy(@customer).edit_notifications?
+              li
+                a href="#notifications" aria-expanded="false" data-toggle="tab" Notifications
+
+        .panel-body
+          .tab-content.transparent
+            #details-and-settings.tab-pane
+              = render partial: "form", locals: { account: @customer }
+            - if policy(@customer).can_modify_plan?
+              #billing.tab-pane
+                = render partial: "accounts/billing_form", locals: { account: @customer, plans: @plans }
+            #permissions.tab-pane
+              = render partial: "shared/account/permissions", locals: { account: @customer }
+            #integrations.tab-pane
+              = bootstrap_form_for(@customer) do |f|
+                = render partial: "shared/account/feed_integrations_form", locals: { f: f, account: @customer }
+
+            #notifications.tab-pane
+              = render partial: "shared/account/email_notification_form", locals: { account: @customer, subscription: @email_subscription }

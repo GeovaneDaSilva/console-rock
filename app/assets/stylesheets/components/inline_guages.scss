@@ -1,0 +1,56 @@
+@import "_vars/colors";
+
+.inline-guage {
+  line-height: 1em;
+  display: inline-block;
+  width: 2em;
+  height: 1em;
+  background: whitesmoke;
+  border-radius: 4em 4em 0 0;
+  overflow: hidden;
+  position: relative;
+
+  &[hidden] {
+    display: none;
+  }
+}
+
+.success {
+  .inline-guage-dial {
+    background: $rcGreen;
+  }
+}
+
+.danger {
+  .inline-guage-dial {
+    background: $errorRed;
+  }
+}
+
+.inline-guage-dial {
+  display: inline-block;
+  height: 2em;
+  width: 2em;
+  color: transparent;
+  transform-origin: bottom center;
+  transition: transform 0.5s cubic-bezier(0.86, 0, 0.07, 1);
+  position: absolute;
+  left: 0;
+  bottom: 0px;
+
+  @for $i from 0 through 100 {
+    &[data-percentage="#{$i}"] {
+      transform: rotate(180 + ($i * 1.8) + deg);
+    }
+  }
+}
+
+.inline-guage-percentage {
+  display: inline-block;
+  width: 100%;
+  height: 100%;
+  font-size: 60%;
+  z-index: 2;
+  position: absolute;
+  left: 0;
+}

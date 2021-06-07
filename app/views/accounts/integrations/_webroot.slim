@@ -1,0 +1,61 @@
+div data-controller="api-test"
+  = bootstrap_form_tag url: webroot_auth_create_path(customer_id: account.id), method: :post do |f|
+    - credential = account&.webroot_credential
+    - has_credential = account.webroot_credential?
+    p.hidden data-target="api-test.type"
+      | webroot
+    p
+      |
+        For <a href="#{I18n.t('helpdocs.webroot')}">configuration instructions</a>, see the #{I18n.t("application.name")} help docs.
+
+    - if has_credential
+      - if request.params[:show_app_id] == app_id.to_s
+        p
+          b
+            |
+              Please complete the mapping below and click 'Save Map'
+
+      .d-flex.flex-wrap
+        .w-100
+          - organizations = credential&.sites
+          - acm = (antivirus_customer_maps || []).inject({}) { |r, s| r.merge!({s["antivirus_id"] => s})}
+
+          - if organizations.present?
+            table.table.fullwidth id="tbl_mapping"
+              thead
+                tr
+                  td = "Organization Name"
+                  td = "Customer"
+                  td
+              tbody
+                - organizations.each do |id, name|
+                  tr
+                    td
+                      input type='text' name="map[#{id}][organization_name]" value="#{name}" readonly=true
+                    td
+                      = select_tag "map[#{id}][account_id]", options_for_select(dropdown_formatted_sub_accounts, acm&.dig(id.to_s)&.account_id), class: "form-control", include_blank: true
+
+
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.text_field :webroot_username, label: "Username", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.username" }, value: credential&.webroot_username, readonly: has_credential
+      .w-50.pr-5
+        = f.text_field :webroot_password, label: "Password", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.password" }, value: integrations_mask(credential&.webroot_password), readonly: has_credential
+      .w-50.pr-5 class="#{ has_credential ? 'hidden' : '' }"
+        = f.text_field :webroot_client_id, label: "Client ID", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.clientId" }
+      .w-50.pr-5 class="#{ has_credential ? 'hidden' : '' }"
+        = f.text_field :webroot_client_secret, label: "Client Secret", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.secret" }
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+      .w-50.pr-5
+        = f.text_field :webroot_gsm_key, label: "GSM Key/Parent Keycode", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.gsmKey" }, value: integrations_mask(credential&.webroot_gsm_key), readonly: has_credential
+
+    p.padding-10 data-target="api-test.outputDisplay"
+
+    .w-100.text-right.padding-10
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#"
+        | Credential Test
+      - if has_credential
+        = f.submit value: "Save Map", class: "btn btn-primary margin-right-10"
+        = link_to "Clear Existing Credential", webroot_auth_destroy_path(customer_id: account.id), class: "btn btn-primary", :method => :delete
+      - else
+        = f.submit value: "Authenticate", class: "btn btn-primary"

@@ -1,0 +1,6 @@
+= bootstrap_form_for on_demand_filename, url: hunts_on_demand_filename_path, remote: true, html: { class: "margin-bottom-0" } do |f|
+  .row
+    .col-xs-10
+      = f.text_field :filename, placeholder: "malicious.exe", hide_label: true, wrapper: { class: "margin-bottom-0" }
+    .col-xs-2
+      = f.submit "Hunt", class: "btn btn-primary pull-right margin-top-0 margin-bottom-0"

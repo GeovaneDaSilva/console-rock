@@ -1,0 +1,32 @@
+- content_for(:page_header) do
+  = page_header("Whitelists", ["All Whitelists"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-body.nopadding
+        table.table.fullwidth.margin-bottom-0
+          thead.bg-white
+            tr
+              th Account
+              th Device
+              th App
+              th Whitelist Type
+              th Entry
+              th &nbsp;
+          tbody
+            - if whitelists.present?
+              - whitelists.each do |whitelist|
+                tr
+                  td = whitelist.account.name
+                  td = whitelist.device&.hostname
+                  td = whitelist.app.title
+                  td = whitelist.type
+                  td = whitelist.entry
+                  td.text-right
+                    = link_to "Remove", account_apps_whitelist_remove_path(account, whitelist.object_id, params: whitelist.to_h), method: :post, data: { confirm: "Are you sure you want to remove this whitelist entry?" }
+            - else
+              tr
+                td align="center" colspan="6"
+                  i.fa.fa-exclamation-triangle.text-warning
+                  |  No whitelists found

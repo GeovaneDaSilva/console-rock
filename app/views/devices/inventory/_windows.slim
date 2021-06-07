@@ -1,0 +1,119 @@
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#system" aria-expanded="false"
+        i.fa.fa-desktop
+        |  System
+  #system.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/system"
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#services" aria-expanded="false"
+        i.fa.fa-server
+        |  Services
+  #services.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/services"
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#software" aria-expanded="false"
+        i.fa.fa-hdd-o
+        |  Software
+  #software.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/software"
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#users" aria-expanded="false"
+        i.fa.fa-user
+        |  Users and Sessions
+  #users.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/users"
+      
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#password-policy" aria-expanded="false"
+        i.fa.fa-key
+        |  Password Policy
+  #password-policy.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/password_policy"
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#ipconfig" aria-expanded="false"
+        i.fa.fa-terminal
+        |  IPConfig
+  #ipconfig.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/ipconfig"
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#arp-table" aria-expanded="false"
+        i.fa.fa-table
+        |  ARP Table
+  #arp-table.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/arp_table"
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#netstat" aria-expanded="false"
+        i.fa.fa-sitemap
+        |  NetStat
+  #netstat.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/netstat"
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#defender-firewall" aria-expanded="false"
+        i.fa.fa-shield
+        |  Defender Firewall
+  #defender-firewall.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/defender_firewall"
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#shares" aria-expanded="false"
+        i.fa.fa-folder-open-o
+        |  Shares
+  #shares.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/shares"
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#patches" aria-expanded="false"
+        i.fa.fa-cog
+        |  Windows Updates
+  #patches.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/patches"
+
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent.noborder
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#upgrades" aria-expanded="false"
+        i.fa.fa-wrench
+        |  OS Upgrades
+  #upgrades.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/upgrades"

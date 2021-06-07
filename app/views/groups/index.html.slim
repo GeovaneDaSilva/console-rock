@@ -1,0 +1,33 @@
+- content_for(:page_header) do
+  - if policy(current_account).editor?
+    .action-links.pull-right.margin-top-5
+      = link_to new_group_path, class: "btn btn-primary"
+        i.fa.fa-plus
+        | New Group
+  = page_header("Groups", [link_to_current_account(current_account.name), "Groups"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Groups
+      .panel-body.nopadding
+        - if @groups.size.positive?
+          - cache ["v1/groups", @groups] do
+            table.fullwidth.table.m-0
+              - @groups.each do |group|
+                - cache ["v1/group", "group", group] do
+                  tr
+                    td = group.name
+                    td = group.account.name
+                    td.text-right
+                      = link_to "View", group_path(group)
+                      - if policy(group).destroy?
+                        ' |
+                        = link_to "Edit", edit_group_path(group)
+
+            - if @pagination.pages > 1
+              .text-center.border-top
+                == pagy_bootstrap_nav @pagination
+        - else
+          .text-center No Groups

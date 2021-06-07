@@ -1,0 +1,509 @@
+.mb-5
+  | For <a href="#{I18n.t('helpdocs.syslog')}">configuration instructions</a>, see the #{I18n.t("application.name")} help docs.
+- is_admin = current_user.admin?
+- if account.nil? || account.provider?
+  p.nomargin This app must be configured at the Customer Level. Switch to the customer in question and attempt to configure it there.
+- else
+
+  css:
+    li.active > a { font-weight: bold }
+
+  ul.nav.nav-tabs
+    li.active
+      a href="#syslog" data-toggle="tab" aria-expanded="true" Syslog Configuration
+    li
+      a href="#geo" data-toggle="tab" aria-expanded="true" Geo Location
+    li
+      a href="#meraki" data-toggle="tab" aria-expanded="false" Cisco Meraki
+    li
+      a href="#cisco" data-toggle="tab" aria-expanded="false" Other Cisco
+    li
+      a href="#fortinet" data-toggle="tab" aria-expanded="false" Fortinet
+    li
+      a href="#sonicwall" data-toggle="tab" aria-expanded="false" SonicWall
+    li
+      a href="#sophos" data-toggle="tab" aria-expanded="false" Sophos XG
+    li
+      a href="#sophos_utm" data-toggle="tab" aria-expanded="false" Sophos UTM
+    li
+      a href="#watchguard" data-toggle="tab" aria-expanded="false" WatchGuard
+    li
+      a href="#untangle" data-toggle="tab" aria-expanded="false" Untangle
+    li
+      a href="#barracuda" data-toggle="tab" aria-expanded="false" Barracuda
+    li
+      a href="#ubiquiti" data-toggle="tab" aria-expanded="false" Ubiquiti
+    li
+      a href="#pfsense" data-toggle="tab" aria-expanded="false" PfSense
+    li
+      a href="#juniper" data-toggle="tab" aria-expanded="false" Juniper
+    li
+      a href="#zyxel" data-toggle="tab" aria-expanded="false" Zyxel
+    li
+      a href="#mikrotik" data-toggle="tab" aria-expanded="false" Mikrotik
+
+  .tab-content.border.border-top-none.padding-15.margin-bottom-5
+    #syslog.tab-pane.active
+      - data_map = Device.where(customer: account).inject({}) { |memo, d| memo[d.hostname] = [d.ipv4_address, d.connectivity]; memo }
+      .d-flex.flex-wrap data-controller="update-on-select clipboard" data-update-on-select-map="#{data_map.to_json}"
+        .w-50.pr-5
+          - options = data_map.map { |k, v| ["#{k} (#{v.last})", k, {'data-ipv4_address' => v.first}]}
+          = f.select "config[hostname]", options, { selected: config.dig("hostname"), include_blank: true, label: "Syslog Server Device" }, { data: { required: true, target: "update-on-select.select", action: "update-on-select#update" } }
+        .w-50.pr-5
+          = f.text_field "config[listen_ip]", label: "Syslog Server IP", value: config.fetch("listen_ip"), autocorrect: "off", autocapitalize: "off", spellcheck: "false", "data-target": "update-on-select.updateTarget", "readonly": (is_admin ? false : true), "data-action": "focus->clipboard#copy", "data-value": "config[listen_ip]"
+        .w-50.pr-5
+          = f.number_field "config[listen_port]", label: "Syslog Server Port", value: config.fetch("listen_port", APP_CONFIGS[:syslog][:listen_port]), autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+        .w-50.pr-5
+          = f.select "config[protocol]", options_for_select(%w(tcp udp), config.fetch("protocol", APP_CONFIGS[:syslog][:protocol])), include_blank: false, label: "Syslog Server Protocol", data: { required: true }
+        .w-50.pr-5
+          = f.number_field "config[max_results]", label: "Max Daily Results", value: config.fetch("max_results", APP_CONFIGS[:syslog][:max_results]), autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+        .w-50.pr-5
+          = f.select "config[save_raw_logs]", options_for_select(%w(true false), config.fetch("save_raw_logs", APP_CONFIGS[:syslog][:save_raw_logs])), include_blank: false, label: "Save Copy of Logs to Monitoring Device Hard Drive", data: { required: true }
+        .w-50.pr-5
+          = f.number_field "config[max_local_save_size]", label: "Maximum Allowed Size for Local Log Save (in GB)", value: config.fetch("max_local_save_size", APP_CONFIGS[:syslog][:max_local_save_size]), autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+        .w-50.pr-5
+          = f.select "config[priority_level]", options_for_select(%w(emergency alert critical error warning notice info debug), config.fetch("priority_level", APP_CONFIGS[:syslog][:priority_level])), include_blank: false, label: "Don't Report Events Lower Than This Priority", data: { required: true }
+        .w-50.pr-5 class=(is_admin ? "show" : "hidden")
+          = f.text_field "config[forward_ip]", label: "Forward IP", value: config.fetch("forward_ip", APP_CONFIGS[:syslog][:forward_ip]), autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "* optional"
+        .w-50.pr-5 class=(is_admin ? "show" : "hidden")
+          = f.number_field "config[forward_port]", label: "Forward Port", value: config.fetch("forward_port", APP_CONFIGS[:syslog][:forward_port]), autocorrect: "off", autocapitalize: "off", spellcheck: "false", placeholder: "* optional"
+        .w-50
+          = f.text_area "config[excluded_ips_to_array]", label: "IPs of Network Devices to Exclude", value: config.fetch("excluded_ips", APP_CONFIGS[:syslog][:excluded_ips])&.join("\n"), help: "One IP per line", placeholder: "192.168.0.1", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+        .w-50
+          = f.text_area "config[excluded_macs_to_array]", label: "MACs of Network Devices to Exclude", value: config.fetch("excluded_macs", APP_CONFIGS[:syslog][:excluded_macs])&.join("\n"), help: "One MAC per line", placeholder: "A2:33:5B:1A:2B:3C", rows: "10", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+
+
+    #geo.tab-pane
+      div data-controller="countries-toggler" data-modal="report_traffic_modal" data-control="enable_all_countries"
+        .d-flex.flex-wrap
+          = f.switch :enable_all_countries, { label_name: "Enable All Countries", checked: false, data: { action: "click->countries-toggler#click", target: "countries-toggler.control" } }, onkeydown: "return false"
+        .mb-5 Enabled Countries
+        .d-flex.flex-wrap
+          - APP_CONFIGS[:syslog][:suspicious_countries].each_slice(2).each do |group|
+            - group.each do |country|
+              - if country[0] == "US"
+                .w-50 data-controller="modal-confirm" data-modal="report_modal_#{country[0]}"
+                  - key = country[0]
+                  - country_config = config["suspicious_countries"][country[0]]
+
+                  - country_config.each do |k, v|
+                    = f.hidden_field "config[suspicious_countries][#{key}][#{k}]", value: v
+
+                  = f.switch "config[suspicious_countries][#{key}][enabled]", { label_name: country_config["full_name"], checked: config.dig("suspicious_countries", key, "enabled"), data: { target: "countries-toggler.country modal-confirm.control", action: "click->modal-confirm#click" } }, "true", "false"
+                  = render partial: "shared/apps/configs/report_traffic_modal", locals: { id: "report_modal_#{country[0]}" }
+              - else
+                .w-50
+                  - key = country[0]
+                  - country_config = config["suspicious_countries"][country[0]]
+
+                  - country_config.each do |k, v|
+                    = f.hidden_field "config[suspicious_countries][#{key}][#{k}]", value: v
+
+                  = f.switch "config[suspicious_countries][#{key}][enabled]", { label_name: country_config["full_name"], checked: config.dig("suspicious_countries", key, "enabled"), data: { target: "countries-toggler.country" } }, "true", "false"
+
+        hr
+
+        .d-flex.flex-wrap
+          - additional_config_countries2(:syslog, :suspicious_countries).each_slice(2).each do |group|
+            - group.each do |country|
+              .w-50
+                - key = country[0]
+                - country_config = country[1]
+
+                - country_config.each do |k, v|
+                  = f.hidden_field "config[suspicious_countries][#{key}][#{k}]", value: v
+
+                = f.switch "config[suspicious_countries][#{key}][enabled]", { label_name: country_config["full_name"], checked: config.dig("suspicious_countries", key, "enabled"), data: { target: "countries-toggler.country" } }, "true", "false"
+
+        .modal.fade id="report_traffic_modal" tabindex="2" role="dialog" aria-hidden="true"
+          .modal-dialog.modal-lg
+            .modal-content
+              .modal-header
+                i.fa.fa-exclamation-circle
+                b
+                |  Report Traffic
+              .modal-body
+                | Are you sure you want to report traffic from the United States? Business based in the US will generate a very large amount of traffic by doing so, which may make it more difficult to find threats.
+              .modal-footer
+                button.btn.btn-default data-dismiss="modal"
+                  | Cancel
+                a.btn.btn-danger.btn-ok
+                  | Proceed
+
+    #meraki.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:meraki].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["meraki"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[meraki][#{key}][#{k}]", value: v
+
+              = f.switch "config[meraki][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("meraki", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:meraki).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[meraki][#{key}][#{k}]", value: v
+
+              = f.switch "config[meraki][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("meraki", key, "enabled") }, "true", "false"
+
+    #cisco.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:cisco].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["cisco"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[cisco][#{key}][#{k}]", value: v
+
+              = f.switch "config[cisco][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("cisco", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:cisco).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[cisco][#{key}][#{k}]", value: v
+
+              = f.switch "config[cisco][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("cisco", key, "enabled") }, "true", "false"
+
+    #fortinet.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:fortinet].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["fortinet"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[fortinet][#{key}][#{k}]", value: v
+
+              = f.switch "config[fortinet][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("fortinet", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:fortinet).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[fortinet][#{key}][#{k}]", value: v
+
+              = f.switch "config[fortinet][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("fortinet", key, "enabled") }, "true", "false"
+
+    #sonicwall.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:sonicwall].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["sonicwall"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[sonicwall][#{key}][#{k}]", value: v
+
+              = f.switch "config[sonicwall][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("sonicwall", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:sonicwall).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[sonicwall][#{key}][#{k}]", value: v
+
+              = f.switch "config[sonicwall][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("sonicwall", key, "enabled") }, "true", "false"
+
+    #sophos.tab-pane
+       .mb-5 Enabled Events
+       .d-flex.flex-wrap
+         - APP_CONFIGS[:syslog][:sophos].each_slice(2).each do |group|
+           - group.each do |event_type|
+             .w-50
+               - key = event_type[0]
+               - event_type_config = config["sophos"][event_type[0]]
+
+               - event_type_config.each do |k, v|
+                 = f.hidden_field "config[sophos][#{key}][#{k}]", value: v
+
+               = f.switch "config[sophos][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("sophos", key, "enabled") }, "true", "false"
+
+       hr
+
+       .d-flex.flex-wrap
+         - additional_events(:sophos).each_slice(2).each do |group|
+           - group.each do |event_type|
+             .w-50
+               - key = event_type[0]
+               - event_type_config = event_type[1]
+
+               - event_type_config.each do |k, v|
+                 = f.hidden_field "config[sophos][#{key}][#{k}]", value: v
+
+               = f.switch "config[sophos][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("sophos", key, "enabled") }, "true", "false"
+
+    #sophos_utm.tab-pane
+       .mb-5 Enabled Events
+       .d-flex.flex-wrap
+         - APP_CONFIGS[:syslog][:sophos_utm].each_slice(2).each do |group|
+           - group.each do |event_type|
+             .w-50
+               - key = event_type[0]
+               - event_type_config = config["sophos_utm"][event_type[0]]
+
+               - event_type_config.each do |k, v|
+                 = f.hidden_field "config[sophos_utm][#{key}][#{k}]", value: v
+
+               = f.switch "config[sophos_utm][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("sophos_utm", key, "enabled") }, "true", "false"
+
+       hr
+
+       .d-flex.flex-wrap
+         - additional_events(:sophos_utm).each_slice(2).each do |group|
+           - group.each do |event_type|
+             .w-50
+               - key = event_type[0]
+               - event_type_config = event_type[1]
+
+               - event_type_config.each do |k, v|
+                 = f.hidden_field "config[sophos_utm][#{key}][#{k}]", value: v
+
+               = f.switch "config[sophos_utm][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("sophos_utm", key, "enabled") }, "true", "false"
+
+    #watchguard.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:watchguard].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["watchguard"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[watchguard][#{key}][#{k}]", value: v
+
+              = f.switch "config[watchguard][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("watchguard", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:watchguard).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[watchguard][#{key}][#{k}]", value: v
+
+              = f.switch "config[watchguard][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("watchguard", key, "enabled") }, "true", "false"
+
+    #untangle.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:untangle].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["untangle"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[untangle][#{key}][#{k}]", value: v
+
+              = f.switch "config[untangle][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("untangle", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:untangle).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[untangle][#{key}][#{k}]", value: v
+
+              = f.switch "config[untangle][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("untangle", key, "enabled") }, "true", "false"
+
+    #barracuda.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:barracuda].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["barracuda"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[barracuda][#{key}][#{k}]", value: v
+
+              = f.switch "config[barracuda][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("barracuda", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:barracuda).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[barracuda][#{key}][#{k}]", value: v
+
+              = f.switch "config[barracuda][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("barracuda", key, "enabled") }, "true", "false"
+
+    #ubiquiti.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:ubiquiti].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["ubiquiti"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[ubiquiti][#{key}][#{k}]", value: v
+
+              = f.switch "config[ubiquiti][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("ubiquiti", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:ubiquiti).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[ubiquiti][#{key}][#{k}]", value: v
+
+              = f.switch "config[ubiquiti][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("ubiquiti", key, "enabled") }, "true", "false"
+
+    #pfsense.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:pfsense].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["pfsense"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[pfsense][#{key}][#{k}]", value: v
+
+              = f.switch "config[pfsense][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("pfsense", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:pfsense).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[pfsense][#{key}][#{k}]", value: v
+
+              = f.switch "config[pfsense][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("pfsense", key, "enabled") }, "true", "false"
+
+    #juniper.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:juniper]&.each_slice(2)&.each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["juniper"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[juniper][#{key}][#{k}]", value: v
+
+              = f.switch "config[juniper][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("juniper", key, "enabled") }, "true", "false"
+
+    #zyxel.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:zyxel].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["zyxel"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[zyxel][#{key}][#{k}]", value: v
+
+              = f.switch "config[zyxel][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("zyxel", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:zyxel).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[zyxel][#{key}][#{k}]", value: v
+
+              = f.switch "config[zyxel][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("zyxel", key, "enabled") }, "true", "false"
+
+    #mikrotik.tab-pane
+      .mb-5 Enabled Events
+      .d-flex.flex-wrap
+        - APP_CONFIGS[:syslog][:mikrotik].each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = config["mikrotik"][event_type[0]]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[mikrotik][#{key}][#{k}]", value: v
+
+              = f.switch "config[mikrotik][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("mikrotik", key, "enabled") }, "true", "false"
+
+      hr
+
+      .d-flex.flex-wrap
+        - additional_events(:mikrotik).each_slice(2).each do |group|
+          - group.each do |event_type|
+            .w-50
+              - key = event_type[0]
+              - event_type_config = event_type[1]
+
+              - event_type_config.each do |k, v|
+                = f.hidden_field "config[mikrotik][#{key}][#{k}]", value: v
+
+              = f.switch "config[mikrotik][#{key}][enabled]", { label_name: event_type_config["full_name"], checked: config.dig("mikrotik", key, "enabled") }, "true", "false"

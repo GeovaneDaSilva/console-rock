@@ -1,0 +1,86 @@
+link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css"
+link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css.map"
+script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"
+
+.row
+  .col-xs-12
+    .panel.panel-default data-controller="toggler checkbox-selectable"
+      .panel-heading.no-height.border-bottom-0
+        a data-action="click->toggler#toggle"
+          strong Devices
+        ul.options.pull-right.relative.list-unstyled
+          li
+            = link_to "All", devices_path(filter: params[:filter]), class: "margin-left-8 #{"bold" if(["offline_only", "online_only", "isolated_only", "inactive_only"] - params.keys).length == 4}"
+            = link_to "Online", devices_path(online_only: true, filter: params[:filter]), class: "margin-left-8 #{"bold" if params[:online_only]}"
+            = link_to "Offline", devices_path(offline_only: true, filter: params[:filter]), class: "margin-left-8 #{"bold" if params[:offline_only]}"
+            = link_to "Inactive", devices_path(inactive_only: true, filter: params[:filter]), class: "margin-left-8 #{"bold" if params[:inactive_only]}"
+            - isolated_device_path = current_account.managed? ? devices_path(isolated_only: true, filter: params[:filter]) : devices_path(filter: params[:filter])
+            = link_to "Isolated", isolated_device_path, class: "margin-left-8 margin-right-8 #{"bold" if params[:isolated_only]} #{"line-through" unless current_account.managed?}", title: "Available only with a managed plan."
+          li
+            form.fancy-form.margin-left-6.margin-right-6 action=devices_path method="get"
+              - params.permit!.except(:action, :controller, :filter, :start_date, :end_date).each do |k, v|
+                = hidden_field_tag k, v
+              .form-inline
+                .form-group.margin-right-6
+                  .input-group
+                    input.form-control.nomargin type="search" name="filter" placeholder="Search" value=params[:filter]
+                .form-group.margin-right-6
+                  .input-group.input-daterange data-provide="datepicker"
+                    .input-group-addon style="border-left: 1px solid #5555"
+                      i.fa.fa-calendar.margin-left-6
+                    input.form-control type="text" name="start_date" id="start_date" value=params[:start_date] data-date-format="mm/dd/yyyy" autocomplete="off"
+                    .input-group-addon style="text-transform: lowercase" thru
+                    input.form-control type="text" name="end_date" id="end_date" value=params[:end_date] data-date-format="mm/dd/yyyy" autocomplete="off"
+                .form-group
+                  .input-group
+                    button.btn.btn-primary.btn-sm
+                      i.fa.fa-filter.nomargin.nopadding
+          li.text-muted.hidden-xs
+            i.fa.fa-cloud-download.margin-left-6
+            = link_to "CSV", devices_export_path(params: { type: "csv" }.merge(params)), remote: true
+      .panel-body.nopadding
+        = form_tag devices_path, method: :post do
+          - if @devices_pagination&.count&.positive?
+            - cache ["v2/devices", devices] do
+              table.fullwidth.table.m-0 data-target="toggler.collapseable" id="device"
+                thead.bg-white
+                  tr
+                    th
+                      = check_box_tag "check_all", false, nil, checked: true, data: { action: "checkbox-selectable#toggleAll" }
+                      | &nbsp;
+                    th = sortable "Hostname", :devices, :hostname
+                    th = sortable "IP", :devices, "ipv4_address::inet"
+                    th.hidden-sm.hidden-xs = sortable "Customer", :devices, "accounts.name"
+                    th.hidden-xs = sortable "OS", :devices, "version"
+                    th.hidden-xs = sortable "Last Connection", :devices, "last_connected_at"
+                    th.hidden-xs = sortable "Suspicious Detections", :devices, "suspicious_count"
+                    th.hidden-xs = sortable "Malicious Detections", :devices, "malicious_count"
+                    th.hidden-xs = sortable "Comments", :devices, "details->>'comments'"
+                    th colspan=2 &nbsp;
+                = render partial: "devices/device", collection: devices, cache: true
+              .text-left.padding-10.padding-top-20.border-top
+                = "There is a total of <strong>#{devices.size}</strong> devices of this type.".html_safe
+
+              - if @devices_pagination.pages > 1
+                .text-center.border-top
+                  == pagy_bootstrap_nav @devices_pagination
+          - else
+            .padding-6.margin-top-20.border-top.text-center
+              i.fa.fa-exclamation-triangle.text-warning
+              |  No devices registered yet
+
+          .pull-right.text-right
+            - if devices.size > 10
+              .form-group.d-inline-block
+                = check_box_tag :apply_to_all_similar, true, false, data: {action: "checkbox-selectable#toggleAll"}
+                | &nbsp;
+
+                label for="apply_to_all_similar"
+                  | Apply Action to all #{devices.size.to_s(:delimited)} results
+            .btn-group.margin-left-10.margin-right-10
+              button.btn.btn-primary.dropdown-toggle data-toggle="dropdown" aria-expanded="false"
+                ' Action
+                span.caret
+              ul.dropdown-menu.right-0.left-auto role="menu"
+                li.padding-6
+                  input.btn.btn-link type="submit" name="custom_action" value="Delete"

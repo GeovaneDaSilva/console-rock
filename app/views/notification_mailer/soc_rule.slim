@@ -1,0 +1,25 @@
+css:
+  .align-right { text-align: right }
+  .align-center { text-align: center }
+
+font size="4" style="font-family:Helvetica, Arial, sans-serif; font-size:15px; line-height:20px;" face="Helvetica, Arial, sans-serif" color="#353c3b"
+  h1 SOC Alert
+  h3 = @app_result.app.title
+  table.table.full-width
+    tr
+      th.align-right Name:
+      td = @account.name
+    - unless @account.root?
+      tr
+        th.align-right Parent Account:
+        td = @account.root&.name
+    tr
+      th.align-right Summary:
+      td = @app_result.value || sanitize("<i>None</i>")
+    tr
+      th.align-right Rule:
+      td = @rule.description
+
+  = render partial: "notification_mailer/app_result/#{@app_result.app.report_template}", locals: { similar_detections: [@app_result], query_params: {} }
+
+  = link_to "View Details", account_triage_url(@account, app_id: @app_result.app_id)

@@ -1,0 +1,22 @@
+= bootstrap_form_for(account) do |f|
+  .field-group
+    = f.text_field :name, required: true
+    = f.hidden_field :agent_release_group, value: current_provider&.agent_release_group
+
+    - if account.persisted? && policy(account).can_modify_agent_release_group?
+      .field-group
+        = f.text_field :agent_release_id, readonly: true
+        = f.select :agent_release_group, Account.agent_release_groups.collect { |k, v| [k.humanize, k] }, label: "Agent Release Group", help: "Allows targeting of agent releases. Default is General"
+
+    - if !current_provider.nil? && current_provider.distributor?
+      = f.select :id, current_provider.all_descendants.providers.map { |k, _v| [k.name, k.id] }, include_blank: false, label: "MSP"
+
+  - if account.persisted? && policy(account).update_customer_settings?
+    .field-group
+      .row
+        = f.fields_for :setting do |ff|
+          .col-xs-12
+            = render partial: "shared/settings_form", locals: { f: ff }
+
+  .pull-right
+    = f.submit "Save", class: "btn btn-primary"

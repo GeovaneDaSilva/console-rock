@@ -1,0 +1,14 @@
+table.table.table-striped.fullwidth.bg-white.table-bordered.table-vertical-middle
+  thead
+    tr
+      th Name
+      th Type
+      th State
+      th Path
+  tbody
+    - device.inventory.fetch("services", []).each do |service|
+      tr
+        td = service.fetch("display_name", "N/A")
+        td = service.fetch("service_type", "N/A")
+        td = service.fetch("service_state", "N/A")
+        td = service.fetch("binary_path", "N/A")

@@ -1,0 +1,90 @@
+---
+- hosts: all
+  gather_facts: no
+  pre_tasks:
+    - name: 'Install python'
+      raw: sudo apt-get -y install python-minimal
+  tasks:
+    - name: Update apt cache
+      apt:
+        update_cache: yes
+        cache_valid_time: 3600
+
+- hosts: all
+  gather_facts: yes
+  roles:
+    - swap
+    - base
+    - ruby
+    - xwkhtmltopdf
+    - jnv.unattended-upgrades
+    - lua
+    - {
+        role: tersmitten.fail2ban,
+        fail2ban_findtime: 6000,
+        fail2ban_services:
+          [
+            { name: sshd, port: 22, maxretry: 2, bantime: -1 }
+          ]
+      }
+
+- hosts: tag_type_webserver
+  tasks:
+    - name: Set hostname
+      hostname:
+        name: "{{ env }}-webserver"
+  roles:
+    - {
+        role: chris-short.ansible-role-papertrail,
+        become_user: root,
+        papertrail_files:
+          [
+            "/console/shared/log/{{ env }}.log",
+            "/console/shared/log/puma.log",
+            "/console/shared/log/puma.err.log",
+            "/var/log/nginx/error.log",
+            "/var/log/fail2ban.log"
+          ]
+      }
+    - nginx
+    - puma
+
+- hosts: tag_type_webworker
+  tasks:
+    - name: Set hostname
+      hostname:
+        name: "{{ env }}-webworker"
+  roles:
+    - {
+        role: chris-short.ansible-role-papertrail,
+        become_user: root,
+        papertrail_files:
+          [
+            "/console/shared/log/production.log",
+            "/console/shared/log/sidekiq.log",
+            "/tmp/oval2lua.log",
+            "/var/log/fail2ban.log"
+          ]
+      }
+    - { role: sidekiq, tags: sidekiq }
+
+- hosts: tag_type_utility
+  tasks:
+    - name: Set hostname
+      hostname:
+        name: "{{ env }}-utility"
+  roles:
+    - {
+        role: chris-short.ansible-role-papertrail,
+        become_user: root,
+        papertrail_files:
+          [
+            "/console/shared/log/production.log",
+            "/tmp/oval2lua.log",
+            "/var/log/fail2ban.log"
+          ]
+      }
+
+- hosts: tag_role_staging_utility
+  roles:
+    - mailcatcher

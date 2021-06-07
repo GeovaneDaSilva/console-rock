@@ -1,0 +1,166 @@
+- if policy(device).defender_action?
+  .pull-right.mt-5
+    .dropdown
+      a.dropdown-toggle data-toggle="dropdown" title="Windows Defender Actions"
+        i.fa.fa-windows
+        | &nbsp;
+        i.fa.fa-angle-down
+      ul#device-actions.dropdown-menu style="right: 0; left: unset;"
+        li.btn-padding
+          = button_to device_defender_update_path(@device), form_class: "btn btn-link", remote: true do
+            i.fa.fa-refresh
+            |  Update Signatures
+
+        li.btn-padding
+          = button_to device_defender_scan_path(@device), form_class: "btn btn-link", remote: true, params: { scan_type: "quick" } do
+            i.fa.fa-fighter-jet
+            |  Quick Scan
+
+        li.btn-padding
+          = button_to device_defender_scan_path(@device), form_class: "btn btn-link", remote: true, params: { scan_type: "full" } do
+            i.fa.fa-battery-full
+            |  Full Scan
+
+- if @device.defender_health_status_healthy?
+  h3.text-success.margin-bottom-10
+    i.fa.fa-thumbs-up
+    |  Healthy
+- elsif @device.defender_health_status_unhealthy?
+  h3.text-danger.margin-bottom-10
+    i.fa.fa-exclamation-circle
+    |  Unhealthy
+- elsif @device.defender_health_status_unknown?
+  h3.text-muted.margin-bottom-10
+    i.fa.fa-question-circle
+    |  Status Unknown
+
+- if payload.fetch("product_status_strings", []).without("Healthy").size.positive?
+  .d-flex.flex-wrap.margin-bottom-10
+    .w-50
+      ' Status:
+      = payload.dig("product_status_strings").without("Healthy").to_sentence
+
+
+- unless payload.dig("component_status").blank?
+  .d-flex.flex-wrap
+    - payload.dig("component_status").each do |component|
+      .w-50
+        - if component.dig("enabled")
+          i.fa.fa-check-square
+        - else
+          i.fa.fa-square.opacity-25
+
+        |  #{component.dig("name")}
+
+.d-flex.flex-wrap.margin-top-10
+  - engine_version = payload.fetch("version_info", []).find { |version| version.keys.include?("engine_version") }.to_h
+
+  .w-100 title="Last Updated: #{l Time.at(engine_version.fetch("last_update", 0)).in_time_zone}" Engine Version: #{engine_version.fetch("engine_version", "Unknown")}
+
+  - as_signature_version = payload.fetch("version_info", []).find { |version| version.keys.include?("as_signature_version") }.to_h
+  .w-100 title="Last Updated: #{l Time.at(as_signature_version.fetch("last_update", 0)).in_time_zone}" Anti-spyware Signature Version: #{as_signature_version.fetch("as_signature_version", "Unknown")}
+
+  - av_signature_version = payload.fetch("version_info", []).find { |version| version.keys.include?("av_signature_version") }.to_h
+  .w-100 title="Last Updated: #{l Time.at(av_signature_version.fetch("last_update", 0)).in_time_zone}" Anti-virus Signatures Version: #{av_signature_version.fetch("av_signature_version", "Unknown")}
+
+#defender-scans.accordion.panel-group.margin-top-20
+  .panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+    .panel-heading.noborder.no-box-shadow
+      h4.panel-title
+        a data-toggle="collapse" data-parent="#defender-scans" href="#last-quick-scan" aria-expanded="true"
+          - if status&.quick_scan_in_progress?
+            span.text-info
+              i.fa.fa-spinner.spin
+              |  Quick Scan in Progress
+
+            .pull-right
+              i
+                ' Started
+                span datetime=(Time.at(payload.dig("scan_status", "start_time")).in_time_zone) data-controller="datetime"
+
+          - elsif status&.last_quick_scan&.dig("end_time")
+            - detection_count = payload.dig("last_quick_scan", "suspicious_threat_count") + payload.dig("last_quick_scan", "suspicious_threat_count")
+            - if detection_count.positive?
+              span.text-danger
+                i.fa.fa-exclamation-circle
+                |  Last Quick Scan
+            - else
+              span.text-success
+                i.fa.fa-thumbs-up
+                |  Last Quick Scan
+
+            .pull-right
+              i
+                ' Completed
+                = l Time.at(payload.dig("last_quick_scan", "end_time")).in_time_zone, format: :digital
+
+          - elsif status&.last_quick_scan.blank? || status&.last_quick_scan["start_time"].to_i.negative?
+            span.text-muted
+              i.fa.fa-question-circle
+              |  Last Quick Scan
+
+            .pull-right
+              i Unknown
+
+
+    #last-quick-scan.margin-bottom-3 class="collapse" aria-expanded="false"
+      .panel-body.transparent
+        .d-flex.flex-wrap
+          .w-50
+            | #{payload.dig("last_quick_scan", "suspicious_threat_count") || "Unknown"} Suspicious #{"Threat".pluralize(payload.dig("last_quick_scan", "suspicious_threat_count").to_i)}
+          .w-50.text-right
+            | Signature #{payload.dig("last_quick_scan", "signature_version")}
+          .w-50
+            | #{payload.dig("last_quick_scan", "threat_count") || "Unknown"} #{"Threat".pluralize(payload.dig("last_quick_scan", "threat_count").to_i)}
+
+          .w-100 #{number_with_delimiter payload.dig("last_quick_scan", "file_count").to_i} Files, #{number_with_delimiter payload.dig("last_quick_scan", "reg_key_count").to_i} Registry Keys, and #{number_to_human_size payload.dig("last_quick_scan", "file_bytes_count").to_i} Scanned
+
+  .panel.panel-default.nomargin.no-box-shadow.noborder.noradius.transparent
+    .panel-heading.noborder.no-box-shadow
+      h4.panel-title
+        a data-toggle="collapse" data-parent="#defender-scans" href="#last-full-scan" aria-expanded="true"
+          - if status&.full_scan_in_progress?
+            span.text-info
+              i.fa.fa-spinner.spin
+              |  Full Scan in Progress
+
+            .pull-right
+              i
+                ' Started
+                span datetime=(Time.at(payload.dig("scan_status", "start_time")).in_time_zone) data-controller="datetime"
+
+          - elsif status&.last_full_scan&.dig("end_time")
+            - detection_count = payload.dig("last_full_scan", "suspicious_threat_count") + payload.dig("last_full_scan", "suspicious_threat_count")
+            - if detection_count.positive?
+              span.text-danger
+                i.fa.fa-exclamation-circle
+                |  Last Full Scan
+            - else
+              span.text-success
+                i.fa.fa-thumbs-up
+                |  Last Full Scan
+
+            .pull-right
+              i
+                ' Completed
+                = l Time.at(payload.dig("last_full_scan", "end_time")).in_time_zone, format: :digital
+
+          - elsif status&.last_full_scan.blank? || status&.last_full_scan["start_time"].to_i.negative?
+            span.text-muted
+              i.fa.fa-question-circle
+              |  Last Full Scan
+
+            .pull-right
+              i Unknown
+
+    #last-full-scan.margin-bottom-3 class="collapse" aria-expanded="false"
+      .panel-body.transparent
+        .d-flex.flex-wrap
+          .w-50
+            | #{payload.dig("last_full_scan", "suspicious_threat_count") || "Unknown"} Suspicious #{"Threat".pluralize(payload.dig("last_full_scan", "suspicious_threat_count").to_i)}
+          .w-50.text-right
+            | Signature #{payload.dig("last_full_scan", "signature_version")}
+          .w-50
+            | #{payload.dig("last_full_scan", "threat_count") || "Unknown"} #{"Threat".pluralize(payload.dig("last_full_scan", "threat_count").to_i)}
+
+          .w-100 #{number_with_delimiter payload.dig("last_full_scan", "file_count").to_i} Files, #{number_with_delimiter payload.dig("last_full_scan", "reg_key_count").to_i} Registry Keys, and #{number_to_human_size payload.dig("last_full_scan", "file_bytes_count").to_i} Scanned

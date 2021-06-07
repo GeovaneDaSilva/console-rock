@@ -1,0 +1,5 @@
+table.table.fullwidth
+  thead.bg-transparent
+    = render partial: "shared/app_results/secure_score_header", locals: { show_text: true, show_customer: true }
+  tbody
+    = render partial: "shared/app_results/secure_score_row", collection: similar_detections, as: :app_result, cache: proc { |ar| ["v1", ar, current_user&.timezone] }, locals: { show_text: true, show_customer: true, show_customer_link: true, query_params: query_params }

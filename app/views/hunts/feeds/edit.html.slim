@@ -1,0 +1,10 @@
+- content_for(:page_header) do
+  = page_header("Hunt Feeds", [link_to_current_account(current_account.name), link_to("Hunt Feeds", hunts_feeds_path), "Edit Hunt Feed"])
+
+#hunt.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Edit Hunt Feed
+      .panel-body
+        = render partial: "#{@feed.source}_form", locals: { feed: @feed, groups: @groups }

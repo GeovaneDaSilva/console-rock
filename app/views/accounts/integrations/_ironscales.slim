@@ -1,0 +1,55 @@
+div data-controller="api-test"
+  = bootstrap_form_tag url: ironscales_auth_create_path, method: :post do |f|
+    - credential = account&.ironscales_credential
+    - has_credential = account.ironscales_credential?
+    p.hidden data-target="api-test.type"
+      | ironscales
+    p
+      |
+        For <a href="#{I18n.t('helpdocs.ironscales')}">configuration instructions</a>, see the #{I18n.t("application.name")} help docs.
+
+    - if has_credential
+      - if request.params[:show_app_id] == app_id.to_s
+        p
+          b
+            |
+              Please set the Ironscales Company mapping to #{I18n.t("application.name")} Customer
+
+      .d-flex.flex-wrap
+        .w-50
+          - companies = credential&.companies&.inject({}) { |r, s| r.merge!({s["id"] => s})} || {}
+          - acm = (antivirus_customer_maps || []).inject({}) { |r, s| r.merge!({s["antivirus_id"] => s})}
+          - if companies.present?
+            table.table.fullwidth id="tbl_mapping"
+              thead
+                tr
+                  td = "Company Name"
+                  td = "Customer"
+                  td
+              tbody
+                - companies.each do |id, c|
+                  tr
+                    td
+                      input type='text' name="map[#{id}][company_name]" value="#{c["name"]}" readonly=true
+                    td
+                      = select_tag "map[#{id}][account_id]", options_for_select((current_account.self_and_all_descendant_customers.collect { |a| [a.name, a.id] }), acm&.dig(id.to_s)&.account_id), class: "form-control", include_blank: true
+
+    .d-flex.flex-wrap
+      .w-100
+        = f.text_field :refresh_token, label: "API Token", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100", data: { target: "api-test.refreshToken" }, value: integrations_mask(credential&.refresh_token), readonly: has_credential
+      .w-50.pr-5
+        = f.text_field :company_name, label: "Company Name", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100", value: credential&.company_name, readonly: has_credential
+      .w-50
+        = f.text_field :company_domain, label: "Company Domain", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100", value: credential&.company_domain, readonly: has_credential
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+
+    p.padding-10 data-target="api-test.outputDisplay"
+
+    .w-100.text-right.padding-10
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#"
+        | Credential Test
+      - if has_credential
+        = f.submit value: "Save Map", class: "btn btn-primary margin-right-10"
+        = link_to "Clear Existing Credential", ironscales_auth_destroy_path(account_id: account.id), class: "btn btn-primary", :method => :delete
+      - else
+        = f.submit value: "Authenticate", class: "btn btn-primary"

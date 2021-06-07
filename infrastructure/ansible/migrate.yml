@@ -1,0 +1,18 @@
+---
+- hosts: tag_type_utility
+  tasks:
+    - name: Check migration status
+      shell: /bin/bash -lc 'bundle exec rails db:migrate:status'
+      register: migration_status
+      args:
+        chdir: '{{ app_current_path }}'
+      become: yes
+      become_user: "{{ user_name }}"
+
+    - name: Migrate database
+      shell: /bin/bash -lc 'bundle exec rails db:migrate'
+      args:
+        chdir: '{{ app_current_path }}'
+      become: yes
+      become_user: "{{ user_name }}"
+      when: migration_status|failed

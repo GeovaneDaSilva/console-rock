@@ -1,0 +1,19 @@
+p
+  | This page allows you to define different email targets for billing emails, security notifications, and general business or executive-level decisions.
+p
+  | For all fields, you may enter multiple email addresses/phone numbers by separating each address with a comma, as in the example values.
+
+= bootstrap_form_tag(url: account_notifications_path(account)) do |f|
+  .d-flex.flex-wrap
+    .w-50.pr-5
+      = f.text_field :billing_email, label: "Billing Email", placeholder: "bob@company.com, betty@company.com", value: emails.find_by_category(:billing)&.emails&.join(", ")
+  - if false
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.text_field :security_email, label: "Security Email (get incident emails in addition to PSA ticket creation)", placeholder: "bob@company.com, betty@company.com", value: emails.find_by_category(:security)&.emails&.join(", ")
+  .d-flex.flex-wrap
+    .w-50.pr-5
+      = f.text_field :security_phone, label: "Security phone number for time-sensitive incidents", placeholder: "123-456-7890, 987-654-3210", value: phones.find_by_category(:security)&.numbers&.join(", ")
+
+  .pull-right
+    = f.submit "Save"

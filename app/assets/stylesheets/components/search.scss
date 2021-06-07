@@ -1,0 +1,40 @@
+@import "_vars/colors";
+
+#typeahead {
+  background: #fff;
+  border: 1px solid $borderColor;
+  position: relative;
+  top: -10px;
+  left: -5px;
+}
+
+#search-form {
+  height: 100%;
+}
+
+#search-input {
+  border: none;
+  height: 100%;
+  width: 100%;
+}
+
+ul.ui-autocomplete {
+  z-index: 1;
+  background: #FFF;
+  left: -5px !important;
+  top: -5px !important;
+  box-shadow: 0px 0px 15px 0px rgba(0, 17, 38, 0.25);
+  border-radius: 2px;
+  list-style: none;
+  padding: 0;
+  overflow: hidden;
+
+  li {
+    margin: 0;
+    padding: 10px 15px;
+
+    &:hover, &.focus {
+      background: lighten($borderColor, 10%);
+    }
+  }
+}

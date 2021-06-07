@@ -1,0 +1,17 @@
+tr
+  td
+    - if app_result.malicious?
+      span.text-danger title="Malicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.suspicious?
+      span.text-warning title="Suspicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.informational?
+      span.text-informational title="Informational"
+        i.fa.fa-exclamation-triangle
+
+    | &nbsp;
+    = app_result.value
+  td = l app_result.detection_date, format: :digital
+  td = app_result.details["controlCategory"]
+  td = app_result.details["score"]

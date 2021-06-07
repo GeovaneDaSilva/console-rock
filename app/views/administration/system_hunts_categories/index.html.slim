@@ -1,0 +1,24 @@
+- content_for(:page_header) do
+  - if policy(:administration).manage_system_hunts?
+    .action-links.pull-right.margin-top-5
+      = link_to new_administration_system_hunts_category_path, class: "btn btn-primary" do
+        i.fa.fa-plus
+        | New Category
+  = page_header("System Hunts", ["Categories"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong System Hunt Categories
+      .panel-body.nopadding
+        - if @system_hunts_categories.any?
+          - cache ["v1", @system_hunts_categories] do
+            table.fullwidth.table.m-0
+              = render partial: "category", collection: @system_hunts_categories, cache: true
+
+            - if @pagination.pages > 1
+              .text-center.border-top
+                == pagy_bootstrap_nav @pagination
+        - else
+          .text-center No System Hunt Categories

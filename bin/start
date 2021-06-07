@@ -1,0 +1,53 @@
+#!/usr/bin/env ruby
+require "fileutils"
+require 'pathname'
+
+# path to your application root.
+APP_ROOT = File.expand_path('..', __dir__)
+RAILS_ENV = ENV['RAILS_ENV'] || 'development'
+
+EnvironmentError = Class.new(StandardError)
+
+def system!(*args)
+  system(*args) || abort("\n== Command #{args} failed ==")
+end
+
+environment_error_message = <<-MSG
+`start` script can only run in local development.
+
+Current environment is: #{RAILS_ENV || 'NO_RAILS_ENV_SET'}.
+
+To use this script, set RAILS_ENV='development'
+
+MSG
+raise EnvironmentError, environment_error_message if RAILS_ENV != 'development'
+
+FileUtils.chdir APP_ROOT do
+  log_dir = 'log'
+  FileUtils.mkdir_p(log_dir)
+
+  log_file = Pathname.new("#{log_dir}/development.log")
+  ws_log_file = Pathname.new("#{log_dir}/ws.log")
+
+  File.delete(log_file) if log_file.exist?
+  File.delete(ws_log_file) if ws_log_file.exist?
+
+  FileUtils.touch(log_file)
+  FileUtils.touch(ws_log_file)
+
+  system 'pkill -9 puma'
+  system! 'bundle'
+  system! 'yarn'
+  system! 'docker pull rocketcyber/socket_proxy:latest'
+
+  personal_procfile = Pathname.new("personal.Procfile")
+  default_procfile = Pathname.new("Procfile-dev")
+
+  if personal_procfile.exist?
+    system! 'foreman start -f personal.Procfile -t 10'
+  else
+    system! 'foreman start -f Procfile-dev -t 10'
+  end
+
+  system! 'docker-compose down'
+end

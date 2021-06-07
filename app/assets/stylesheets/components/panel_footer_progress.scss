@@ -1,0 +1,14 @@
+@import "_vars/colors";
+
+.panel-footer {
+  position: relative;
+
+  .panel-footer-progress {
+    position: absolute;
+    bottom: -1px;
+    background: $rcGreen;
+    height: 1px;
+    left: 0;
+    transition: width 400ms;
+  }
+}

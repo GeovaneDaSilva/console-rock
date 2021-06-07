@@ -1,0 +1,224 @@
+meta name="breezy-pdf-filename" content="#{device.hostname.parameterize}-hunt-#{hunt_result.id}"
+meta name="breezy-pdf-timeout" content="250"
+
+header#header
+  .container
+    .row
+      .col-xs-12
+        .logo
+          - if device.customer.provider.logo
+            = image_tag device.customer.provider.logo.url
+          - else
+            = image_tag I18n.t('application.base_logo')
+        .text-center
+          .heading-border-bottom
+            h2.margin-bottom-0.margin-top-10
+              ' Cyber Threat Hunt
+              span Report
+          p.margin-bottom-10
+            | Prepared for: #{device.hostname}  #{device.customer.name}
+            br
+            = l device.updated_at.in_time_zone(device.timezone), format: :long
+
+- cache ["v1/reports/hunt", hunt_result, rendered_for_pdf?] do
+  - if hunt_result.success?
+    section.box-light.page-break-after
+      .container
+        .row.margin-top-20.margin-bottom-20
+          .col-xs-12.col-sm-6
+            .box-inner
+              .clearfix
+                .col-xs-12.text-center
+                  - if hunt_result.malicious?
+                    .size-30.padding-3.text-danger
+                      br
+                      i.fa.fa-exclamation-triangle
+                      |  Malicious Activity
+                      br
+                      br
+                  - elsif hunt_result.suspicious?
+                    .size-30.padding-3.text-warning
+                      br
+                      i.fa.fa-exclamation-triangle
+                      |  Suspicious Activity
+                      br
+                      br
+                  - elsif hunt_result.informational?
+                    .size-30.padding-3
+                      br
+                      i.fa.fa-exclamation-triangle
+                      |  Other Activity
+                      br
+                      br
+                  - elsif hunt_result.negative?
+                    .size-30.padding-3.text-success
+                      br
+                      i.fa.fa-check-circle
+                      |  All Clear
+                      br
+                      br
+
+          .col-xs-12.col-sm-6
+            .box-inner
+              h3.bold.size-18 Device Details
+              table.fullwidth.nomargin
+                tr
+                  td.bold Hostname
+                  td.text-right = device.hostname
+                tr
+                  td.bold Operating System
+                  td.text-right = device.platform_family_and_version
+                tr
+                  td.bold IP Address
+                  td.text-right = device.ipv4_address
+
+        .row.margin-bottom-20
+          .col-xs-12
+            table.table.fullwidth.text-center.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+              thead
+                tr
+                  th.text-center Type
+                  th.text-center Quantity Tested
+                  th.text-center Malicious
+                  th.text-center Suspicious
+                  th.text-center Other
+                  th.text-center Total Detections
+              tbody
+                tr
+                  td Network
+                  td = number_with_delimiter_or_dash network_connection_tests.size
+                  td = number_with_delimiter_or_dash network_connection_tests.malicious.size
+                  td = number_with_delimiter_or_dash network_connection_tests.suspicious.size
+                  td = number_with_delimiter_or_dash network_connection_tests.informational.size
+                  td = number_with_delimiter_or_dash network_connection_tests.positive.size
+                tr
+                  td Browser
+                  td = number_with_delimiter_or_dash browser_visits_tests.size
+                  td = number_with_delimiter_or_dash browser_visits_tests.malicious.size
+                  td = number_with_delimiter_or_dash browser_visits_tests.suspicious.size
+                  td = number_with_delimiter_or_dash browser_visits_tests.informational.size
+                  td = number_with_delimiter_or_dash browser_visits_tests.positive.size
+                tr
+                  td Files
+                  td = number_with_delimiter_or_dash files_tests.size
+                  td = number_with_delimiter_or_dash files_tests.malicious.size
+                  td = number_with_delimiter_or_dash files_tests.suspicious.size
+                  td = number_with_delimiter_or_dash files_tests.informational.size
+                  td = number_with_delimiter_or_dash files_tests.positive.size
+                tr
+                  td Processes
+                  td = number_with_delimiter_or_dash processes_tests.size
+                  td = number_with_delimiter_or_dash processes_tests.malicious.size
+                  td = number_with_delimiter_or_dash processes_tests.suspicious.size
+                  td = number_with_delimiter_or_dash processes_tests.informational.size
+                  td = number_with_delimiter_or_dash processes_tests.positive.size
+                tr
+                  td Users
+                  td = number_with_delimiter_or_dash user_tests.size
+                  td = number_with_delimiter_or_dash user_tests.malicious.size
+                  td = number_with_delimiter_or_dash user_tests.suspicious.size
+                  td = number_with_delimiter_or_dash user_tests.informational.size
+                  td = number_with_delimiter_or_dash user_tests.positive.size
+                tr
+                  td Yara Scripts
+                  td = number_with_delimiter_or_dash yara_tests.size
+                  td = number_with_delimiter_or_dash yara_tests.malicious.size
+                  td = number_with_delimiter_or_dash yara_tests.suspicious.size
+                  td = number_with_delimiter_or_dash yara_tests.informational.size
+                  td = number_with_delimiter_or_dash yara_tests.positive.size
+                tr
+                  td Registry Keys
+                  td = number_with_delimiter_or_dash registry_tests.size
+                  td = number_with_delimiter_or_dash registry_tests.malicious.size
+                  td = number_with_delimiter_or_dash registry_tests.suspicious.size
+                  td = number_with_delimiter_or_dash registry_tests.informational.size
+                  td = number_with_delimiter_or_dash registry_tests.positive.size
+                tr
+                  td Services
+                  td = number_with_delimiter_or_dash service_tests.size
+                  td = number_with_delimiter_or_dash service_tests.malicious.size
+                  td = number_with_delimiter_or_dash service_tests.suspicious.size
+                  td = number_with_delimiter_or_dash service_tests.informational.size
+                  td = number_with_delimiter_or_dash service_tests.positive.size
+                tr
+                  td Events
+                  td = number_with_delimiter_or_dash event_tests.size
+                  td = number_with_delimiter_or_dash event_tests.malicious.size
+                  td = number_with_delimiter_or_dash event_tests.suspicious.size
+                  td = number_with_delimiter_or_dash event_tests.informational.size
+                  td = number_with_delimiter_or_dash event_tests.positive.size
+                tr
+                  td Drivers
+                  td = number_with_delimiter_or_dash driver_tests.size
+                  td = number_with_delimiter_or_dash driver_tests.malicious.size
+                  td = number_with_delimiter_or_dash driver_tests.suspicious.size
+                  td = number_with_delimiter_or_dash driver_tests.informational.size
+                  td = number_with_delimiter_or_dash driver_tests.positive.size
+                tr
+                  td DNS
+                  td = number_with_delimiter_or_dash dns_tests.size
+                  td = number_with_delimiter_or_dash dns_tests.malicious.size
+                  td = number_with_delimiter_or_dash dns_tests.suspicious.size
+                  td = number_with_delimiter_or_dash dns_tests.informational.size
+                  td = number_with_delimiter_or_dash dns_tests.positive.size
+                tr
+                  td Other
+                  td = number_with_delimiter_or_dash informational_tests.size
+                  td = number_with_delimiter_or_dash informational_tests.malicious.size
+                  td = number_with_delimiter_or_dash informational_tests.suspicious.size
+                  td = number_with_delimiter_or_dash informational_tests.informational.size
+                  td = number_with_delimiter_or_dash informational_tests.positive.size
+
+    section.box-light
+      .container
+        .row
+          .col-xs-12
+            .box-inner
+              = render partial: "devices/r/hunts/summary", locals: { hunt_result: hunt_result, device: device }
+
+      - hunt_result.test_results.each do |test_result|
+        .container.margin-top-10
+          .row
+            .col-xs-12
+              .box-inner
+                - if test_result.positive?
+                  span.text-danger
+                    i.fa.fa-exclamation-triangle
+
+                  |  Positive for matches
+                - else
+                  span.text-success
+                    i.fa.fa-check-circle
+                  |  Negative for matches
+                = render partial: "r/hunts/results/#{test_result.test.class.name.demodulize.underscore}", locals: { test_result: test_result }
+
+  - else
+    section
+      .container
+        .row
+          .col-xs-12
+            .heading-title.heading-border-bottom
+              h2
+                ' Hunt
+                span Failed
+
+            p
+              | This hunt failed to successfully execute due to
+              - if hunt_result.error?
+                |  an internal error. We've been notified of the malfunction and will re-run this hunt when the problem has been resolved.
+              - else
+                |  a test error. Please validate your hunt parameters.
+                br
+                pre = JSON.parse(Uploads::Downloader.new(hunt_result.upload).call.read).dig("reason")
+
+- unless rendered_for_pdf?
+  .text-center.m-10
+    - if current_user&.admin?
+      = link_to "Download Hunt Resulting JSON", hunt_result.upload.url
+      '  |
+      = link_to "Download Hunt Lua Script", api_device_hunt_path(device, "hunt_#{hunt_result.hunt.id}_#{hunt_result.hunt.revision}", format: :lua)
+      '  |
+
+    = link_to "Download as PDF", device_r_hunt_path(device, hunt_result, format: :pdf, pdf: true), class: "pdf-link"
+
+    = render partial: "shared/pdf_download"

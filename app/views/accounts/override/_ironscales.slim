@@ -1,0 +1,52 @@
+- if app_results.size.positive?
+  .row
+    .col-xs-12
+      .panel.panel-default
+        .panel-heading.no-height.border-bottom-0
+          strong Ironscales Classification Actions
+        .panel-body.nopadding
+          table.table.fullwidth
+            thead.bg-transparent
+              tr
+                th
+                th Detected
+                th Reported By
+                th.customer Customer
+                th Sender Reputation
+                th Sender Email
+                th Internal Sender
+                th Type
+                th Subject
+                th Themis Verdict
+                th
+            tbody
+              - app_results.each do |app_result|
+                tr
+                  td
+                    - if app_result.malicious?
+                      span.text-danger title="Malicious"
+                        i.fa.fa-exclamation-triangle
+                    - if app_result.suspicious?
+                      span.text-warning title="Suspicious"
+                        i.fa.fa-exclamation-triangle
+                    - if app_result.informational?
+                      span.text-informational title="Informational"
+                        i.fa.fa-exclamation-triangle
+                  td = l app_result.detection_date, format: :digital
+                  td = app_result.details&.first_reported_by || app_result.details&.reportedby
+                  td.customer = app_result.customer&.name
+                  td = app_result.details&.sender_reputation
+                  td = app_result.details&.sender_email || app_result.details&.senderemail
+                  td = app_result.details&.sender_is_internal
+                  td = app_result.details&.classification&.titleize || "N/A"
+                  td = app_result.details&.subject || app_result.details&.reports&.first&.dig("subject")
+                  td = app_result.details&.themis_verdict || "N/A"
+                  td.text-right
+                    a data-toggle="modal" data-target="#app-result-#{app_result.id}-action" Actions
+
+  = render partial: "accounts/override/modals"
+
+- else
+  .padding-6.margin-top-20.border-top.text-center
+    i.fa.fa-exclamation-triangle.text-warning
+    |  No app results selected

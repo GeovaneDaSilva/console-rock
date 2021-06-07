@@ -1,0 +1,5 @@
+table.table.fullwidth data-controller="checkbox-selectable"
+  thead.bg-transparent
+    = render partial: "shared/app_results/data_discovery_header", locals: { show_checkbox: true, show_details: true, show_customer: true }
+  tbody
+    = render partial: "shared/app_results/data_discovery_row", collection: similar_detections, as: :app_result, locals: { show_checkbox: true, show_details: true, show_customer: true, show_customer_link: true, query_params: query_params }, cache: proc { |ar| ["v1", ar, current_user&.timezone] }

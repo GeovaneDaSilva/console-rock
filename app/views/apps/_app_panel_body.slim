@@ -1,0 +1,69 @@
+.app-indicator.d-flex.flex-column.disabled
+  .icon-wrapper data-target=(device ? "device-app-card.iconWrapper" : "app-card.iconWrapper")
+    - if app.display_image_icon
+      .app-icon
+        = raw app.display_image_icon.as_data
+  - unless device
+    .devices.text-center
+      - if app.syslog_config?
+        h4.nomargin data-target="app-card.instancesCount"
+          = inline_loader
+        .monitored
+          ' Monitored
+          span data-target="app-card.instancesLabel"
+            | Devices
+      - elsif app.powershell_runner_config?
+        h4.nomargin data-target="app-card.instancesCount"
+          = inline_loader
+        .monitored
+          ' Monitored
+          span data-target="app-card.instancesLabel"
+            | Mailbox
+      - elsif app.is_a?(Apps::DeviceApp)
+        h4.nomargin data-target="app-card.deviceCount"
+          = inline_loader
+        .monitored data-target="app-card.devicesLabel"
+          | Reporting Devices
+
+      - elsif app.is_a?(Apps::Office365App)
+        h4.nomargin data-target="app-card.instancesCount"
+          = inline_loader
+        .monitored
+          ' Monitored
+          span data-target="app-card.instancesLabel"
+            | Mailbox
+
+
+.detection-details.d-flex.flex-column
+  .d-flex.flex-column.w-100
+    .detection-count data-target=(device ? "device-app-card.detections" : "app-card.detections")
+      = inline_loader
+
+    h3 data-target=(device ? "device-app-card.detectionsLabel" : "app-card.detectionsLabel")
+      | Detections
+
+    hr.w-100
+
+  .d-flex
+    - if device
+      - if policy(device).triage?
+        = link_to "Review", device_triage_path(device, app_id: app.id), class: "disabled-hidden report-link"
+      - else
+        = link_to "View Report", device_r_breach_path(device, anchor: "app-#{app.id}"), target: "_blank", class: "disabled-hidden report-link"
+      - if app.actions? && policy(device).app_action?
+        - if app.actions.keys.length == 1
+          - action, details = app.actions.first
+          = link_to details[:name], device_app_actions_path(device, app_id: app.id, app_action: action), method: :post, remote: true, class: "disabled-hidden report-link"
+    - else
+      - if policy(current_account).triage?
+        = link_to "Review", account_triage_path(current_account, app_id: app.id), class: "disabled-hidden report-link"
+      - else
+        = link_to "View Report", r_breaches_path(anchor: "app-#{app.id}"), target: "_blank", class: "disabled-hidden report-link"
+
+      - if app.actions? && policy(current_account).app_action?
+        - if app.actions.keys.length == 1
+          - action, details = app.actions.first
+          = link_to details[:name], account_app_actions_path(current_account, app_id: app.id, app_action: action), method: :post, remote: true, class: "disabled-hidden report-link"
+
+  - url_object = device ? device.customer : current_account
+  = link_to "Enable App", account_apps_path(url_object), class: "disabled-visible enable-link"

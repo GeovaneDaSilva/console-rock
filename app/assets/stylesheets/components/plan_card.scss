@@ -1,0 +1,45 @@
+@import "_vars/colors";
+
+.plan-card {
+  border: 2px solid $rcGreen;
+  padding: 20px;
+
+  .price, .sub-price {
+    margin: 0;
+  }
+
+  .price {
+    font-size: 1.3em;
+    line-height: 2.7em;
+    color: #000;
+
+    .amount {
+      font-size: 2.6em;
+      color: #000;
+    }
+  }
+
+  .sub-price {
+    font-size: 1em;
+    line-height: 1em;
+    color: $primaryGrey;
+
+    .amount {
+      color: $primaryGrey;
+      font-size: 1.8em;
+    }
+  }
+
+  p {
+    margin: 15px 0;
+  }
+
+  li {
+    padding: 8px 0;
+    border-bottom: 1px solid $borderColor;
+
+    &:last-child {
+      border-bottom: none;
+    }
+  }
+}

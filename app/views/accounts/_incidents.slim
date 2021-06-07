@@ -1,0 +1,11 @@
+- incident_count = current_account.all_descendant_incidents.where(state: :published).size
+- if incident_count.positive?
+  .row
+    .col-xs-12
+      .alert.alert-warning.drop-shadow.margin-bottom-30
+        strong.size-18 #{incident_count.to_s(:delimited)} Open #{"Incident".pluralize(incident_count)}
+        p
+          | This account has #{incident_count.to_s(:delimited)} open #{"incident".pluralize(incident_count)} that need your review.
+          br
+          br
+          = link_to "Review", account_apps_incidents_path(current_account)

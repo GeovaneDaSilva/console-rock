@@ -1,0 +1,80 @@
+div data-controller="api-test"
+  = bootstrap_form_tag url: sophos_auth_create_path, method: :post, data: { controller: "confirm-modal" } do |f|
+    - credential = account&.sophos_credential
+    - has_credential = account.sophos_credential?
+    p.hidden data-target="api-test.type"
+      | sophos
+    p
+      |
+        For <a href="#{I18n.t('helpdocs.sophos_av')}">configuration instructions</a>, see the #{I18n.t("application.name")} help docs.
+
+    - if has_credential
+      - if request.params[:show_app_id] == app_id.to_s
+        p
+          b
+            |
+              Please set the Sophos Tenant mapping to #{I18n.t("application.name")} Customer
+
+      .d-flex.flex-wrap
+        .w-100
+          - tenants = credential&.tenants&.sort_by { |key, value| value["name"].downcase }
+          - acm = (antivirus_customer_maps || []).inject({}) { |r, s| r.merge!({s["antivirus_id"] => s})}
+          - if tenants.present?
+            table.table.fullwidth id="tbl_mapping"
+              thead
+                tr
+                  td = "Tenant Name"
+                  td = "Customer"
+                  td
+              tbody
+                - tenants.each do |id, c|
+                  tr data-target="tbl-row-editor.row" data-controller="tbl-row-editor"
+                    td
+                      input type='text' name="map[#{id}][tenant_name]" value=c["name"] readonly=true data-target="tbl-row-editor.text"
+                    td
+                      = select_tag "map[#{id}][account_id]", options_for_select((current_account.self_and_all_descendant_customers.order(:name).collect { |a| [a.name, a.id] }), acm&.dig(id.to_s)&.account_id), class: "form-control", include_blank: true
+                    td
+                      a href="#" data-action="click->tbl-row-editor#del"
+                        i.fa.fa-trash
+
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.text_field :sophos_client_id, label: "Client ID", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.clientId" }, value: integrations_mask(credential&.sophos_client_id), readonly: has_credential
+      .w-50.pr-5
+        = f.text_field :sophos_client_secret, label: "Client Secret", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.secret" }, value: integrations_mask(credential&.sophos_client_secret), readonly: has_credential
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+
+    p.w-100.padding-10 data-target="api-test.outputDisplay"
+
+    .w-100.pr-5.text-right
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#"
+        | Credential Test
+      - if has_credential
+        = f.submit value: "Save Map", class: "btn btn-primary margin-right-10"
+        = link_to "Clear Existing Credential", sophos_auth_destroy_path(customer_id: account.id), class: "btn btn-primary", :method => :delete
+      - else
+        = f.submit value: "Authenticate", class: "btn btn-primary margin-right-10", data: { message: "This will pull Sophos Tenants and will need you to do Customer Mapping after, then pulling of data from Sophos will begin.", action: "click->confirm-modal#show", target: "#sophos_confirm" }
+
+
+    .modal.fade id="sophos_confirm" role="dialog" data-target="confirm-modal.modal"
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h5.modal-title = "Confirmation"
+          .modal-body
+          .modal-footer
+            a.btn.btn-primary data-action="click->confirm-modal#save" href="#"
+              | Yes
+            a.btn.btn-primary data-action="click->confirm-modal#close" href="#"
+              | No
+
+    .modal.fade id="sophos_loading" role="dialog" data-target="confirm-modal.loading" data-backdrop="static" data-keyboard="false"
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h3.modal-title = "Please wait..."
+          .modal-body.text-center
+            | Please wait while we process your request.
+          .padding-3.text-center
+            h1
+              i.fa.fa-spinner.spin

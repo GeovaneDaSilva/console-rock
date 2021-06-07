@@ -1,0 +1,15 @@
+.container.w-100.bg-white data-controller="cylance-provider"
+  .row
+    .col-md-3.pt-20
+      ul.list-group data-target="cylance-provider.list" style="max-height:50vh; overflow:scroll"
+        - accounts.each do |account|
+          li.list-group-item.border
+            a href="#" data-action="click->cylance-provider#show" data-id=current_account.id data-customer_id=account.id
+              - if account.provider?
+                = "#{account.name} - MSP"
+              -else
+                = account.name
+
+    .col-md-9.pt-20.border-left
+      h4.bold.text-primary data-target="cylance-provider.name"
+      div data-target="cylance-provider.form"

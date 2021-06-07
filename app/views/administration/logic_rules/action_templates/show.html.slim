@@ -1,0 +1,26 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    - if policy(current_user).soc_team?
+      = link_to edit_administration_logic_rules_action_template_path(@template), class: "btn btn-primary" do
+        i.fa.fa-pencil
+        | Edit
+    - if policy(current_user).soc_team?
+      = link_to administration_logic_rules_action_template_path(@template), method: :delete, class: "btn btn-danger" do
+        i.fa.fa-trash
+        | Delete
+  = page_header(@template.name, ["Administration", "Triage Rules", link_to("Action Templates", administration_logic_rules_action_templates_path), @template.name])
+
+.row.app-index-wrapper
+  .col-xs-12.col-lg-10.col-lg-offset-1.app-card
+    .panel.panel-default
+      .panel-heading
+        strong = @template.titleized_type
+      .panel-body
+        dl.dl-horizontal
+          dt Name
+          dd.mb-10 = @template.name
+          - @template.details.each do |attr, value|
+            dt = attr.humanize
+            dd.mb-10 = value
+          dt Last Updated
+          dd.mb-10 = l @template.updated_at, format: :digital

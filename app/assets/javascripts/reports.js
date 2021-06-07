@@ -1,0 +1,12 @@
+//= require jquery
+//= require jquery_ujs
+//= require turbolinks
+//= require bootstrap
+//= require timeline
+//= require jquery-jvectormap.min
+//= require jquery-jvectormap-world-mill
+//= require promise-min
+//= require svg-min
+//= require pdf-link
+//= require toggle
+//= require_self

@@ -1,0 +1,10 @@
+.row
+  .col-xs-5.text-left
+    | When:
+  .col-xs-7
+    = l app_result.detection_date, format: :digital
+.row
+  .col-xs-5.text-left
+    | Value:
+  .col-xs-7
+    = app_result.value

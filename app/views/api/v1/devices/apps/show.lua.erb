@@ -1,0 +1,20 @@
+-- <%= account_app.app.title %>
+-- app <%= account_app.app.id %>.lua
+
+if hunter.is_windows_os() then
+  hunter.require(agent_options.base_url.."/core.bin",agent_options.license_key,agent_options.proxy)
+end
+
+if hunter.is_mac_os() then
+  hunter.require(agent_options.base_url.."/core-mac-x64.bin",agent_options.license_key,agent_options.proxy)
+end
+
+<% cache ["v3/inline-lua", account_app.app.upload] do -%>
+<%= Uploads::Downloader.new(account_app.app.upload).call.read %>
+<% end -%>
+
+-- Entry point for app script
+-- Arguments:
+--   App ID
+--   Configuration JSON string
+app_main(<%= account_app.app.id %>, [[<%= app_config.nil? ? APP_CONFIGS[account_app.app.configuration_type].to_json : Apps::Configs::Transformer.new(app_config).call.to_json %>]])

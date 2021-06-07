@@ -1,0 +1,29 @@
+.padding-15
+  .login-box
+    = form_for(resource, as: resource_name, url: password_path(resource_name), html: { method: :put, class: "sky-form boxed" }) do |f|
+      header
+        i.fa.fa-users
+        |  Change your password
+
+      = devise_error_messages!
+      = f.hidden_field :reset_password_token
+
+      fieldset
+        section
+          = f.label :password, class: "label", text: "New Password"
+          label.input
+            i.icon-append.fa.fa-lock
+            = f.password_field :password, autocomplete: "off", autofocus: true
+            span.tooltip.tooltip-top-right Type your password
+
+        section
+          = f.label :password_confirmation, class: "label"
+          label.input
+            i.icon-append.fa.fa-lock
+            = f.password_field :password_confirmation, autocomplete: "off"
+            span.tooltip.tooltip-top-right Confirm your password
+
+      footer
+        = f.submit "Change my password", class: "btn btn-primary pull-right"
+
+        = render "devise/shared/links"

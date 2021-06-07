@@ -1,0 +1,32 @@
+= bootstrap_form_for @incident, url: incident_path, method: :post do |f|
+    = hidden_field_tag :app_id, params[:app_id]
+    = hidden_field_tag :start_date, params[:start_date]
+    = hidden_field_tag :end_date, params[:end_date]
+    = hidden_field_tag :search, params[:search]
+    = hidden_field_tag :apply_to_all_similar, params[:apply_to_all_similar]
+    - params[:app_results].to_a.uniq.each do |app_result_id|
+      = hidden_field_tag "app_results[]", app_result_id
+    .row.app-index-wrapper
+      .col-xs-12.col-lg-10.col-lg-offset-1.app-card
+        .panel.panel-default
+          - if existing_incidents.any?
+            .panel-heading
+              ul.nav.nav-tabs.pull-left
+                li.active
+                  a data-target="#add" data-toggle="tab" aria-expanded="true" data-skip-events="true"
+                    | Add to Existing Incident
+                li
+                  a data-target="#create" data-toggle="tab" aria-expanded="false" data-skip-events="true"
+                    | Create New Incident
+
+              .pull-right
+                = link_to "< Back to Results", triage_path(query_params)
+
+          .tab-content.transparent
+            - if existing_incidents.any?
+              #add.tab-pane.active
+                = render partial: "triage/incidents/add", locals: { f: f }
+
+
+            #create.tab-pane class=("active" unless existing_incidents.any?)
+              = render partial: "triage/incidents/create", locals: { f: f }

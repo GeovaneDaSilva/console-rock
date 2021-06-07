@@ -1,0 +1,5 @@
+.panel.panel-default
+  .panel-heading
+    strong Cyber Monitoring Summary
+  .panel-body
+    #account-stats-graph data-controller="summary-graph" data-summary-graph-refresh-url=(api_account_stats_path(current_account)) data-summary-graph-show-customers="#{(current_account.provider?)}"

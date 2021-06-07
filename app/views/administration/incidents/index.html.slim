@@ -1,0 +1,80 @@
+link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.min.css"
+link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/css/bootstrap-datepicker.css.map"
+script src="https://cdnjs.cloudflare.com/ajax/libs/bootstrap-datepicker/1.8.0/js/bootstrap-datepicker.min.js"
+
+- content_for(:page_header) do
+  = page_header("Managed Accounts", ["Incidents"])
+
+= form_tag administration_incidents_path, method: :post, remote: true do
+  .row
+    .col-xs-12.form-inline.padding-20
+      .form-group.margin-right-10
+        label.d-block Search
+        .input-group
+          = search_field_tag :search, params[:search], class: "form-control"
+
+      .form-group.margin-right-10
+        label.d-block Incident Created
+        .input-group.input-daterange data-provide="datepicker"
+          = text_field_tag :start_date, (start_date ? l(start_date, format: :long_digits) : nil), class: "form-control", data: { "date-format" => "mm/dd/yyyy" }
+        .input-group.input-daterange data-provide="datepicker"
+          = text_field_tag :end_date, (end_date ? l(end_date, format: :long_digits) : nil), class: "form-control", data: { "date-format" => "mm/dd/yyyy" }
+
+      .form-group.margin-right-10
+        label.d-block Status
+        .input-group
+          = select_tag :status, options_for_select([nil] + Apps::Incident.states.keys, status), class: "form-control"
+
+      input.btn.btn-primary.d-inline-block.margin-top-25 type="submit" value="Filter"
+
+      = link_to "Clear", administration_incidents_path, class: "btn btn-link margin-top-25"
+
+      .pull-right
+        .input-group.margin-top-25
+          span.input-group-addon
+            i.fa.fa-cloud-download
+          span.input-group-btn
+            input.btn.btn-default type="submit" name="export" value="CSV"
+            input.btn.btn-default type="submit" name="export" value="JSON"
+
+  .row
+    .col-xs-12
+      .panel.panel-default
+        .panel-body
+          table.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0
+            thead
+              tr
+                th
+                th.hidden-sm.hidden-xs Title
+                th Account
+                th Total Results
+                th Last Updated
+                th Creator
+                th &nbsp;
+                th &nbsp;
+            tbody
+              - @incidents.each do |incident|
+                tr
+                  td
+                    - if incident.published?
+                      span.text-warning title="Open"
+                        i.fa.fa-exclamation-circle
+                    - elsif incident.draft?
+                      span.text-info title="Draft"
+                        i.fa.fa-question-circle
+                    - else
+                      span.text-success title="Resolved"
+                        i.fa.fa-check-circle
+                  td.hidden-sm.hidden-xs = incident.title
+                  td = incident.account.self_and_ancestors.order(:path).pluck(:name).join(" > ")
+                  td = number_with_delimiter incident.results.size
+                  td = l incident.updated_at, format: :full
+                  td = incident.creator.name
+                  td.text-right
+                    = link_to "Remediation Status", account_apps_remediation_path(incident.account, incident, switch_account_id: incident.account.id), target: "_blank"
+                  td.text-right
+                    = link_to "View Details", account_apps_incident_path(incident.account, incident, switch_account_id: incident.account.id), target: "_blank"
+
+          - if @pagination.pages > 1
+            .text-center
+              == pagy_bootstrap_nav @pagination

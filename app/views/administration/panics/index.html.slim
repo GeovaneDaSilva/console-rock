@@ -1,0 +1,20 @@
+- content_for(:page_header) do
+  = page_header("Panics", ["All Panics"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        h4.nomargin Panics
+      .panel-body
+        table.table
+          thead
+            th Device
+            th Created
+            th
+          tbody
+            - @panics.each do |panic|
+              tr
+                td = link_to panic.device.hostname, device_path(panic.device.id, switch_account_id: panic.device.customer_id)
+                td = l panic.created_at, format: :digital
+                td.text-right = link_to "View", administration_panic_path(panic.id)

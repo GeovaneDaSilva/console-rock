@@ -1,0 +1,8 @@
+.pull-right.margin-top-20
+  button.btn.btn-primary type="submit"
+    - if provider.persisted?
+      | Update
+    - else
+      |Save
+  | &nbsp;
+  button.btn.btn-default type="reset" Reset

@@ -1,0 +1,5 @@
+---
+  ec2_security_group: "production-webservers"
+  ec2_instance_type: "t2.nano"
+  ec2_tag_type: "webserver"
+  ec2_count: 1

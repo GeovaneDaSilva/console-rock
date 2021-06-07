@@ -1,0 +1,45 @@
+div data-controller="api-test"
+  = bootstrap_form_tag url: hibp_auth_create_path, method: :post do |f|
+    - credential = account&.hibp_credential
+    - has_credential = account.hibp_credential?
+    p.hidden data-target="api-test.type"
+      | hibp
+    p
+      |
+        For <a href="#{I18n.t('helpdocs.hibp')}">configuration instructions</a>, see the #{I18n.t("application.name")} help docs.
+
+    .d-flex.flex-wrap
+      .w-50.pr-5
+        = f.text_field :hibp_api_key, label: "Enter your HIBP-api-key", autocorrect: "off", autocapitalize: "off", spellcheck: "false", data: { target: "api-test.accessToken" }, value: integrations_mask(credential&.hibp_api_key), readonly: has_credential
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+
+    p.padding-10 data-target="api-test.outputDisplay"
+
+    ul.nav.nav-tabs
+      - first = true
+      - account.self_and_all_descendant_customers.each do |customer|
+        li class="#{'active' if first}"
+          a href="#customer_#{customer.id}" data-toggle="tab" aria-expanded="true"
+            | #{customer.name}
+        - first = false
+
+    .tab-content.border.border-top-none.padding-15.margin-bottom-5
+      - first = true
+      - account.self_and_all_descendant_customers.each do |customer|
+        div.tab-pane id="customer_#{customer.id}" class="#{'active' if first}"
+          .row
+            .col-xs-12
+              .w-50.padding-10
+                = f.text_area "emails", id: "emails[#{customer.id}]", name: "emails[#{customer.id}]", class: "w-100", value: account.hibp_credential&.keys&.dig("emails", customer.id.to_s)&.join("\r\n"), placeholder: "One email per line"
+              .w-50.padding-10
+                = f.text_area :domains, id: "domains[#{customer.id}]", name: "domains[#{customer.id}]", class: "w-100", value: credential&.keys&.dig("domains", customer.id.to_s)&.join("\r\n"), placeholder: "One domain per line"
+        - first = false
+
+    .w-100.text-right.padding-10
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#"
+        | Credential Test
+      - if has_credential
+        = f.submit value: "Save", class: "btn btn-primary margin-right-10"
+        = link_to "Clear Existing Credential", hibp_auth_destroy_path(customer_id: account.id), class: "btn btn-primary", :method => :delete
+      - else
+        = f.submit value: "Authenticate", class: "btn btn-primary"

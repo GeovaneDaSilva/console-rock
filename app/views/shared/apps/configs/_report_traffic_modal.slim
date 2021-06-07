@@ -1,0 +1,15 @@
+- id = local_assigns[:id].nil? ? "report_traffic_modal" : local_assigns[:id]
+.modal.fade id="#{id}" tabindex="2" role="dialog" aria-hidden="true"
+  .modal-dialog.modal-lg
+    .modal-content
+      .modal-header
+        i.fa.fa-exclamation-circle
+        b
+        |  Report Traffic
+      .modal-body
+        | Are you sure you want to report traffic from the United States? Business based in the US will generate a very large amount of traffic by doing so, which may make it more difficult to find threats.
+      .modal-footer
+        button.btn.btn-default onclick="$(this).closest('.modal').modal('hide');return false;"
+          | Cancel
+        a.btn.btn-danger.btn-ok
+          | Proceed

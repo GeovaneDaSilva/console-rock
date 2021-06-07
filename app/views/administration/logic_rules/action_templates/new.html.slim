@@ -1,0 +1,17 @@
+- content_for(:page_header) do
+  = page_header("New Template", ["Administration", "Triage Rules", link_to("Action Templates", administration_logic_rules_action_templates_path), "New Template"])
+
+= bootstrap_form_for :logic_rules_action_template, url: administration_logic_rules_action_templates_path, method: :post do |f|
+  .row.app-index-wrapper
+    .col-xs-12.col-lg-10.col-lg-offset-1.app-card
+      .panel.panel-default
+        .panel-heading
+          strong Create a new template
+        .panel-body
+          .row.mb-0
+            .col-xs-12
+              = render partial: "administration/logic_rules/action_templates/form"
+        .panel-footer
+          .pull-left
+          .pull-right.text-right
+            = f.submit "Save", class: "btn btn-primary"

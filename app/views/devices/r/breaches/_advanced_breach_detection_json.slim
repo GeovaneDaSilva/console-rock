@@ -1,0 +1,34 @@
+h1.mb-5.mt-10
+  | Advanced Breach Detection
+- if details.ttp_condition.present?
+  .size-14.mb-5
+    strong TTP CONDITION:
+    |  #{details.ttp_condition}
+
+- if details.occurances_since_last_reported && details.last_reported_occurance_at
+  .size-14.mb-5
+    strong RECURRING DETECTION:
+    |  This detection has been repeated #{details.occurances_since_last_reported} #{"time".pluralize(details.occurances_since_last_reported)} since it was last reported on #{l details.last_reported_occurance_at, format: :digital}.
+
+- if details.process_tree?
+  = render partial: "devices/r/breaches/process_tree", locals: { process: details.process }
+
+- else
+  = render partial: "devices/r/breaches/process_json", locals: { process: details }
+
+  - if details.parent && details.parent.is_a?(::TestResults::ProcessJson)
+    .border-top
+      h2.mb-0.mt-20.noborder Parent Process Details
+      dl.dl-horizontal
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "PID", value: details.parent.pid }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "Process owner", value: details.parent.process&.owner }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "Command line", value: details.parent.command_line }
+        = render partial: "devices/r/breaches/dl_detail", locals: { key: "Process created", value: details.parent.process&.create_time }
+
+    h2.mb-0.mt-20.noborder Parent Process File Image Details
+    dl.dl-horizontal
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "File name", value: details.parent.file_name }
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "File path", value: details.parent.file_path }
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "MD5", value: details.parent.md5 }
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "SHA1", value: details.parent.sha1 }
+      = render partial: "devices/r/breaches/dl_detail", locals: { key: "SHA2", value: details.parent.sha2 }

@@ -1,0 +1,65 @@
+.row
+  .d-flex.flex-wrap
+    .w-50.col-xs-6
+      .panel.panel-default.h-100.nomargin
+        .panel-heading
+          strong Monitored List (#{@total_billed_users} Accounts)
+        .panel-body
+          = form_tag account_office365_user_path, method: :put, remote: true do
+            .pull-right
+              input.btn.btn-primary type="submit" name="remove" value="Stop Monitoring Selected" data={ confirm: "Are you sure?" }
+
+            table.fullwidth.table.m-0 data-controller="checkbox-selectable"
+              thead.bg-white
+                tr
+                  th.pl-0
+                    = check_box_tag "check_all", false, nil, checked: false, data: { action: "checkbox-selectable#toggleAll" }
+                    | &nbsp;
+                  th ID
+                  th Licenses
+              tbody
+                - if @billed_users.any?
+                  - @billed_users.each do |result|
+                    tr
+                      td.pl-0 = check_box_tag "users[]", result.id
+                      td = result.external_id
+                      td = result.details.dig("licenses").join(", ")
+                - else
+                  tr
+                    td.text-center colspan="5" No Users
+
+            - if @billed_users_pagination.pages > 1
+              .text-center
+                == pagy_bootstrap_nav @billed_users_pagination
+
+
+    .w-50.col-xs-6 data-controller="checkbox-selectable"
+      .panel.panel-default.h-100.nomargin
+        .panel-heading
+          strong Not Monitored List (#{@total_not_billed_users} Accounts)
+        .panel-body
+          = form_tag account_office365_user_path, method: :put, remote: true do
+            div.pull-right
+              input.btn.btn-primary type="submit" name="add" value="Monitor Selected" data={ confirm: "Are you sure?" }
+            table.fullwidth.table.m-0
+              thead.bg-white
+                tr
+                  th.pl-0
+                    = check_box_tag "check_all", false, nil, checked: false, data: { action: "checkbox-selectable#toggleAll" }
+                    | &nbsp;
+                  th ID
+                  th Licenses
+              tbody
+                - if @not_billed_users.any?
+                  - @not_billed_users.each do |result|
+                    tr
+                      td.pl-0 = check_box_tag "users[]", result.id
+                      td = result.external_id
+                      td = result.details.dig("licenses").join(", ")
+                - else
+                  tr
+                    td.text-center colspan="5" No Users
+
+            - if @not_billed_users_pagination.pages > 1
+              .text-center
+                == pagy_bootstrap_nav @not_billed_users_pagination

@@ -1,0 +1,46 @@
+- if psa_config.companies.blank? || params[:re_pull]
+  h3 Select what customer types you would like to import from PSA
+
+  = form_tag account_psa_config_path(current_account, psa_config), method: :put, remote: true do
+    table.table.fullwidth data-controller="checkbox-selectable"
+      thead.bg-transparent
+        tr
+          th.pl-0
+            = check_box_tag "check_all", false, nil, checked: false, data: { action: "checkbox-selectable#toggleAll" }
+            | &nbsp;
+          th Customer Types
+      tbody
+        - (psa_config.company_types || []).each do |(company_name, company_id)|
+          tr
+            td.pl-0
+              = check_box_tag "customer_types[]", company_id, nil, checked: false
+            td = company_name
+    label.checkbox
+      = check_box_tag :create_customers
+      i
+      | Create Customers
+
+    = submit_tag "Pull Companies", class: "btn btn-primary"
+-else
+  h3 Connect your #{I18n.t("application.name")} customers to your PSA accounts
+
+  - if is_advanced_psa_customer_mapping_enabled
+    = render('advanced_psa_mapper')
+
+  - else
+    = form_tag account_psa_customer_map_index_path(current_account), method: :post do
+      table.table.fullwidth data-controller="checkbox-selectable"
+        thead.bg-transparent
+          tr
+            th #{I18n.t("application.name")} Customer
+            th PSA Account
+        tbody
+          - psa_company_options_container = (psa_config&.companies || []).map { |(name, external_id, _types_array)| [name, external_id] }
+
+          - customers.each do |customer|
+            - customer_map_company_id = customer.psa_customer_map&.psa_company_id
+            tr
+              td = customer.name
+              td = select_tag "customer_types[#{customer.id}]", options_for_select(psa_company_options_container, customer_map_company_id), label: "PSA Company", include_blank: true
+      .pull-right
+        = submit_tag "Save Integration Settings", class: "btn btn-primary"

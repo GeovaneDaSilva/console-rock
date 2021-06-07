@@ -1,0 +1,73 @@
+@import "_vars/colors";
+#hunt {
+  #conditions {
+    padding-right: 0;
+  }
+
+  #results {
+    padding-left: 0;
+    border-left: 1px solid $borderColor;
+
+    .hunt-device-result {
+      .name { display: none; }
+    }
+
+    tr.hunt-device-result table tr {
+      td {
+        padding: 5px;
+      }
+    }
+  }
+
+  .conditional-option {
+    border-radius: 3px;
+    background: $background;
+    overflow-x: scroll;
+
+    .value { margin-left: 25px; }
+
+    .radio i { background: #fff; }
+  }
+}
+
+.hidden-text-input {
+  position: absolute;
+  left: -1000px;
+}
+
+#yara-gallery {
+  figure a { display: none; }
+
+  progress[value="100"] {
+    display: none;
+  }
+}
+
+.hunt-section  {
+  h5 {
+    border-top: 1px solid $borderColor;
+    margin: 0;
+    padding: 8px 15px;
+    background: #fbfbfb;
+    font-weight: 500;
+    cursor: pointer;
+  }
+
+  &:first-child {
+    h5 { border-top: none; }
+  }
+
+  > table {
+    border-top: 1px solid $borderColor;
+  }
+
+  &.open {
+    h5 {
+      .fa-caret-right {
+        transform: rotate(90deg);
+      }
+    }
+  }
+
+  .hostname { display: none; }
+}

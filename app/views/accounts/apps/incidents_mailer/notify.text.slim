@@ -1,0 +1,13 @@
+- self.message.from = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+- self.message.reply_to = [ENV.fetch(I18n.t("application.noreply_email"), 'no-reply')]
+
+= @incident.title
+= "\r\n"
+= "=" * @incident.title.length
+= "\r\n"
+= @incident.account.name
+= "\r\n"
+= @incident.description
+= "\r\n"
+= "\r\n"
+| View on Platform: #{account_apps_incident_url(@account, @incident, host: ENV.fetch(I18n.t('application.host'), "example.com")).remove(/:\d+/)}

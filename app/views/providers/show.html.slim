@@ -1,0 +1,67 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    = render partial: "actions", locals: { provider: @provider }
+  = page_header(@provider.name, provider_links(@provider, @provider.ancestors))
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        ul.nav.nav-tabs.pull-left
+          - if policy(@provider).edit?
+            li
+              a href="#details-and-settings" aria-expanded="true" data-toggle="tab"
+                - if policy(@provider).update_provider_settings?
+                  | Details and Settings
+                - else
+                  | Details
+
+          - if policy(@provider).can_modify_plan?
+            li
+              a href="#billing" aria-expanded="false" data-toggle="tab" Billing
+
+          - if policy(@provider).edit?
+            - if policy(@provider).can_customize_logo?
+              li.hidden-xs
+                a href="#branding" aria-expanded="false" data-toggle="tab" Branding
+
+            li.hidden-xs
+              a href="#permissions" aria-expanded="false" data-toggle="tab" Permissions
+            - unless I18n.locale == :barracudamsp
+              li
+                a href="#contact" aria-expanded="false" data-toggle="tab" Contact
+
+            - if policy(@provider).can_modify_threat_intel_feeds? && !@provider.billing_account.managed?
+              li
+                a href="#feed-integrations" aria-expanded="false" data-toggle="tab" Feed Integrations
+            li
+              a href="#notifications" aria-expanded="false" data-toggle="tab" Notifications
+            - if policy(@provider).can_generate_api_keys?
+              li
+                a href="#api" aria-expanded="false" data-toggle="tab" #{I18n.t("application.name")} API
+      .panel-body
+        .tab-content.transparent
+          - if policy(@provider).update_provider_settings?
+            #details-and-settings.tab-pane
+              = render partial: "providers/details_and_settings_form", locals: { provider: @provider }
+          - if policy(@provider).can_modify_plan?
+            #billing.tab-pane
+              = render partial: "accounts/billing_form", locals: { account: @provider, plans: @plans }
+          - if policy(@provider).edit?
+            - if policy(@provider).can_customize_logo?
+              #branding.tab-pane
+                = render partial: "providers/branding_form", locals: { provider: @provider }
+            #permissions.tab-pane
+              = render partial: "shared/account/permissions", locals: { account: @provider }
+            - unless I18n.locale == :barracudamsp
+              #contact.tab-pane
+                = render partial: "providers/contact_form", locals: { provider: @provider }
+            #feed-integrations.tab-pane
+              .clearfix
+                = bootstrap_form_for(@provider) do |f|
+                  = render partial: "shared/account/feed_integrations_form", locals: { f: f, account: @provider }
+            #notifications.tab-pane
+              = render partial: "shared/account/email_notification_form", locals: { account: @provider, subscription: @email_subscription }
+            - if policy(@provider).can_generate_api_keys?
+              #api.tab-pane
+                = render partial: "shared/account/api_keys", locals: { account: @provider, api_key: @api_key }

@@ -1,0 +1,5 @@
+docker: docker-compose up
+webpack-dev-server: webpack-dev-server
+worker: wait-for-services && bundle exec sidekiq -C config/sidekiq.yml -t 1
+web: wait-for-services && bundle exec puma -p 3001 -q true
+ngrok: ngrok start dwconsole wsdwconsole

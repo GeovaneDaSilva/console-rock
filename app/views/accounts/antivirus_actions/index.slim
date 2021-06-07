@@ -1,0 +1,74 @@
+- if @app_results.size.positive?
+  .row
+    = bootstrap_form_tag url: account_antivirus_actions_path(current_account), method: :post do |f|
+      .col-xs-12
+        .panel.panel-default
+          .panel-heading.no-height.border-bottom-0
+            strong Antivirus Actions
+          .panel-body.nopadding
+            table.table.fullwidth id="tbl_app_results"
+              thead.bg-transparent
+                tr
+                  th colspan=2
+                    = check_box_tag "select_all", "yes", true, checked: true, data: { controller: "select-all", action: "select-all#toggle", "select-all-parent": "#tbl_app_results input[type='checkbox']", "select-all-checked": true }
+                    /a.btn.btn-link data-controller="select-all" data-action="select-all#toggle" data-select-all-parent="#tbl_app_results input[type='checkbox']" data-select-all-checked="true" Select All
+                  th Detected
+                  th Device
+                  th Threat
+                  th Description
+                  th Status
+                  th Analyst Verdict
+                  th
+              tbody
+                - @app_results.each do |app_result|
+                  tr
+                    td = check_box_tag "app_results[]", app_result.id, checked: true
+                    td
+                      - if app_result.malicious?
+                        span.text-danger title="Malicious"
+                          i.fa.fa-exclamation-triangle
+                      - if app_result.suspicious?
+                        span.text-warning title="Suspicious"
+                          i.fa.fa-exclamation-triangle
+                      - if app_result.informational?
+                        span.text-informational title="Informational"
+                          i.fa.fa-exclamation-triangle
+                    td = l app_result.detection_date, format: :digital
+                    td = app_result.details&.agentcomputername
+                    td = app_result.details&.threatname
+                    td = app_result.details&.description
+                    td = app_result.details&.mitigationstatus
+                    td = app_result.details&.analystverdict
+                    td.text-right
+                      a data-toggle="modal" data-target="#app-result-#{app_result.id}-action" Actions
+
+            - if @pagination.pages > 1
+              .text-center
+                == pagy_bootstrap_nav @pagination
+
+            .pull-right.text-right.padding-10
+              a class="btn btn-primary" data-toggle="modal" data-target="#app-result-group-action"
+                ' Action
+
+      .container
+        .modal.fade id="app-result-group-action" role="dialog"
+          .modal-dialog
+            .modal-content
+              .modal-header
+                button class="close" data-dismiss="modal" aria-label="Close"
+                h4.modal-title
+                  ' Results Actions
+              .modal-body
+                - if @av_vendor.present?
+                  = f.hidden_field :av_vendor, value: @av_vendor
+                  = render partial: "accounts/antivirus_actions/#{@av_vendor}_actions", locals: { f:f, app_result: nil }
+
+              .modal-footer
+                = f.submit "Save", class: "btn btn-primary"
+
+  = render partial: "accounts/antivirus_actions/modals"
+
+- else
+  .padding-6.margin-top-20.border-top.text-center
+    i.fa.fa-exclamation-triangle.text-warning
+    |  No app results selected

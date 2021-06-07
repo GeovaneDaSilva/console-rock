@@ -1,0 +1,46 @@
+doctype html
+html
+  head
+    title = @title || "#{I18n.t('application.name', default: 'SOC')} Report"
+
+    link rel="apple-touch-icon-precomposed" sizes="57x57" href="/apple-touch-icon-57x57.png"
+    link rel="apple-touch-icon-precomposed" sizes="114x114" href="/apple-touch-icon-114x114.png"
+    link rel="apple-touch-icon-precomposed" sizes="72x72" href="/apple-touch-icon-72x72.png"
+    link rel="apple-touch-icon-precomposed" sizes="144x144" href="/apple-touch-icon-144x144.png"
+    link rel="apple-touch-icon-precomposed" sizes="60x60" href="/apple-touch-icon-60x60.png"
+    link rel="apple-touch-icon-precomposed" sizes="120x120" href="/apple-touch-icon-120x120.png"
+    link rel="apple-touch-icon-precomposed" sizes="76x76" href="/apple-touch-icon-76x76.png"
+    link rel="apple-touch-icon-precomposed" sizes="152x152" href="/apple-touch-icon-152x152.png"
+    meta name="application-name" content="&nbsp;"
+    meta name="msapplication-TileColor" content="#FFFFFF"
+    meta name="msapplication-TileImage" content="/mstile-144x144.png"
+    meta name="msapplication-square70x70logo" content="/mstile-70x70.png"
+    meta name="msapplication-square150x150logo" content="/mstile-150x150.png"
+    meta name="msapplication-wide310x150logo" content="/mstile-310x150.png"
+    meta name="msapplication-square310x310logo" content="/mstile-310x310.png"
+    meta name="description" content=""
+    meta name="viewport" content="width=device-width, maximum-scale=1, initial-scale=1, user-scalable=0"
+
+    meta name="breezy-pdf-timer" content="2500"
+    = stylesheet_link_tag    "https://fonts.googleapis.com/css?family=Open+Sans:300,400%7CRaleway:300,400,500,600,700%7CLato:300,400,400italic,600,700"
+    = stylesheet_link_tag    "reports", media: "all"
+    = stylesheet_link_tag    "https://stackpath.bootstrapcdn.com/font-awesome/4.7.0/css/font-awesome.min.css", media: "all"
+
+    = javascript_include_tag "reports", "data-turbolinks-track": "reload"
+    = javascript_pack_tag "reports"
+    = favicon_link_tag I18n.t("application.favicon")
+    = csrf_meta_tags
+
+  body
+    #wrapper
+      = yield
+
+
+    = yield :modals
+
+    - if rendered_for_pdf?
+        javascript:
+            var els = document.querySelectorAll('.breezy-pdf-remove')
+            for (var i = els.length - 1; i >= 0; i--) {
+                els[i].remove()
+            }

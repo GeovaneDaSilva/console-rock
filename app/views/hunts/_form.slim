@@ -1,0 +1,40 @@
+meta name="presignUrl" content=uploads_account_uploads_path(current_account)
+= f.text_field :name
+= f.collection_select :group_id, groups, :id, :name
+hr
+
+div data-controller="hunt-builder"
+  - parameterized_test_types = hunt.test_types.inject({}) do |h, (k, v)|
+    - if available_test_types.include?(v)
+      - h[k] = v.parameterize
+    - h
+  - existing_tests = hunt.revision_tests(nil, false)
+
+  - available_test_types.each do |test_type|
+    div id=(test_type.parameterize) data-target="hunt-builder.test"
+      = f.fields_for :tests, existing_tests.select { |test| test.type == test_type } do |ht_f|
+        = render partial: "hunts/tests/#{ht_f.object.class.name.demodulize.underscore}_form", locals: { f: ht_f, hunt: hunt }
+
+    = f.fields_for :tests, test_type.constantize.new.tap(&:build_conditions) do |ht_f|
+      - content_for :templates do
+        script type="text/x-template" id="#{test_type.parameterize}-template"
+          = render partial: "hunts/tests/#{ht_f.object.class.name.demodulize.underscore}_form", locals: { f: ht_f, hunt: hunt }
+
+  .margin-top-10
+    .form-group
+      label.control-label for="add_test" Add a Test
+      = select_tag "add_test", options_for_select(parameterized_test_types.sort_by { |k| k }), class: "form-control", data: { target: "hunt-builder.testType"}
+    .text-right
+      a.add-test data-action='hunt-builder#addTest' Add
+
+hr
+= f.select :matching, options_for_select(Hunt.matchings.collect { |k, _| [k.humanize, k]}, f.object.matching)
+- %w[malicious suspicious informational].each do |indicator_type|
+  div
+    = f.radio_button :indicator, indicator_type, label: indicator_type.humanize
+br
+- if current_user.omnipotent?
+  = f.switch :continuous, label_name: "Run continuously", label_class: "switch-success"
+
+div
+  = f.submit "Save", class: "btn btn-primary pull-right"

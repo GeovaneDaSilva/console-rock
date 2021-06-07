@@ -1,0 +1,9 @@
+var tab = document.getElementById('filename-hunt-tab');
+
+<%- if @on_demand_filename.valid? && @hunt.persisted? %>
+  // Visit hunt
+  Turbolinks.visit('<%= hunt_path(@hunt) %>')
+<%- else %>
+  // Replace form with one that has errors
+  tab.innerHTML = '<%= j render partial: "accounts/hunts/filename", locals: { on_demand_filename: @on_demand_filename } %>'
+<%- end %>

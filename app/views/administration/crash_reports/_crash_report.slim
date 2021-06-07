@@ -1,0 +1,12 @@
+tr
+  td.truncate = l crash_report.created_at.in_time_zone(current_user.timezone), format: :full
+  td.truncate title=crash_report.device.hostname = crash_report.device.id
+  td.truncate title=crash_report.device.customer.name = crash_report.device.customer.name
+  td.truncate title=crash_report.upload.filename = crash_report.upload.filename
+  td.truncate = crash_report.upload.size.to_s(:human_size)
+  td.text-right
+    = link_to administration_crash_report_path(crash_report), method: :delete, data: { confirm:  "Are You Sure?" }, class: "text-danger" do
+      i.fa.fa-trash
+      |  Destroy
+    '  |
+    = link_to "Download", crash_report.upload.url

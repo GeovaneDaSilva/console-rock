@@ -1,0 +1,300 @@
+.row
+  .col-xs-12.col-md-8.col-md-offset-2
+    .panel.panel-default
+      .panel-heading
+        ul.nav.nav-tabs.pull-left
+          li.active
+            a href="#cli-install" data-toggle="tab" aria-expanded="true" CLI
+          li
+            a href="#powershell-install" data-toggle="tab" aria-expanded="false" PowerShell
+          li
+            a href="#kaseya-install" data-toggle="tab" aria-expanded="false" Kaseya
+          li
+            a href="#barracuda-install" data-toggle="tab" aria-expanded="false" Barracuda
+          li
+            a href="#syncro-install" data-toggle="tab" aria-expanded="false" Syncro
+          li
+            a href="#datto-install" data-toggle="tab" aria-expanded="false" Datto
+          li
+            a href="#solarwinds-install" data-toggle="tab" aria-expanded="false" SolarWinds RMM
+          li
+            a href="#ninja-install" data-toggle="tab" aria-expanded="false" Ninja RMM
+          li
+            a href="#labtech-install" data-toggle="tab" aria-expanded="false" ConnectWise Automate (LabTech)
+
+      .panel-body data-controller="clipboard"
+        .tab-content.transparent
+          #cli-install.tab-pane.active
+            .row
+              .col-xs-12
+                h4.nomargin Agent CLI install
+                p.margin-bottom-5 Install the Agent via a single CLI command which can be run manually or with an RMM tool.
+
+            .row
+              .col-xs-12
+                .form-group.margin-top-14
+                  label CLI Command
+                  .input-group
+                    span.input-group-addon
+                      i.fa.fa-key
+                    input.form-control id="cli-install-script" type="text" readonly=true value=%{powershell "(New-Object Net.WebClient).DownloadFile('#{@agent_url}',\\"$env:temp/#{I18n.t('agent.installer_name')}\\");"%TEMP%\\#{I18n.t('agent.installer_name')} /S /license_key #{account.license_key} /url #{request.host}"}
+                    span.input-group-btn
+                      button.btn.btn-default data-action="click->clipboard#copy" data-value="cli-install-script"
+                        i.fa.fa-clipboard
+                        | Select & Copy
+
+          #powershell-install.tab-pane
+            .row
+              .col-xs-12
+                h4.nomargin Powershell
+
+              .col-xs-12
+                .col-xs-6.nopadding
+                  p.margin-bottom-5
+                   ' Download and execute the PowerShell Script or copy/paste into your UI
+
+              .col-xs-12.col-sm-4
+                .margin-top-20.pt-5
+                  = link_to customer_agent_path(account, "powershell", format: :ps1), target: "_blank", class: "btn btn-primary" do
+                    i.fa.fa-download
+                    |  Download
+
+              .col-xs-12.col-sm-8
+                .margin-top-20.pt-5
+                  .form-group
+                    .input-group
+                      span.input-group-addon
+                        i.fa.fa-key
+                      textarea.onboarding id="powershell" readonly=true
+                        = render partial: "customers/agents/powershell.ps1", locals: { customer: account }
+                      button.btn.btn-default#copy-console data-action="click->clipboard#copy" data-value="powershell"
+                        i.fa.fa-clipboard
+                        | Select & Copy
+
+          #kaseya-install.tab-pane
+            .row
+              .col-xs-12
+                h4.nomargin Kaseya
+
+              .col-xs-12
+                .col-xs-6.nopadding
+                  p.margin-bottom-5
+                   ' Install the Agent via Kaseya.
+                   = link_to "Learn more.", I18n.t('helpdocs.kaseya_rmm'), target: "_blank"
+
+              .col-xs-12.col-sm-4
+                .margin-top-20.pt-5
+                  = link_to customer_agent_path(account, "kaseya", format: :xml), target: "_blank", class: "btn btn-primary" do
+                    i.fa.fa-download
+                    |  Download
+
+              .col-xs-12.col-sm-8
+                .margin-top-20.pt-5
+                  .form-group
+                    .input-group
+                      span.input-group-addon
+                        i.fa.fa-key
+                      textarea.onboarding id="kaseya" readonly=true
+                        = render partial: "customers/agents/kaseya.xml", locals: { customer: account }
+                      button.btn.btn-default#copy-console data-action="click->clipboard#copy" data-value="kaseya"
+                        i.fa.fa-clipboard
+                        | Select & Copy
+
+          #barracuda-install.tab-pane
+            .row
+              .col-xs-12.col-md-6
+                h4.nomargin Barracuda
+
+                ' Install the Agent via Barracuda Managed Workplace.
+                = link_to " Learn more.", I18n.t('helpdocs.barracuda_rmm'), target: "_blank"
+
+                .margin-top-20.pt-5
+                  = link_to customer_agent_path(account, "barracuda", format: :mws), target: "_blank", class: "btn btn-primary" do
+                    i.fa.fa-download
+                    |  Download
+
+              .col-xs-12.col-md-6
+                .form-group
+                  .input-group.w-100
+                    textarea.onboarding id="barracuda" readonly=true
+                      = render partial: "customers/agents/powershell.ps1", locals: { customer: account }
+                    button.btn.btn-default#copy-console data-action="click->clipboard#copy" data-value="barracuda"
+                      i.fa.fa-clipboard
+                      | Select & Copy
+
+
+          #syncro-install.tab-pane
+            .row
+              .col-xs-12
+                h4.nomargin Syncro
+
+              .col-xs-12
+                .col-xs-6.nopadding
+                  p.margin-bottom-5
+                   ' Install the Agent via Syncro.
+                   = link_to "Learn more.", I18n.t('helpdocs.syncro_rmm'), target: "_blank"
+
+
+              .col-xs-12.col-sm-4
+                .margin-top-20.pt-5
+                  = link_to customer_agent_path(account, "powershell", format: :ps1), target: "_blank", class: "btn btn-primary" do
+                    i.fa.fa-download
+                    |  Download
+
+              .col-xs-12.col-sm-8
+                .margin-top-20.pt-5
+                  .form-group
+                    .input-group
+                      span.input-group-addon
+                        i.fa.fa-key
+                      textarea.onboarding id="syncro" readonly=true
+                        =render partial: "customers/agents/powershell.ps1", locals: { customer: account }
+                      button.btn.btn-default#copy-console data-action="click->clipboard#copy" data-value="syncro"
+                        i.fa.fa-clipboard
+                        | Select & Copy
+
+
+          #datto-install.tab-pane
+            .row
+              .col-xs-12
+                h4.nomargin Datto
+
+              .col-xs-12
+                .col-xs-6.nopadding
+                  p.margin-bottom-5
+                   ' Install the Agent via Datto.
+                   = link_to "Learn more.", I18n.t('helpdocs.datto_rmm'), target: "_blank"
+
+
+              .col-xs-12.col-sm-4
+                .margin-top-20.pt-5
+                  = link_to customer_agent_path(account, "powershell", format: :ps1), target: "_blank", class: "btn btn-primary" do
+                    i.fa.fa-download
+                    |  Download
+
+              .col-xs-12.col-sm-8
+                .margin-top-20.pt-5
+                  .form-group
+                    .input-group
+                      span.input-group-addon
+                        i.fa.fa-key
+                      textarea.onboarding id="datto" readonly=true
+                        = render partial: "customers/agents/powershell.ps1", locals: { customer: account }
+                      button.btn.btn-default#copy-console data-action="click->clipboard#copy" data-value="datto"
+                        i.fa.fa-clipboard
+                        | Select & Copy
+
+
+          #solarwinds-install.tab-pane
+            .row
+              .col-xs-12
+                h4.nomargin SolarWinds RMM
+
+              .col-xs-12
+                .col-xs-6.nopadding
+                  p.margin-bottom-5
+                   ' Install the Agent via SolarWinds RMM.
+                   = link_to "Learn more.", I18n.t('helpdocs.solarwinds_rmm'), target: "_blank"
+
+
+              .col-xs-12.col-sm-4
+                .margin-top-20.pt-5
+                  = link_to customer_agent_path(account, "powershell", format: :ps1), target: "_blank", class: "btn btn-primary" do
+                    i.fa.fa-download
+                    |  Download
+
+              .col-xs-12.col-sm-8
+                .margin-top-20.pt-5
+                  .form-group
+                    .input-group
+                      span.input-group-addon
+                        i.fa.fa-key
+                      textarea.onboarding id="solarwinds" readonly=true
+                        = render partial: "customers/agents/powershell.ps1", locals: { customer: account }
+                      button.btn.btn-default#copy-console data-action="click->clipboard#copy" data-value="solarwinds"
+                        i.fa.fa-clipboard
+                        | Select & Copy
+
+
+          #ninja-install.tab-pane
+            .row
+              .col-xs-12
+                h4.nomargin Ninja RMM
+
+              .col-xs-12
+                .col-xs-6.nopadding
+                  p.margin-bottom-5
+                   ' Install the Agent via NinjaRMM.
+                   = link_to "Learn more.", I18n.t('helpdocs.ninja_rmm'), target: "_blank"
+
+
+              .col-xs-12.col-sm-4
+                .margin-top-20.pt-5
+                  = link_to customer_agent_path(account, "powershell", format: :ps1), target: "_blank", class: "btn btn-primary" do
+                    i.fa.fa-download
+                    |  Download
+
+              .col-xs-12.col-sm-8
+                .margin-top-20.pt-5
+                  .form-group
+                    .input-group
+                      span.input-group-addon
+                        i.fa.fa-key
+                      textarea.onboarding id="ninja" readonly=true
+                        = render partial: "customers/agents/powershell.ps1", locals: { customer: account }
+                      button.btn.btn-default#copy-console data-action="click->clipboard#copy" data-value="ninja"
+                        i.fa.fa-clipboard
+                        | Select & Copy
+
+
+          #labtech-install.tab-pane
+            .row
+              .col-xs-12
+                h4.nomargin ConnectWise Automate (LabTech)
+
+              .col-xs-12
+                .col-xs-6.nopadding
+                  p.margin-bottom-5
+                   ' Install the Agent via ConnectWise Automate (LabTech).
+                   = link_to "Learn more.", I18n.t('helpdocs.labtech_rmm'), target: "_blank"
+
+
+              .col-xs-12.col-sm-4
+                .margin-top-20.pt-5
+                  = link_to customer_agent_path(account, "labtech", format: :xml), target: "_blank", class: "btn btn-primary" do
+                    i.fa.fa-download
+                    |  Download
+
+              .col-xs-12.col-sm-8
+                / Copy/paste not supported
+        .row
+          .col-xs-12.text-center
+            p
+              = inline_loader
+              |  Waiting for Agent Deployment
+
+        .row
+          .col-xs-12.text-center
+              = button_to "Skip", onboarding_skip_path, method: :post, class: "btn btn-link"
+
+- unless current_user.accepted_tos_at.blank?
+  javascript:
+    function checkForNextStep() {
+      var reload = false
+
+      Rails.ajax({
+        url: window.location.href,
+        type: 'get',
+        accept: 'application/javascript',
+        success: function(data, status, xhr) {
+          var redirectTo = xhr.getResponseHeader('x-redirect-location');
+          if (redirectTo !== null) {
+            window.location = redirectTo;
+          } else {
+            setTimeout(checkForNextStep, 5000);
+          }
+        }
+      })
+    }
+
+    setTimeout(checkForNextStep, 5000);

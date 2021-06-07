@@ -1,0 +1,47 @@
+.row
+  .col-xs-12
+    h3.nomargin #{app_counter_caches.sum(:count).to_s(:delimited)} Results
+    p.nomargin Due to the high volume of results, it is not possible to review the results for this app at this scope.
+
+    - if account.customer? && app.is_a?(Apps::DeviceApp)
+      p Review this app at the device level.
+
+      - device_app_counter_caches = account.all_descendant_app_counter_caches.where(app: app).with_detections.order(count: :desc).includes(:device)
+      - @device_app_counter_caches_pagination, @device_app_counter_caches = pagy device_app_counter_caches, param_name: :device_page
+
+      table.table.fullwidth
+        thead.bg-transparent
+          tr
+            th Device
+            th Detected
+            th.pr-0
+        tbody
+          - @device_app_counter_caches.each do |device_app_counter_cache|
+            tr
+              td = device_app_counter_cache.device.hostname
+              td = device_app_counter_cache.count.to_s(:delimited)
+              td.text-right = link_to "Review", device_triage_path(device_app_counter_cache.device, query_params), target: "_blank", target: "_blank", title: "Triage this App for #{device_app_counter_cache.device.hostname}"
+
+      - if @device_app_counter_caches_pagination.pages > 1
+        .text-center
+          == pagy_bootstrap_nav @device_app_counter_caches_pagination
+
+    - else
+      p Review this app at the Customer level.
+
+      - customer_app_counter_caches = account.all_descendant_app_counter_caches.joins(:account).where(app: app).with_detections.where(accounts: { type: "Customer" }).sumed_by_path
+
+      table.table.fullwidth
+        thead.bg-transparent
+          tr
+            th Customer
+            th Detected
+            th.pr-0
+        tbody
+          - customers = Customer.where(path: customer_app_counter_caches.keys)
+          - customer_app_counter_caches.each do |customer_app_counter_cache|
+            - customer = customers.find { |c| c.path == customer_app_counter_cache.first}
+            tr
+              td = customer.name
+              td = customer_app_counter_cache.last.to_s(:delimited)
+              td.text-right = link_to "Review", account_triage_path(customer, query_params.merge(switch_account_id: customer.id)), target: "_blank", title: "Triage this App for #{customer.name}"

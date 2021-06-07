@@ -1,0 +1,40 @@
+- content_for(:page_header) do
+  = page_header("Add your payment method", [link_to(account.name, account_path(account)), "Credit card"])
+
+javascript:
+  window.braintreeToken = '#{Braintree::ClientToken.generate}'
+.row
+  .col-lg-4.col-md-6
+    .panel.panel-default
+      .panel-heading
+        span.title.elipsis
+          strong Add your payment method
+      .panel-body
+        = form_tag account_credit_cards_path(account), id: "credit-card-form" do
+          = hidden_field_tag :credit_card_nonce, value: "invalid-token"
+
+          .row
+            .col-sm-12
+              label.hosted-fields--label for="card-number" Card Number
+              div#card-number.hosted-field
+
+            .col-sm-6
+              label.hosted-fields--label for="expiration-date" Expiration Date
+              div#expiration-date.hosted-field
+
+            .col-sm-6
+              label.hosted-fields--label for="cvv" CVV
+              div#cvv.hosted-field
+
+            .col-sm-12
+              label.hosted-fields--label for="postal-code" Postal Code
+              div#postal-code.hosted-field
+
+          div.pull-right
+            - if account.card_payment_method_token.present?
+              = link_to "nevermind", account_path(account)
+              | &nbsp;
+            input#add-payment-method.btn.btn-primary type="submit" value="+ Add Card" disabled="true"
+
+= javascript_include_tag "https://js.braintreegateway.com/web/3.6.3/js/client.min.js"
+= javascript_include_tag "https://js.braintreegateway.com/web/3.6.3/js/hosted-fields.min.js"

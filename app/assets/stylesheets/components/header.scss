@@ -1,0 +1,16 @@
+#header {
+  .provider-logo {
+    margin: 7px;
+  }
+}
+
+#current_provider_nav {
+  a.dropdown-toggle {
+    display: table-cell;
+    vertical-align: middle;
+
+    .account-name {
+      padding-left: 15px;
+    }
+  }
+}

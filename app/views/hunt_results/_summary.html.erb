@@ -1,0 +1,15 @@
+<p>
+  <%= hunt_result.hunt.name %>
+</p>
+<p>
+  Customer: <%= hunt_result.device.customer.name %> Device: <%=hunt_result.device.hostname %>
+</p>
+<p>
+  On <%= l hunt_result.created_at.in_time_zone(hunt_result.device.timezone), format: :full %> this hunt detected an incident that indicates <%= hunt_result.hunt.indicator %> activity.
+</p>
+
+<p style="margin:35px 0px 15px;">
+  <%= link_to device_r_hunt_url(hunt_result.device, hunt_result, host: ENV.fetch("HOST", "example.com")) do %>
+    <img src="<%= asset_url "notification_mailer/button_view-details.gif" %>" border="0" />
+  <% end %>
+</p>

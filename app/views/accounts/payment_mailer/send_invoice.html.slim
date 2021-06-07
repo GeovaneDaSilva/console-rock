@@ -1,0 +1,39 @@
+- self.message.from = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+- self.message.reply_to = [ENV.fetch(I18n.t("application.noreply_email"), 'no-reply')]
+
+p This is your invoice for RocketCyber services.  Please submit payment through the agreed system.
+
+p
+  h4.underline
+    strong Summary
+  table
+    tr
+      - if @charge.plan.price_per_frequency.positive?
+        td #{@charge.plan.name} Base Cost
+        td.text-right = humanized_money_with_symbol(Money.new(@charge.line_items.plan_base.sum(:amount_cents), "USD"))
+    tr
+      td #{@charge.line_items.plan_base_device.size.to_s(:delimited)} devices @ #{humanized_money_with_symbol(@charge.plan.price_per_device_overage, no_cents_if_whole: true)} each
+      td.text-right = humanized_money_with_symbol(Money.new(@charge.line_items.plan_base_device.sum(:amount_cents), "USD"))
+    - if @charge.line_items.additional_app_device.any?
+      tr
+        td Additional Apps:
+        td.text-right = humanized_money_with_symbol(Money.new(@charge.line_items.additional_app_device.sum(:amount_cents), "USD"))
+    - if @charge.line_items.office_365_mailbox.any?
+      tr
+        td Office365 Mailboxes:
+        td.text-right = humanized_money_with_symbol(Money.new(@charge.line_items.office_365_mailbox.sum(:amount_cents), "USD"))
+
+    - if @charge.line_items.firewall.any?
+      tr
+        td Firewalls:
+        td.text-right = humanized_money_with_symbol(Money.new(@charge.line_items.firewall.sum(:amount_cents), "USD"))
+
+    tr
+      td.text-right Total:
+      td.text-right = humanized_money_with_symbol(@charge.amount)
+    tr
+      td colspan="2"
+        | Payment Method: #{@charge.card_type} #{@charge.card_masked_number}
+
+p
+  | Have a question or need help? Reply to this email.

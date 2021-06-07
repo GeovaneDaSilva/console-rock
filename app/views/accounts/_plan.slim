@@ -1,0 +1,13 @@
+.col-xs-12.col-md-4
+  .text-center.plan-card
+    = render partial: "shared/plan_description", locals: { plan: plan }
+    - if plan != account.plan
+      = form_tag account_plans_path(account), class: "margin-bottom-0" do
+        = hidden_field_tag :plan_id, plan.id
+
+        - if subscribed
+          = submit_tag "Switch", class: "btn btn-rc-green"
+        - else
+          = submit_tag "Subscribe", class: "btn btn-rc-green"
+    - else
+      button.btn.btn-rc-green disabled=true Subscribed

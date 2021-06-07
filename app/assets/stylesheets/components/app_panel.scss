@@ -1,0 +1,132 @@
+@import "_vars/colors";
+$icon-wrapper-size: 130px;
+
+.disabled-visible {
+  display: none;
+}
+
+.disabled {
+  .disabled-hidden { display: none; }
+  .disabled-visible { display: block; }
+
+  .icon-wrapper { background: #a8b0b2; }
+}
+
+.app-panel-wrapper {
+  display: flex;
+  flex-wrap: wrap;
+
+  .app-panel {
+    flex-grow: 1;
+    width: 380px;
+    display: flex;
+    margin: 0 15px;
+    h4 {
+      font-weight: bold;
+    }
+
+    .discreet-app {
+      h4::after {
+        content: "⚠️ Private";
+        background: $errorRed;
+        color: #fff;
+        border-radius: 1rem;
+        padding: 0 10px;
+        float: right;
+        display: block;
+      }
+    }
+
+    .panel-heading {
+      background: #f1f1f3;
+      border: none;
+      height: auto !important;
+      h4 {
+        color: #707679;
+        font-size: 15px;
+      }
+    }
+    .panel-body {
+      padding-bottom: 40px;
+    }
+    .app-indicator {
+      flex: 1;
+      margin-right: 20px;
+      align-items: center;
+      .icon-wrapper {
+        min-width: $icon-wrapper-size;
+        width: $icon-wrapper-size;
+        height: $icon-wrapper-size;
+        border-radius: 50%;
+        display: flex;
+        justify-content: center;
+        align-items: center;
+        margin: 0 30px 20px 0;
+        &.detections {
+          background: linear-gradient(135deg, #d12448 25%,#ffdd00 100%);
+        }
+        &.no-detections {
+          background: linear-gradient(135deg, #b1d135 25%,#5ba346 100%);
+        }
+        .app-icon {
+          svg {
+            width: 104%;
+            height: 104%;
+            display: block;
+            margin: -2% auto 0 -2%;
+            * {
+              fill: white;
+            }
+          }
+        }
+      }
+    }
+
+    hr {
+      border-top: 2px solid #ccc;
+    }
+
+    .detection-details {
+      flex: 2;
+      h3 {
+        color: inherit !important;
+        font-weight: inherit !important;
+        margin: 0;
+        font-size: 21px;
+      }
+    }
+
+    .detection-count {
+      font-size: 48px;
+      font-weight: 400;
+      color: black;
+    }
+
+    .devices {
+      min-width: $icon-wrapper-size;
+      margin-right: 20px;
+    }
+
+    .report-link, .enable-link {
+      font-size: 1.2em;
+      font-weight: bold;
+      padding: 10px 15px;
+      text-align: center;
+    }
+
+    .report-link {
+      border: 2px solid #8bc53f;
+      color: black;
+      flex-grow: 1;
+    }
+
+    .report-link + .report-link {
+      margin-left: 5px;
+    }
+
+    .enable-link {
+      background: #8bc53f;
+      color: white;
+    }
+  }
+}

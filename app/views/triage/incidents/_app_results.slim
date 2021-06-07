@@ -1,0 +1,8 @@
+.col-xs-12
+  = render partial: "triage/incidents/app_result/#{app.report_template}", locals: { app_results: targeted_app_results }
+
+- if targeted_app_results.total_pages > 1
+  .col-xs-12.text-center
+    | + #{(targeted_app_results.total_count - targeted_app_results.limit_value).to_s(:delimited)} additional results
+
+= render partial: "triages/modals", locals: { similar_detections: targeted_app_results }

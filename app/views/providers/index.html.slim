@@ -1,0 +1,6 @@
+- content_for(:page_header) do
+  = page_header("My Providers", ["All Providers"])
+
+.providers
+  - cache ["v3", "providers-all", @providers, current_role] do
+    = render partial: "provider", collection: @providers

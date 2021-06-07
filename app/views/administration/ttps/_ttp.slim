@@ -1,0 +1,5 @@
+tr
+  td = ttp.id
+  td.truncate title=(ttp.tactic) = truncate ttp.technique, length: 70
+  td.text-right
+    = link_to "Details", administration_ttp_path(ttp)

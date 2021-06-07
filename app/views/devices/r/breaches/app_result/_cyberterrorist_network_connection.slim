@@ -1,0 +1,38 @@
+tr id="app-result-#{app_result.id}"
+  td.text-center
+    - if app_result.malicious?
+      span.text-danger title="Malicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.suspicious?
+      span.text-warning title="Suspicious"
+        i.fa.fa-exclamation-triangle
+    - if app_result.informational?
+      span.text-informational title="Informational"
+        i.fa.fa-exclamation-triangle
+
+  td = l app_result.detection_date, format: :digital
+  td.breezy-pdf-remove = app_result.details.local_address || " - "
+  td.breezy-pdf-remove = app_result.details.local_port || " - "
+  td
+    span data-controller="external-intel" data-external-intel-type="ip" data-external-intel-value=app_result.details.remote_address = app_result.details.remote_address || " - "
+  td = app_result.details.remote_port || " - "
+  td = app_result.details.direction || " - "
+  td.text-center.breezy-pdf-remove title=(app_result.details.reputation.to_h.fetch("threats_found", "Unknown Reputation"))
+    - detections = app_result.details.detection_count.to_i
+    - 8.times do |i|
+      span.stoplight class=("malicious" if i <= (detections - 1))
+      | &nbsp;
+  td
+    - if app_result.details.country
+      = image_tag "flags/#{app_result.details.country.downcase}.png", title: COUNTRIES[app_result.details.country].dig("full_name")
+    - else
+      '  -
+  td.text-center.breezy-pdf-remove
+    = link_to "Details", "#app-result-#{app_result.id}-detail", class: "", data: { toggler: "hidden", turbolinks: false }
+    - if policy(device).destroy?
+      = link_to device_app_result_path(device, app, app_result), class: "pl-5", method: :delete, remote: true, data: { confirm: "Are you sure?" } do
+        i.fa.fa-trash.text-danger
+tr.app-result-detail.breezy-pdf-remove hidden=!rendered_for_pdf? id="app-result-#{app_result.id}-detail"
+  td colspan="8"
+    - cache ["v1/devices/r/breach/detail", app_result, current_user&.timezone] do
+      = render partial: "details", locals: { details: app_result.details }

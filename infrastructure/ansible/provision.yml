@@ -1,0 +1,9 @@
+---
+  - hosts: localhost
+    connection: local
+    gather_facts: false
+    user: root
+    roles:
+      - { role: provision-ec2, type: "webserver", env: env }
+      - { role: provision-ec2, type: "webworker", env: env }
+      - { role: provision-ec2, type: "utility", env: env }

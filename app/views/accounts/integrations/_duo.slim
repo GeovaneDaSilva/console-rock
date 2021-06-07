@@ -1,0 +1,31 @@
+div data-controller="api-test"
+  = bootstrap_form_tag url: duo_auth_create_path, method: :post do |f|
+    - credential = account&.duo_credential
+    - has_credential = account.duo_credential?
+    p.hidden data-target="api-test.type"
+      | duo
+
+    p
+      |
+        For <a href="#{I18n.t('helpdocs.cisco_duo')}">configuration instructions</a>, see the #{I18n.t("application.name")} help docs.
+
+    .d-flex.flex-wrap
+      .w-100.pr-5
+        = f.text_field :duo_host, label: "Host", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100", data: { target: "api-test.tenantId" }, value: credential&.duo_host, readonly: has_credential
+      .w-100.pr-5
+        = f.text_field :duo_secret, label: "Secret", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100", data: { target: "api-test.appSecret" }, value: integrations_mask(credential&.duo_secret), readonly: has_credential
+      .w-100.pr-5
+        = f.text_field :duo_integration_key, label: "Integration Key", autocorrect: "off", autocapitalize: "off", spellcheck: "false", class: "w-100", data: { target: "api-test.appId" }, value: integrations_mask(credential&.duo_integration_key), readonly: has_credential
+        = f.hidden_field :credential_id, data: { target: "api-test.credentialId" }, value: credential&.id
+        = f.hidden_field :account_id, data: { target: "api-test.accountId" }, value: account.id
+
+    p.padding-10 data-target="api-test.outputDisplay"
+
+    .w-100.text-right.padding-10
+      a.btn.btn-info.margin-right-10 data-action="click->api-test#call" href="#"
+        | Credential Test
+      - if has_credential
+        = link_to "Clear Existing Credential", duo_auth_destroy_path(customer_id: account.id), class: "btn btn-primary", :method => :delete
+      - else
+        = f.submit value: "Authenticate", class: "btn btn-primary"
+      .margin-top-5

@@ -1,0 +1,176 @@
+# Managed SOC Agent deploy script
+# PowerShell
+
+# 03/11/19 - updated for installer deployment
+# 09/09/20 - updated for verification checks
+# 11/12/20 - localization improvements
+
+param (
+    # [Parameter(Mandatory=$true)][string]$license_key,
+    [string] $license_key = "<%= customer.license_key %>",
+    [string] $url = "<%= root_url %>",
+    [string] $agent_setup_url = "<%= api_customer_support_url(customer.license_key, I18n.t('agent.installer_name')) %>"
+)
+
+
+ 
+$service_name = "<%= I18n.t('agent.service_name') %>"
+$agent_name = "<%= I18n.t('agent.display_name') %>"
+$ini_file = "<%= I18n.t('agent.ini_path') %>"
+
+
+filter timestamp {"$(Get-Date -Format G): $_"}
+ 
+function download_file($file_url, $save_to_path) {
+ 
+    Write-Output "Starting Download" | timestamp
+    (New-Object System.Net.WebClient).DownloadFile($file_url,$save_to_path)
+    Write-Output "Download Completed" |timestamp
+ 
+    if (Test-Path $save_to_path) {
+        return $true
+    }
+    return $false
+}
+ 
+ 
+function is_running() {
+ 
+    $sService = Get-Service -Name $service_name
+    if ($sService.Status -ne "Running") {
+        return $false
+    }
+ 
+    return $true
+ 
+}
+ 
+function create_ini() {
+ 
+    if (Test-Path $ini_file) {
+        Remove-Item -Path $ini_file       
+    }
+ 
+    Add-Content -Path $ini_file -Value "url=$url"
+    Add-Content -Path $ini_file -Value "license_key=$license_key"  
+ 
+}
+ 
+function verify_ini() {
+ 
+    # check if the .ini file exists
+    $file_exists = Test-Path $ini_file
+    if ($file_exists -ne $true) {
+        return $false
+    }
+ 
+    # read text file                        # find line beginning license_key=
+    $license_line = Get-Content -Path $ini_file | Where-Object { $_ -match 'license_key=' }
+    if ($license_line -eq $nul -or $license_line -eq "") {
+        Write-Host "Get-Content failed to get license_key"
+        return $false
+    }
+    $url_line = Get-Content -Path $ini_file | Where-Object { $_ -match 'url=' }
+    if ($url_line -eq $nul -or $url_line -eq "") {
+        Write-Host "Get-Content failed to get license_key"
+        return $false
+    }
+ 
+    # split on = symbol and take second item
+    $license_test = $license_line.Split('=')[1]
+    if ($license_test -eq $nul -or  $license_test -eq "") {
+        # license_key is empty / not set
+        Write-Host "license_key is missing in Configuration"
+        return $false
+ 
+    } else {
+        Write-Host "found license_key : $license_test"
+    }
+    $url_test = $url_line.Split('=')[1]
+    if ($url_test -notlike 'https*') {
+        Write-Host "url does not contain https in Configuration"
+        return $false
+    } else {
+        Write-Host "found url : $url_test"
+    }
+ 
+    return $true
+}
+ 
+function is_installed() {
+    if (Get-Service $service_name -ErrorAction SilentlyContinue) {
+        return $true
+    }
+ 
+    return $false
+}
+ 
+ 
+#main logic
+function installer_main() {
+ 
+    if (!(is_installed)) {
+        $local_file = "$env:temp/<%= I18n.t('agent.installer_name') %>"
+        $result = download_file $agent_setup_url $local_file
+        if ($result) {
+            Start-Process $local_file "/S /license_key $license_key /url '$url'" -Wait
+            if (is_installed) {
+                Write-Host "$agent_name installation successful"
+            } else {
+                Write-Host "$agent_name installation failed"
+            }
+        }
+ 
+    } else {
+        Write-Host "$agent_name already installed"
+        Write-Host "Checking Configuration"
+        $istatus = verify_ini
+        if ($istatus -ne $true) {
+            # corrupt Configuration. lets create a new ini
+            create_ini
+            $istatus = verify_ini
+            if ($istatus -ne $true) {
+                # something bad happened. uninstall reinstall
+                Write-Host "Configuration is corrupt. cannot continue"
+                return $false
+            } else {
+                Write-Host "Configuration recreated."
+                $rstatus = is_running
+                if ($rstatus -eq $true) {
+                    Write-Host "Stopping $agent_name for Configuration update"
+                    Stop-Service $service_name
+                }
+ 
+            }
+        } else {
+            Write-Host "Configuration verified."
+        }
+ 
+        Write-Host "Checking if agent is running"
+        $rstatus = is_running
+        if ($rstatus -ne $true) {
+            Write-Host "$agent_name not running. Attempting to start"
+            Start-Service $service_name
+            # wait 15 seconds
+            Start-Sleep -s 15
+            $rstatus = is_running
+            if ($rstatus -ne $true) {
+                Write-Host "$agent_name failed to start."
+            } else {
+                Write-Host "$agent_name successfully started."                
+            }
+        } else {
+            Write-Host "$agent_name is running."
+        }
+    }
+ 
+}
+ 
+try
+{
+    installer_main
+} catch {
+    $err = $_.Exception.Message
+    Write-Output $err | timestamp
+    exit -1
+}

@@ -1,0 +1,16 @@
+- cache ["v4/device-inventory", device.id, device.inventory_last_updated_at], expires_in: 5.days do
+  .clearfix
+    .pull-right.text-muted
+      ' Last updated
+      = l device.inventory_last_updated_at, format: :digital
+      '  |
+      - if device.inventory_upload.present?
+        = link_to device.inventory_upload.url, target: "_blank" do
+          i.fa.fa-file-text-o
+          |  View as JSON
+
+  #inventory.accordion.panel-group.margin-top-10
+    - if device.windows?
+      = render partial: "devices/inventory/windows"
+    - elsif device.macos?
+      = render partial: "devices/inventory/macos"

@@ -1,0 +1,68 @@
+---
+- include_vars: "../vars/{{ env }}/envrc.yml"
+
+- debug: msg='New release path {{ this_release_path }}'
+
+- name: Create new release dir
+  file: path={{ this_release_path }} state=directory
+  become: yes
+  become_user: "{{ user_name }}"
+
+- name: Update code
+  git: repo={{ git_url }} dest={{ this_release_path }} version={{ git_branch }} accept_hostkey=yes
+  register: git
+  become: yes
+  become_user: "{{ user_name }}"
+
+- debug: msg='Updated repo from {{ git.before }} to {{ git.after }}'
+
+- name: Delete directories to symlink instead
+  file: path={{ this_release_path }}/{{item}} state=absent
+  with_items:
+    - log
+    - tmp
+  become: yes
+  become_user: "{{ user_name }}"
+
+- name: Symlink shared files
+  file: src={{ shared_path }}/{{ item }} dest={{ this_release_path }}/{{ item }} state=link force=yes
+  with_items:
+    - config/puma.rb
+  become: yes
+  become_user: "{{ user_name }}"
+
+- name: Symlink shared directories
+  file: src={{ shared_path }}/{{ item }} dest={{ this_release_path }}/{{ item }} state=link force=yes
+  with_items:
+    - log
+    - tmp
+    - vendor/bundle
+    - oval
+  become: yes
+  become_user: "{{ user_name }}"
+
+- name: Upload .envrc
+  copy:
+    content: "{{ envrc }}"
+    dest: "{{ environment_file }}"
+    mode: 0600
+    owner: "{{ user_name }}"
+
+- name: Install gems
+  shell: /bin/bash -lc 'bundle install --without="development test"'
+  args:
+    chdir: '{{ this_release_path }}'
+  become: yes
+  become_user: "{{ user_name }}"
+
+- name: Symlink new release
+  file: src={{ this_release_path }} dest={{ app_current_path }} state=link force=yes
+  become: yes
+  become_user: "{{ user_name }}"
+
+- name: Cleanup
+  shell: "ls -1t {{ releases_path }}|tail -n +{{ keep_releases + 1 }}|xargs rm -rf"
+  args:
+    chdir: '{{ releases_path }}'
+  become: yes
+  become_user: "{{ user_name }}"

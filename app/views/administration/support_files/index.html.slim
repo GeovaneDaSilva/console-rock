@@ -1,0 +1,50 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    = link_to "New Release", new_administration_agent_release_path, class: "btn btn-primary"
+  = page_header("Support Files", ["Manage Support Files"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        span.elipsis
+          strong Support Files
+        .pull-right
+          = form_tag administration_support_files_path, method: "get", class: "fancy-form" do |f|
+            i.fa.fa-search
+            input.form-control type="search" name="search" value="#{params[:search]}"
+
+      .panel-body
+        table.table
+          thead
+            tr
+              td Filename
+              td Hash
+              td Uploaded By
+              td Uploaded
+              td Protected
+              td &nbsp;
+          tbody
+            = render partial: "support_file", collection: @support_files
+        - if @pagination.pages > 1
+          .text-center
+            == pagy_bootstrap_nav @pagination
+
+        .upload-and-submit.pull-right.text-right
+          = bootstrap_form_tag url: administration_support_files_path, method: "get" do |f|
+            fieldset
+              meta name="presignUrl" content=uploads_support_file_uploads_path
+
+              p.nomargin
+                = f.switch :protected, { checked: true, label_name: "Protected", label_class: "switch-success switch-round"}
+
+              label.btn.btn-primary for="support-file-upload"
+                span.enabled
+                  i.fa.fa-plus
+                  |  Add Support File
+                span.disabled
+                  span.spinner
+                    .bounce1
+                    .bounce2
+                    .bounce3
+                input#support-file-upload type="file" multiple="true"

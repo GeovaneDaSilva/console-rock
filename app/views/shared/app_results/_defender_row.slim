@@ -1,0 +1,47 @@
+- show_checkbox = nil if local_assigns[:show_checkbox].nil?
+- show_details = nil if local_assigns[:show_details].nil?
+- show_customer = nil if local_assigns[:show_customer].nil?
+- show_customer_link = nil if local_assigns[:show_customer_link].nil?
+- show_text = nil if local_assigns[:show_text].nil?
+- show_for_reporting = nil if local_assigns[:show_for_reporting].nil?
+- query_params ||= {}
+
+tr.align-center
+  - if show_checkbox
+    td.pl-0 = check_box_tag "app_results[]", app_result.id, checked: true
+  - if show_text
+    td = app_result.verdict
+  - else
+    td
+      - if app_result.malicious?
+        span.text-danger title="Malicious"
+          i.fa.fa-exclamation-triangle
+      - if app_result.suspicious?
+        span.text-warning title="Suspicious"
+          i.fa.fa-exclamation-triangle
+      - if app_result.informational?
+        span.text-informational title="Informational"
+          i.fa.fa-exclamation-triangle
+      - if show_for_reporting
+        | &nbsp;
+        = link_to app_result.device.hostname, "##{app_result.device.id}", data: { turbolinks: false }
+  td = l app_result.detection_date, format: :digital
+  - if show_customer
+    - if app_result.customer.nil?
+      td = (sanitize("<i>None</i>") if show_text)
+    - else
+      td.customer
+        - if show_customer_link
+          = link_to app_result.customer.name, account_triage_url(app_result.customer, query_params.merge(switch_account_id: app_result.customer.id, host: ENV.fetch(I18n.t('application.host')), protocol: 'https')), target: "_blank", title: "Triage this App for #{app_result.customer.name}"
+        - else
+          = app_result.customer.name
+  - unless show_for_reporting
+    td.device = link_to app_result.device.hostname, device_triage_url(app_result.device, query_params.merge(host: ENV.fetch(I18n.t('application.host')), protocol: 'https')), target: "_blank", title: "Triage this App for #{app_result.device.hostname}"
+  td = app_result.details.threat_name || (sanitize("<i>None</i>") if show_text)
+  td = app_result.details.severity
+  - if show_details
+    - if show_for_reporting
+      td.breezy-pdf-remove = link_to "Details", device_r_breach_url(app_result.device, anchor: "app-result-#{app_result.id}")
+    - else
+      td.pr-0.text-right
+        a data-toggle="modal" data-target="#app_results_modal" data-content-target="app-result-#{app_result.id}-detail" Details

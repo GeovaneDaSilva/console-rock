@@ -1,0 +1,12 @@
+.row.provider
+  .col-xs-12
+    section.panel
+      .panel-body.noradius.padding-10
+        h4 = provider.name
+        = provider_breadcrumbs(provider, provider.ancestors)
+        .action-links.pull-right
+          - if policy(provider).edit?
+            = link_to "Modify Settings", provider_path(provider), class: "btn btn-link"
+
+
+= render partial: "/providers/provider", collection: provider.children, cache: Proc.new{ |provider| [provider, current_role] }

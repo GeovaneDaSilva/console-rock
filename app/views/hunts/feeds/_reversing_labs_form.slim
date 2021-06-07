@@ -1,0 +1,7 @@
+h3.nomargin Add a ReversingLabs Feed
+
+= bootstrap_form_for feed do |f|
+  = f.hidden_field :source
+  = f.select :keyword, Hunts::Feed::REVERSINGLABS_KEYWORD_MAP.to_a.collect(&:reverse)
+  = f.select :group_id, options_from_collection_for_select(groups, :id, :name)
+  = f.submit class: "btn btn-primary", disabled: groups.blank?

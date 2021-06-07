@@ -1,0 +1,36 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    = link_to "New Release", new_administration_agent_release_path, class: "btn btn-primary"
+  = page_header("Agent Releases", ["Manage Agent Releases"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        span.elipsis
+          strong Agent Releases
+
+      .panel-body
+        table.table
+          thead
+            tr
+              th Version
+              th Description
+              th Creator
+              th Date
+              th Targets
+              th &nbsp;
+          tbody
+            - @agent_releases.each do |agent_release|
+              tr.support-file
+                td = agent_release.id
+                td = agent_release.description
+                td = agent_release.creator.name
+                td = l agent_release.created_at, format: :digital
+                td = agent_release.agent_release_group_names.collect(&:humanize).to_sentence
+                td = link_to "View", administration_agent_release_path(agent_release, anchor: "customers")
+
+
+        - if @pagination.pages > 1
+          .text-center
+            == pagy_bootstrap_nav @pagination

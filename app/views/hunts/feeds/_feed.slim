@@ -1,0 +1,23 @@
+tr
+  td
+    - if feed.cymon? || feed.virus_total?
+      | Indicators matching: #{feed.keyword}
+    - elsif feed.alien_vault?
+      | All subscribed Pulses
+    - elsif feed.reversing_labs?
+      = Hunts::Feed::REVERSINGLABS_KEYWORD_MAP[feed.keyword]
+
+  - if feed.system_hunts?
+    td
+      | #{I18n.t("application.name")}
+  - else
+    td = feed_source feed.source
+  td = feed.group.name
+  td.text-right
+    = link_to "View", hunts_feed_path(feed)
+
+    - if policy(current_account).editor?
+      '  |
+      = link_to "Edit", edit_hunts_feed_path(feed)
+      '  |
+      = link_to "Destroy", hunts_feed_path(feed), method: :delete, data: { confirm: "Are you sure?" }

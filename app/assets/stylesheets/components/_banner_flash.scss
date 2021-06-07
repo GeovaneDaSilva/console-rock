@@ -1,0 +1,26 @@
+@import "_vars/colors";
+
+#banner-flash {
+  color: #fff;
+  padding: 16px 0;
+  background: black;
+
+  a {
+    color: #fff;
+    text-decoration: underline;
+
+    &:hover {
+      color: darken(#fff, 15%);
+    }
+  }
+
+  &.error {
+    background: $errorRed;
+    border: 2px solid darken($errorRed, 10%);
+  }
+
+  &.warning {
+    background: $warningYellow;
+    border: 2px solid darken($warningYellow, 10%);
+  }
+}

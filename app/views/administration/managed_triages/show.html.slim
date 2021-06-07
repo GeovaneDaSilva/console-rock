@@ -1,0 +1,40 @@
+- content_for(:page_header) do
+  .action-links.pull-right.margin-top-5
+    = form_tag administration_managed_triage_path, method: "get", class: "fancy-form" do |f|
+        i.fa.fa-search
+        input.form-control type="search" name="q" value="#{params[:q]}"
+
+  = page_header("Managed Accounts", ["Accounts Requiring Triage", "#{@pagination.page} of #{@pagination.pages}"])
+
+.row
+  .col-xs-12
+    - @managed_accounts.each do |account|
+      .panel.panel-default
+        .panel-body
+          .clearfix.mb-5
+            h4.nomargin.pull-left = account.name
+            - if account.trial?
+              .text-green
+                | TRIAL
+            .pull-right
+              - if account.all_descendant_incidents.size.positive?
+                = link_to "View #{account.all_descendant_incidents.size.to_s(:delimited)} Incidents", account_apps_incidents_path(account)
+                '  |
+
+          - cache ["v1/managed-triage", account, account.all_descendant_incidents.size, account.all_descendant_app_counter_caches.sum(:count)] do
+            table.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0 data-controller="open-all"
+              thead
+                tr
+                  th App
+                  th.text-center
+                    a href="#" data-action="open-all#open" Review All
+              tbody
+                - accounts_with_results.where(id: account.id).distinct("title").each do |app|
+                  tr
+                    td = app.title
+                    td.text-center = link_to "Review", account_triage_path(account, switch_account_id: account.id, app_id: app.app_id), target: "_blank", data: { target: "open-all.anchor" }
+
+    - if @pagination.pages > 1
+      .panel.panel-default
+        .panel-footer.text-center
+          == pagy_bootstrap_nav @pagination

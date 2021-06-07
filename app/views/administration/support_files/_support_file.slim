@@ -1,0 +1,12 @@
+tr.support-file
+  td = support_file.filename
+  td = support_file.md5
+  td = support_file.sourceable&.short_name || "System generated"
+  td = support_file.created_at.strftime('%Y-%m-%d %H:%M:%S')
+  td = yesno support_file.protected?
+  td
+    = link_to "Download", support_file.url
+
+    - if policy(:administration).modify_support_files?
+    '  |
+    = link_to "Destroy", uploads_support_file_upload_path(support_file), method: :delete

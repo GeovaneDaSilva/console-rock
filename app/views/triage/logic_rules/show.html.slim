@@ -1,0 +1,23 @@
+= bootstrap_form_for @logic_rule, url: logic_rule_path, method: :post, remote: true do |f|
+  = hidden_field_tag :user_id, current_user.id
+  = hidden_field_tag :app_id, params[:app_id]
+  - params[:app_results].to_a.uniq.each do |app_result_id|
+    = hidden_field_tag "app_results[]", app_result_id
+  .row.app-index-wrapper
+    .col-xs-12.col-lg-10.col-lg-offset-1.app-card
+      .panel.panel-default
+        .panel-heading
+          ul.nav.nav-tabs.pull-left
+            li
+              a.index-tab data-target="#index" data-toggle="tab" aria-expanded="true" data-skip-events="true"
+                | Existing Rules
+            li.active
+              a.create-tab data-target="#create" data-toggle="tab" aria-expanded="false" data-skip-events="true"
+                | Create New Rule
+          .pull-right
+            = link_to "< Back to Results", triage_path(query_params)
+        .tab-content.transparent
+          #index.tab-pane
+            = render partial: "triage/logic_rules/index"
+          #create.tab-pane.active
+            = render partial: "triage/logic_rules/create"

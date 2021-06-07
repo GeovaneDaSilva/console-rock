@@ -1,0 +1,21 @@
+.padding-15
+  .login-box
+    = form_for(resource, as: resource_name, url: password_path(resource_name), html: { class: "sky-form boxed" }) do |f|
+      header
+        i.fa.fa-users
+        |  Forgot your password?
+
+      = devise_error_messages!
+
+      fieldset
+        section
+          = f.label :email, class: "label"
+          label.input
+            i.icon-append.fa.fa-envelope
+            = f.email_field :email, autofocus: true, placeholder: "john.smith@example.com"
+            span.tooltip tooltip-top-right Email Address
+
+      footer
+        = f.submit "Send me reset instructions", class: "btn btn-primary pull-right"
+
+        = render "devise/shared/links"

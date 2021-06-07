@@ -1,0 +1,12 @@
+- if account.card_payment_method_token.present?
+  br
+  i.fa class="fa-cc-#{account.card_type.downcase}"
+  | &nbsp;
+  = account.card_masked_number
+  span.text-small
+    |  (
+    = link_to "change", new_account_credit_card_path(account), data: { turbolinks: false }
+    | )
+- else
+  br
+  = link_to "Add payment method", new_account_credit_card_path(account), data: { turbolinks: false }

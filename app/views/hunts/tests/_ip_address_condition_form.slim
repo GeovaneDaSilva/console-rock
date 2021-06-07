@@ -1,0 +1,9 @@
+= f.hidden_field :type
+= f.hidden_field :order
+
+div
+  = f.radio_button :operator, :exists, label: "Has connection to"
+div
+  = f.radio_button :operator, :does_not_exist, label: "Does not have connection to"
+
+= f.text_field :condition, label: "IPv4 Address or Hostname"

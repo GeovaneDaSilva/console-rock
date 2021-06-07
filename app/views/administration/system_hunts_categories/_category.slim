@@ -1,0 +1,4 @@
+tr
+  td.truncate title=(category.name) = truncate category.name, length: 70
+  td.text-right
+    = link_to "Details", administration_system_hunts_category_path(category)

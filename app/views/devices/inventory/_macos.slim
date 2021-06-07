@@ -1,0 +1,55 @@
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#ipconfig" aria-expanded="false"
+        i.fa.fa-terminal
+        |  IPConfig
+  #ipconfig.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/ipconfig"
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#arp-table" aria-expanded="false"
+        i.fa.fa-table
+        |  ARP Table
+  #arp-table.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/arp_table"
+
+.panel.panel-default.nomargin.no-box-shadow.noradius.transparent.noborder
+  .panel-heading.noborder.no-box-shadow
+    h4.panel-title
+      a data-toggle="collapse" data-parent="#inventory" href="#netstat" aria-expanded="false"
+        i.fa.fa-sitemap
+        |  NetStat
+  #netstat.margin-bottom-3 class="collapse" aria-expanded="false"
+    .panel-body.transparent
+      = render partial: "devices/inventory/netstat"
+
+- icons = { "hardware" => "cogs", "network" => "server", "software" => "cubes" }
+- device.macos_inventory.each do |category, subs|
+  .panel.panel-default.nomargin.no-box-shadow.noradius.transparent.noborder
+    .panel-heading.noborder.no-box-shadow
+      h4.panel-title
+        a data-toggle="collapse" data-parent="#inventory" href="##{category}" aria-expanded="false"
+          i.fa class="fa-#{icons[category]}"
+          |  #{category.titleize}
+    div.margin-bottom-3 id="#{category}" class="collapse" aria-expanded="false"
+      .panel-body.transparent
+        - subs.each do |key, values|
+          div.padding-20
+            strong
+              |   #{key.to_s.underscore.titleize.upcase}:
+          pre.nomargin
+            - if values.is_a? Array
+              - values.each do |v|
+                - if v.is_a? Hash
+                  - v.each do |k, v|
+                    span = "#{k} : #{v}"
+                    br
+            - if values.is_a? Hash
+              - values.each do |k, v|
+                span = "#{k} : #{v}"
+                br

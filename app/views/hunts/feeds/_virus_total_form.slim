@@ -1,0 +1,17 @@
+h3.nomargin Add a VirusTotal Feed
+
+- if current_account.nearest_virus_total_api_key.blank?
+  p
+    span.label.label-warning API Key Required
+    '  To use VirusTotal as a feed source, you need to specify a Private API key for this account.
+    - if current_account.provider?
+      = link_to "Add your API key", provider_path(current_account, anchor: "integrations"), data: { "turbolinks-action" => "advance" }
+    - else
+      = link_to "Add your API key", customer_path(current_account, anchor: "integrations"), data: { "turbolinks-action" => "advance" }
+
+= bootstrap_form_for feed  do |f|
+  = f.hidden_field :source
+  - unless feed.persisted?
+    = f.text_field :keyword, placeholder: "size:5mb- tag:exploit positives:10+", help: %(<a href="https://www.virustotal.com/intelligence/help/file-search/#search-modifiers" target="_blank" rel="noopener noreferrer">Search Modifiers</a>).html_safe, label: "VirusTotal Search Modifier"
+  = f.select :group_id, options_from_collection_for_select(groups, :id, :name), {}, disabled: current_account.nearest_virus_total_api_key.blank?
+  = f.submit class: "btn btn-primary", disabled: current_account.nearest_virus_total_api_key.blank? || groups.blank?

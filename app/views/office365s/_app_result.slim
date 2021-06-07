@@ -1,0 +1,18 @@
+.app-result.hover-stripe id="app-result-#{app_result.id}"
+  .row.margin-bottom-3
+    .col-xs-2
+      - if checkbox
+        = check_box_tag "app_results[]", app_result.id
+        | &nbsp;
+      = l app_result.detection_date, format: :digital
+    .col-xs-3 = app_result.customer.name
+    .col-xs-2 title=(app_result.app.title) = truncate app_result.app.title, length: 20
+    .col-xs-3 title=(app_result.value_type) = app_result.value
+    .col-xs-2.text-right
+      = link_to account_cloud_apps_path(app_result, anchor: "triage"), method: :put, data: { confirm: "Are you sure you would like to clear this app result as incident?" }, class: "mr-10" do
+        i.fa.fa-trash.text-danger
+      = link_to "Details", "#app-result-#{app_result.id}-detail", class: "", data: { toggler: "hidden", turbolinks: false }
+  .row.app-result-detail hidden=!rendered_for_pdf? id="app-result-#{app_result.id}-detail"
+    .col-xs-12
+      - cache ["v1/cloud_apps/triage/detail", app_result, current_user&.timezone] do
+        = render partial: "devices/r/breaches/details", locals: { details: app_result.details, key: "" }

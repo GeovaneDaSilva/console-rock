@@ -1,0 +1,19 @@
+- self.message.from = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+- self.message.reply_to = [ENV.fetch(I18n.t("application.noreply_email"), 'noreply')]
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-body
+        div style="border: 1px solid #AAAAAA; background: #EFEFEF; padding: 25px;"
+          br
+          - text, data = @body[:html].split("<br/><br/>\n ")
+          - data = data&.split("\r\n")
+          = text.html_safe
+          br
+          br
+          table
+            - (data&.each_slice(4) || []).each do |group|
+              tr
+                - group.each do |item|
+                  td = item.strip

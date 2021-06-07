@@ -1,0 +1,59 @@
+{
+  "name": "console",
+  "scripts": {
+    "postdeploy": "bundle exec rake db:schema:load db:seed"
+  },
+  "env": {
+    "DEVISE_PEPPER": {
+      "generator": "secret"
+    },
+    "DEVISE_SECRET": {
+      "generator": "secret"
+    },
+    "LANG": {
+      "value": "en_US.UTF-8"
+    },
+    "MEMCACHED_USERNAME": {
+      "value": "$MEMCACHIER_USERNAME"
+    },
+    "MEMCACHIER_PASSWORD": {
+      "value": "$MEMCACHIER_PASSWORD"
+    },
+    "MEMCACHIER_SERVERS": {
+      "value": "$MEMCACHIER_SERVERS"
+    },
+    "WEB_CONCURRENCY": {
+      "value": "1"
+    },
+    "RAILS_MAX_THREADS": {
+      "value": "1"
+    },
+    "OTP_SECRET_ENCRYPTION_KEY": {
+      "generator": "secret"
+    }
+  },
+  "formation": {
+    "worker": {
+      "quantity": 1
+    },
+    "web": {
+      "quantity": 1
+    }
+  },
+  "addons": [
+    "mailtrap",
+    "memcachier",
+    "papertrail",
+    "heroku-postgresql",
+    "rollbar",
+    "scheduler"
+  ],
+  "buildpacks": [
+    {
+      "url": "https://github.com/mojodna/heroku-buildpack-jemalloc.git"
+    },
+    {
+      "url": "heroku/ruby"
+    }
+  ]
+}

@@ -1,0 +1,47 @@
+default: &default
+  adapter: postgresql
+  encoding: utf-8
+  # For details on connection pooling, see rails configuration guide
+  # http://guides.rubyonrails.org/configuring.html#database-pooling
+  pool: <%= ENV["DB_POOL"] || ENV['RAILS_MAX_THREADS'] || 5 %>
+  variables:
+    statement_timeout: <%= ENV.fetch('DB_STATEMENT_TIMEOUT', '25s') %>
+
+development:
+  <<: *default
+  host: localhost
+  database: ruby_dev
+  username: postgres
+  password: root
+
+test:
+  <<: *default
+  host: localhost
+  database: console_test<%= ENV['TEST_ENV_NUMBER'] %>
+  username: postgres
+  password: root
+
+makara: &makara
+   id: postgres_replication
+   blacklist_duration: 5
+   master_ttl: 1
+   master_strategy: round_robin
+   sticky: true
+
+production:
+  <<: *default
+  adapter: postgresql_makara
+  makara:
+     <<: *makara
+     connections:
+       - role: master
+         disable_blacklist: true
+         url:  <%= ENV["DATABASE_MASTER_URL"] %>
+       - role: slave
+         url: <%= ENV['DATABASE_REPLICA_1_URL'] %>
+       - role: slave
+         url: <%= ENV['DATABASE_REPLICA_2_URL'] %>
+
+  # url:  <%= ENV['DATABASE_URL']  %>
+  # url:  <%= ENV['DATABASE_CONNECTION_POOL_URL'] || ENV['DATABASE_URL']  %>
+  # prepared_statements: false

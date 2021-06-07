@@ -1,0 +1,58 @@
+ul.nav.nav-tabs
+  - if policy(current_account).can_manage_integrations?
+    li.active
+      a href="#psa" data-toggle="tab" aria-expanded="true" PSA
+    li
+      a href="#threat_intel" data-toggle="tab" aria-expanded="true" Threat Intelligence
+
+    - apps.keys.each do |key|
+      - next if key == :microsoft
+      li
+        a href="##{key.to_s}" data-toggle="tab" aria-expanded="true" #{key.to_s.titleize}
+
+  - if apps.keys.include? :microsoft
+    li
+      a href="#microsoft" data-toggle="tab" aria-expanded="true" Microsoft
+
+.tab-content.border.border-top-none.padding-15.margin-bottom-5
+  - if policy(current_account).can_manage_integrations?
+    #psa.tab-pane.active(data-controller="job-status" data-accountId="#{current_account.id}")
+      = render partial: 'psa_tab'
+    #threat_intel.tab-pane
+      .clearfix
+        = bootstrap_form_for(current_account) do |f|
+          = render partial: "shared/account/feed_integrations_form", locals: { f: f, account: current_account }
+    - current_account_all_descendants = current_account.self_and_all_descendants
+    - apps.keys.each do |klass|
+      div id="#{klass}" class="tab-pane"
+        - active_tab = nil
+        .w-100
+          ul.nav.nav-tabs
+            - active_tab = request.params[:show_app_id]&.to_i
+            - apps[klass].each do |app|
+              - if app.send("#{@account.type.downcase}_configuration_scope?")
+                - active_tab = app.id if active_tab.nil?
+                li class=("active" if active_tab == app.id )
+                  a href="##{app.id}" data-toggle="tab" aria-expanded="true"
+                    - if klass.eql? :microsoft
+                      | Microsoft Office365
+                    - else
+                      | #{app.title.titleize}
+
+
+            - if current_account.is_a?(Provider) && klass.eql?(:antivirus) && current_account_all_descendants.size > 0
+              li class="#{'active' if active_tab.nil?}"
+                a href="#cylance_provider" data-toggle="tab" aria-expanded="true" Cylance Provider
+
+        .tab-content.border.border-top-none.padding-15.margin-bottom-5.bg-white
+          - apps[klass].each do |app|
+            - if app.send("#{@account.type.downcase}_configuration_scope?")
+              .w-100 id="#{app.id}" class="tab-pane #{'active' if active_tab == app.id}"
+                = render partial: "accounts/integrations/#{app.configuration_type}", locals: { account: account, app_id: app.id, antivirus_customer_maps: antivirus_customer_maps.where(app_id: app.id) }
+          - if current_account.provider? && klass.eql?(:antivirus) && current_account_all_descendants.size > 0
+            #cylance_provider.tab-pane class="#{'active' if active_tab.nil? }"
+              = render partial: "accounts/integrations/cylance_provider", locals: { accounts: current_account_all_descendants }
+
+  - if apps.keys.include? :microsoft
+    #microsoft.tab-pane.
+      = render partial: "accounts/integrations/office365", locals: { account: @account }

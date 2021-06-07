@@ -1,0 +1,10 @@
+- current_account.ancestors.order("path ASC").load.each do |provider|
+  - if policy(provider).show?
+    li class=("border-bottom" if provider.distributor?)
+      = link_to account_current_path(provider), method: :post, class: "pt-5 pb-5 provider" do
+        i.fa class=(icon_for_account(provider))
+        |  #{provider.name}
+
+      - if provider == current_account.parent
+        - customers = current_account.parent.self_and_all_descendant_customers.order_by_ids(recent_accounts).limit(10)
+        = render partial: "shared/customer_nav", locals: { customers: customers } if customers.size.positive?

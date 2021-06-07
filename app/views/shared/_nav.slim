@@ -1,0 +1,173 @@
+aside#aside
+  nav#sideNav data-target="pin-menu.navtag"
+    ul.nav.nav-list
+      li.el_primary
+        = link_to root_path do
+          i.main-icon.fa.fa-dashboard
+          span
+            |  Dashboard
+      - if current_account
+        li.el_primary class=("active" if active_path?(%r{^/apps}))
+          = link_to account_apps_path(current_account) do
+            i.main-icon
+              img src=asset_path("app-store.svg") style="height: 20px;"
+            span App Store
+
+        - if policy(current_account).defender_enabled_in_tree?
+          li.el_primary class=("active" if active_path?(%r{^/defender}))
+            = link_to account_defender_path(current_account) do
+              i.main-icon
+                = inline_svg_tag "defender-manager.svg", style: "width: 18px; height: auto; margin: -2px 0;"
+              span Defender Manager
+
+        - if policy(current_account).office365_apps_enabled_in_tree?
+          li.el_primary class=("active" if active_path?(%r{^/office365}))
+            = link_to account_office365_path(current_account) do
+              i.main-icon.fa.fa-windows
+              span Office 365 Manager
+
+        - if policy(current_account).manage_incidents?
+          li.el_primary class=("active" if active_path?(%r{^/incidents}) || active_path?(%r{^/remediations}))
+            = link_to account_apps_incidents_path(current_account) do
+              i.main-icon.fa.fa-ambulance
+              span Incidents
+
+        - if policy(current_account).view_threat_hunts?
+          li.el_primary class=("active" if active_path?(%r{/hunts}))
+            a href="#"
+              i.fa.fa-menu-arrow.pull-right
+              i.main-icon.fa.fa-crosshairs
+              span Threat Hunting
+            ul
+              li class=("active" if active_path?(%r{^/hunts$|^/hunts/\d}))
+                = link_to "Manage Threat Hunts", hunts_path
+              li class=("active" if active_path?(%r{^/hunts/feeds}))
+                = link_to "Manage Threat Intel Feeds", hunts_feeds_path
+
+        li.el_primary
+          = link_to r_threat_map_path, target: "_blank" do
+            i.main-icon.fa.fa-map
+            span Threat Map
+
+        - if policy(current_account).view_reports?
+          li.el_primary class=("active" if active_path?(%r{/r}))
+            a href="#"
+              i.fa.fa-menu-arrow.pull-right
+              i.main-icon.fa.fa-pie-chart
+              span Reporting
+            ul
+              - if policy(current_account).view_cyber_monitoring_report?
+                li
+                  = link_to "Cyber Monitoring Report", r_breaches_path, data: { turbolinks: false }
+              - if policy(current_account).view_report_executive_summary?
+                li
+                  = link_to "Executive Summary", r_executive_summary_path, data: { turbolinks: false }
+
+        li.el_primary class=("active" if active_path?(%r{^/groups}))
+          = link_to groups_path do
+            i.main-icon.fa.fa-folder
+            span Groups
+
+        - if policy(current_account).can_manage_integrations?
+          li.el_primary class=("active" if active_path?(%r{^/integrations}))
+            = link_to account_integrations_path(current_account) do
+              i.main-icon.fa.fa-sign-in
+              span Integrations
+
+        li.el_primary class=("active" if active_path?(%r{^/devices}))
+          = link_to devices_path do
+            i.main-icon.fa.fa-desktop
+            span Devices
+
+        li.el_primary
+          = link_to customers_path do
+            i.main-icon.fa.fa-arrow-right
+            span All Customers
+
+        - if current_account.customer? && policy(current_account).deploy_agents?
+          li.el_primary class=("active" if active_path?(%r{^/customers/\d{1,}/agents}))
+            = link_to customer_agents_path(current_account) do
+              i.main-icon.fa.fa-cloud-download
+              span Deployment
+
+      - if policy(:administration).show?
+        li.el_primary class=("active" if active_path?(%r{/administration}))
+          a href="#"
+            i.fa.fa-menu-arrow.pull-right
+            i.main-icon.fa.fa-lock
+            span Administration
+          ul
+            li class=("active" if active_path?(%{/administration/user}))
+              = link_to "Users", administration_users_path
+            li class=("active" if active_path?(%{/administration/provider}))
+              = link_to "Providers", administration_providers_path
+            - if policy(current_account).can_modify_settings_admin_configs?
+              li class=("active" if active_path?(%r{^/sales}))
+                = link_to sales_path do
+                  i.main-icon.fa.fa-bar-chart
+                  span Sales
+            - if policy(:administration).provision_providers?
+              li class=("active" if active_path?(%{/administration/providers/new}))
+                = link_to "Provision a new Provider", new_administration_provider_path
+            - if policy(:administration).view_apps?
+              li class=("active" if active_path?(%{/administration/app}))
+                = link_to "Apps", administration_apps_path
+            - if policy(:administration).view_support_files?
+              li class=("active" if active_path?(%{/administration/support_files}))
+                = link_to "Support Files", administration_support_files_path
+            - if policy(:administration).manage_agent_releases?
+              li class=("active" if active_path?(%{/administration/agent_release}))
+                = link_to "Agent Releases", administration_agent_releases_path
+            - if policy(:administration).manage_plans?
+              li class=("active" if active_path?(%r{/administration/plan}))
+                = link_to "Plans", administration_plans_path
+            - if policy(:administration).manage_ttps?
+              li class=("active" if active_path?(%r{/administration/ttp}))
+                = link_to "TTPs", administration_ttps_path
+            - if policy(:administration).view_crash_reports?
+              li class=("active" if active_path?(%r{/administration/crash}))
+                = link_to "Crash Reports", administration_crash_reports_path
+            - if policy(:administration).move_customers?
+              li class=("active" if active_path?(%r{/administration/move_customer}))
+                = link_to "Move Customer", administration_move_customers_path
+            - if policy(:administration).view_crash_reports?
+              li class=("active" if active_path?(%r{/administration/panic}))
+                = link_to "Panics", administration_panics_path
+            - if policy(:administration).view_crash_reports?
+              li class=("menu-open" if active_path?(%r{^/administration.+logic_rule}))
+                a href="#"
+                  i.fa.fa-menu-arrow.pull-right
+                  | Triage Rules
+                ul
+                  li class=("active" if active_path?(%r{/administration/logic_rule}))
+                    = link_to "Manage Triage Rules", administration_logic_rules_path
+                  li class=("active" if active_path?(%r{/administration/logic_rules/action_template}))
+                     = link_to "Action Templates", administration_logic_rules_action_templates_path
+            - if policy(:administration).managed_triage?
+              li class=("active" if active_path?(%r{/administration/managed_triage}))
+                = link_to "Managed Triage", administration_managed_triage_path
+            - if policy(:administration).manage_incidents?
+              li class=("active" if active_path?(%r{^/administration/incidents/app_results}))
+                = link_to "Incidents", administration_incidents_path
+            - if policy(:administration).manage_system_hunts?
+              li class=("menu-open" if active_path?(%r{^/administration.+hunt}))
+                a href="#"
+                  i.fa.fa-menu-arrow.pull-right
+                  | System Hunts
+                ul
+                  li class=("active" if active_path?(%r{^/administration/hunt}))
+                    = link_to "Manage Hunts", administration_hunts_path
+                  li class=("active" if active_path?(%r{^/administration/system_hunts_categor}))
+                    = link_to "Categories", administration_system_hunts_categories_path
+
+            li
+              = link_to "PGHero", "/administration/pghero", target: "_blank"
+            li
+              = link_to "Background processing", "/administration/sidekiq", target: "_blank"
+            - if policy(:administration).manage_flipper?
+              li
+                = link_to "Flipper", "/administration/flipper", target: "_blank"
+      li.el_primary
+        = link_to I18n.t("helpdocs.base"), target: "_blank" do
+          i.main-icon.fa.fa-question
+          span Help

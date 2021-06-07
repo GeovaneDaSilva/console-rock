@@ -1,0 +1,51 @@
+.row
+  .col-xs-12.app-card
+    .panel.panel-default
+      = form_with url: account_apps_antivirus_config_index_path(account), method: :post do
+        = hidden_field_tag :config_type, params[:config_type]
+
+        .panel-body
+          .row.app-title
+            .col-xs-12
+              .pull-left
+                h3.nomargin
+                  | Customer Mapping
+
+              .pull-right
+                = link_to "< Back to Dashboard", root_path
+
+          .row.pl-15
+            p This page allows you to create a map that tells #{I18n.t("application.name")} what Site/Group name you assigned to each customer in your AV dashboard. <br>  With this knowledge, we can sort AV detections into the correct customer account in your #{I18n.t("application.name")} dashboard.
+            p For further information, see the <a href="#{I18n.t('helpdocs.antivirus_mapping')}"> config instructions</a>
+
+          .d-flex.flex-wrap
+            .w-30.pr-5 data-controller="reveal-on-change"
+              = select_tag "config[save_type]", options_for_select(["Route Detections to Customers Using AV Site IDs", "Route All Detections to A Single Customer"], config.dig("save_type")), label: "How to Save AV Detections", prompt: "Pick a method"
+
+            .pr-5.pl-25.hidden.oneCustomer
+              = select_tag "config[target_customer]", options_for_select(customer_list, config.dig("target_customer")), label: "Customer", prompt: "Pick a customer"
+
+            .pr-5.pl-25.hidden.avMap
+              table.table
+                thead.bg-transparent
+                  tr
+                    th #{I18n.t("application.name")} Customer
+                    - if params[:config_type] == "sentinelone"
+                      th SentinelOne Site Name
+                    - elsif params[:config_type] == "webroot"
+                      th Webroot Site Keycode
+                    - elsif params[:config_type] == "bitdefender"
+                      th Bitdefender Company Name
+                    - elsif params[:config_type] == "sophos_av"
+                      th Sophos Central Tenant UUID
+                    - elsif params[:config_type] == "dns_filter"
+                      th DNSFilter Organization Name
+                tbody
+                  - sub_accounts.each do |acc|
+                    tr
+                      td = acc.name
+                      td = text_field_tag "map[#{acc.id}][antivirus_id]", @map.dig(acc.id, :av_label), autocomplete: "off", autocorrect: "off", autocapitalize: "off"
+
+        .panel-footer.clearfix
+          .pull-right.text-right
+            = submit_tag "Save", class: "btn btn-primary"

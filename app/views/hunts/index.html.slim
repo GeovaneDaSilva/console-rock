@@ -1,0 +1,24 @@
+- content_for(:page_header) do
+  - if policy(current_account).editor?
+    .action-links.pull-right.margin-top-5
+      = link_to new_hunt_path, class: "btn btn-primary" do
+        i.fa.fa-plus
+        | New Hunt
+  = page_header("Hunts", [link_to_current_account(current_account.name), Hunts])
+
+#hunt.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Hunts
+      .panel-body.nopadding
+        - if @hunts.size.positive?
+          - cache ["v2", @hunts] do
+            table.fullwidth.table.m-0
+              = render partial: "hunt", collection: @hunts, cache: Proc.new { |hunt| [hunt, hunt.group, current_account.id] }
+
+            - if @pagination.pages > 1
+              .text-center.border-top
+                == pagy_bootstrap_nav @pagination
+        - else
+          .text-center No Hunts

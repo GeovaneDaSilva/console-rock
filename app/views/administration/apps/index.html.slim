@@ -1,0 +1,34 @@
+- content_for(:page_header) do
+  - if policy(:administration).manage_apps?
+    .action-links.pull-right.margin-top-5
+      - if policy(:administration).notify_devices_of_app_update?
+        = link_to administration_apps_notify_path, class: "btn btn-link", method: :post, title: "Notify all devices to update their apps" do
+          i.fa.fa-bullhorn
+          |  Notify Devices
+      - else
+        span.pr-10
+          ' Device Notification in Progress
+          = Rails.cache.read("app-update-notification")
+          | %
+
+      = link_to new_administration_app_path, class: "btn btn-primary" do
+        i.fa.fa-plus
+        | New App
+  = page_header("Manage Apps", ["Apps"])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong Apps
+      .panel-body.nopadding
+        - if @apps.present?
+          - cache ["v1/administration", @apps, @pagination]
+            table.fullwidth.table.m-0
+              = render partial: "app", collection: @apps
+
+            - if @pagination.pages > 1
+              .text-center.border-top
+                == pagy_bootstrap_nav @pagination
+        - else
+          .text-center No Apps

@@ -1,0 +1,37 @@
+- if current_account && current_account.provider? && policy(current_account).can_modify_plan? && (current_account.billing_account.trial? || current_account.past_due?)
+  .row
+    .col-xs-12
+      .panel.panel-warning
+        - if current_account.billing_account.trial? && !current_account.billing_account.plan&.plan_type == "barracudamsp"
+          .panel-heading
+            strong Choose A Plan
+            ul.options.pull-right.list-inline
+              li
+                a.opt.panel_close
+                  i.fa.fa-times
+          .panel-body
+            p.no-margin
+              | We hope you are enjoying your trial. Just a friendly reminder that your trial expires on #{l current_account.billing_account.paid_thru, format: :short}. If you are happy with what you've seen so far go ahead and subscribe now so you dont miss out on the great features. Just click the subscribe button below, select the plan thats right for you and enter your payment info!
+
+            .text-right
+              = link_to provider_path(current_account, anchor: "billing"), class: "btn btn-warning"
+                i.fa.fa-credit-card
+                |  Subscribe
+        - elsif current_account.past_due?
+          .panel-body
+            p.no-margin #{current_account.name} is past due and has stoped functioning as of #{l current_account.billing_account.paid_thru, format: :short}. Update your payment method #{link_to "here", provider_path(current_account, anchor: "billing")} to resume threat monitoring.
+            .text-right
+              = link_to provider_path(current_account, anchor: "billing"), class: "btn btn-warning"
+                i.fa.fa-credit-card
+                |  Update Billing
+
+.row.app-index-wrapper.d-flex.flex-wrap
+  = render partial: "app", collection: apps
+
+- unless current_account.billing_account.plan&.hide_unassigned_apps
+  - if policy(current_account).add_discreet_apps?
+    .row
+      .col-xs-12
+        h3.border-bottom Private Apps
+    .row.app-index-wrapper.d-flex.flex-wrap
+      = render partial: "app", collection: discreet_apps

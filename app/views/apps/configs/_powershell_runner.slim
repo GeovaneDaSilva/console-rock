@@ -1,0 +1,19 @@
+.d-flex.flex-wrap
+  - APP_CONFIGS[:powershell_runner][:enabled_checks].each_slice(2).each do |group|
+    - group.each do |tactic|
+      .w-50.mt-10
+        h5.mb-5
+          u = tactic[0]
+          div
+            = f.switch "config[enabled_checks][#{tactic[0]}][enabled]", { label_name: "", checked: config.dig("enabled_checks", tactic[0], "enabled") }, "true", "false"
+
+.d-flex.flex-wrap
+  .w-50.pr-5
+    = f.select "config[hostname]", options_from_collection_for_select(Device.where(customer: account), :hostname, :hostname, config.dig("hostname")), { selected: config.dig("hostname"), include_blank: true, label: "Monitoring Device" }, { data: { required: true, target: "update-on-select.select" } }
+  .w-50.pr-5
+
+  .w-50
+    = f.text_area "config[excluded_mail_destinations]", label: "Excluded Forwarding Destinations", value: config.fetch("excluded_mail_destinations", APP_CONFIGS[:powershell_runner][:excluded_mail_destinations]).join("\n"), help: "One email per line", rows: "3", autocorrect: "off", autocapitalize: "off", spellcheck: "false"
+
+  .w-50
+    = f.text_area "config[excluded_unused_accounts]", label: "Excluded Unused Accounts", value: config.fetch("excluded_unused_accounts", APP_CONFIGS[:powershell_runner][:excluded_unused_accounts]).join("\n"), help: "One account per line", rows: "3", autocorrect: "off", autocapitalize: "off", spellcheck: "false"

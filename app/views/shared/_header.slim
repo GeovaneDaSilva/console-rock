@@ -1,0 +1,129 @@
+header#header
+  - if current_account
+    button#mobileMenuBtn.active data-target="pin-menu.button"
+  - provider = current_account&.provider? ? current_account : current_account&.provider
+  = link_to root_path, data: { turbolinks: false } do
+    span.logo.pull-left.hidden-xs
+      - cache ["v4", "logo", I18n.locale, provider], expires_in: 6.days do
+        - if provider&.logo && policy(provider).can_customize_logo?
+          = image_tag provider.logo.url, class: "provider-logo", height: "34px"
+        - elsif provider&.parent_logo && policy(provider).inherits_logo?
+          = image_tag provider.parent_logo.url, class: "provider-logo", height: "34px"
+        - else
+          = image_tag I18n.t('application.base_logo'), alt: I18n.t('application.name', default: 'ACME, Inc'), height: "40px", style: "padding-top: 5px;"
+
+  = form_tag searches_path, method: :get, class: "search pull-left hidden-xs ui-front", id: "search-form" do
+    = hidden_field_tag "page", params[:page] || "1"
+    = search_field_tag "query", params[:query], id: "search-input", placeholder: "Search for something...", autocomplete: "off"
+
+  nav
+    ul.nav.pull-right
+      li.dropdown.pull-left
+        a.dropdown-toggle data-toggle="dropdown" data-hover="dropdown" data-close-others="true"
+          img.user-avatar src=gravatar_url(current_user.email) height="34px"
+          span.user-name.hidden-xs
+            ' #{current_user.short_name}
+            i.fa.fa-angle-down
+
+        ul.dropdown-menu.hold-on-click
+          li
+            = link_to edit_user_registration_path do
+              i.fa.fa-gear
+              |  Profile
+          li
+            = link_to destroy_user_session_path, method: :delete do
+              i.fa.fa-power-off
+              |  Log Out
+
+  - if current_account
+    nav#current_provider_nav
+      ul.nav.pull-right
+        li.dropdown.pull-left
+          a.dropdown-toggle data-toggle="dropdown" data-hover="dropdown" data-close-others="true"
+            span.account-name
+              i.fa class=(icon_for_account(current_account))
+              '  #{current_account.name}
+              i.fa.fa-angle-down
+
+          ul.dropdown-menu.hold-on-click style="min-width: 250px;"
+            = render partial: "shared/account_dropdown"
+            - if policy(current_account).search_customers?
+              li
+                a href="#" data-toggle="modal" data-target="#switch-accounts"
+                  i.main-icon.fa.fa-arrow-right
+                  span Other Customers
+            - if current_provider && policy(current_provider).create_customers?
+              li
+                = link_to new_customer_path do
+                  i.fa.fa-plus
+                  |  Add Customer
+            - if current_account.provider?
+              - if policy(current_account).edit?
+                li role="separator" class="divider"
+                li
+                  = link_to provider_path(current_account) do
+                    i.fa.fa-gear
+                    |  Provider Settings
+
+              - if current_provider && policy(current_provider).can_create_sub_accounts?
+                li
+                  = link_to new_provider_path(current_provider) do
+                    i.fa.fa-plus
+                    |  Add MSP sub-account
+            - elsif policy(current_account).deploy_agents?
+              li
+                = link_to customer_agents_path(current_account) do
+                  i.fa.fa-cloud-download
+                  | Agent Deployment
+              - if policy(current_account).editor?
+                li role="separator" class="divider"
+                li
+                  = link_to customer_path(current_account) do
+                    i.fa.fa-gear
+                    |  Customer Settings
+            - else
+              - if policy(current_account).editor?
+                li role="separator" class="divider"
+                li
+                  = link_to customer_path(current_account) do
+                    i.fa.fa-gear
+                    |  Customer Settings
+
+            - if policy(current_account).can_modify_plan?
+              li
+                = link_to account_path(current_account.billing_account, anchor: "billing") do
+                  i.fa.fa-credit-card
+                  |  Billing
+
+            - if policy(:administration).view_providers?
+              li role="separator" class="divider"
+              li
+                = link_to administration_path do
+                  i.main-icon.fa.fa-lock
+                  span Administration
+
+- if current_account
+  - content_for :modals do
+    #switch-accounts.modal.fade tabindex="-1" role="dialog" aria-labelledby="switch-context-modal-label" aria-hidden="true"
+      .modal-dialog
+        .modal-content
+          .modal-header
+            h4#switch-context-modal-label.nomargin Switch Customers
+          .modal-body
+            = form_tag searches_switch_accounts_path, method: :get, remote: true do
+              .row
+                .col-sm-10
+                  = search_field_tag :query, nil, class: "form-control", autocomplete: "off", placeholder: current_account&.name, id: "switch-accounts-input"
+                .col-sm-2
+                  = submit_tag "Search", class: "btn btn-primary"
+            .row
+              .col-xs-12
+                #switch-accounts-results
+            .row
+              .col-xs-12.text-center
+                - if current_provider && policy(current_provider).new?
+                  = link_to new_customer_path, class: "btn btn-link" do
+                    i.main-icon.fa.fa-user-plus
+                    span Add a new Customer
+          .modal-footer
+            button.btn.btn-link data-dismiss="modal" nevermind

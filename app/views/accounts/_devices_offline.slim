@@ -1,0 +1,21 @@
+- if loading
+  - offline = 0
+- else
+  - offline = current_account.all_descendant_devices.offline.size
+div
+  .d-inline-block.pr-15.offline style="font-size: 80px; line-height: 0px;"
+    i.fa.fa-laptop
+
+.d-flex.flex-column.w-100
+  div
+    - if loading
+      h4.d-inline-block.nomargin.text-center.display-4
+        = inline_loader
+    - else
+      h4.d-inline-block.nomargin.display-4
+        = offline.to_s(:delimited)
+  .mt-10
+    = link_to devices_path(offline_only: true), class: "black" do
+      ' #{"Device".pluralize(offline)} Offline
+      small
+        i.fa.fa-info-circle

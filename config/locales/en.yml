@@ -1,0 +1,113 @@
+# Files in the config/locales directory are used for internationalization
+# and are automatically loaded by Rails. If you want to use locales other
+# than English, add the necessary files in this directory.
+#
+# To use the locales, use `I18n.t`:
+#
+#     I18n.t 'hello'
+#
+# In views, this is aliased to just `t`:
+#
+#     <%= t('hello') %>
+#
+# To use a different locale, set it with `I18n.locale`:
+#
+#     I18n.locale = :es
+#
+# This would use the information in config/locales/es.yml.
+#
+# To learn more, please read the Rails Internationalization guide
+# available at http://guides.rubyonrails.org/i18n.html.
+
+en:
+  application:
+    name: "RocketCyber"
+    full_name: "RocketCyber Managed SOC"
+    favicon: "favicon.ico"
+    base_logo: "logo.png"
+    report_logo: "logo.png"
+    mail_base_logo: "logo.png"
+    address_line_1: "15950 Dallas Parkway #400"
+    address_line_2: "Dallas, TX 75248"
+    address: "15950 Dallas Parkway #400, Dallas, TX 75248"
+    support_email: "SUPPORT_EMAIL"
+    notification_email: "NOTIFICATION_EMAIL"
+    noreply_email: "NOREPLY_EMAIL"
+    company_website: "COMPANY_WEBSITE"
+    host: "HOST"
+    tos_label: "Terms of Service"
+    color1: "#8DC63F"
+    api_syslog_target: "syslog.rocketcyber.com"
+
+  pundit:
+    default: "You cannot perform this action."
+
+  devise:
+    mailer:
+      invitation_instructions:
+        user_subject: "Activate Your Account"
+
+  date:
+    formats:
+      long_digits: "%m/%d/%Y"
+
+  time:
+    formats:
+      default: "%Y-%m-%d"
+      short: "%B %d"
+      long: "%B %d, %Y"
+      long_digits: "%m/%d/%Y"
+      full: "%B %d, %Y @ %l:%M%p"
+      digital: "%m/%d/%y %l:%M:%S%p"
+      time_only: "%l:%M:%S%p"
+
+  agent:
+    service_name: "rocketagent"
+    display_name: "RocketAgent"
+    ini_path : "$env:programfiles\\rocketagent\\rocketagent.ini"
+    installer_name: "agent-setup.exe"
+
+  helpdocs:
+    base: "https://support.rocketcyber.com/hc/en-us"
+    # Antivirus
+    antivirus_mapping: "https://support.rocketcyber.com/hc/en-us/articles/360017915717"
+    bitdefender: "https://support.rocketcyber.com/hc/en-us/articles/360018051258"
+    cylance: "https://support.rocketcyber.com/hc/en-us/articles/360018051578"
+    deep_instinct: "https://support.rocketcyber.com/hc/en-us/articles/360017913437"
+    hibp: "https://support.rocketcyber.com/hc/en-us/articles/360018051598"
+    sentinelone: "https://support.rocketcyber.com/hc/en-us/articles/360017913617"
+    webroot: "https://support.rocketcyber.com/hc/en-us/articles/360017915537"
+    sophos_av: "https://support.rocketcyber.com/hc/en-us/articles/360018048818"
+    # Email
+    ironscales: "https://support.rocketcyber.com/hc/en-us/articles/360018052878"
+    barracuda_ess: "https://support.rocketcyber.com/hc/en-us/articles/360017915137"
+    barracuda_sen: "https://support.rocketcyber.com/hc/en-us/articles/360018051378"
+    # Office 365
+    o365: "https://support.rocketcyber.com/hc/en-us/articles/360018052558"
+    # MFA
+    passly: "https://support.rocketcyber.com/hc/en-us/articles/360018050138"
+    cisco_duo: "https://support.rocketcyber.com/hc/en-us/articles/360018049978"
+    # Firewall
+    syslog: "https://support.rocketcyber.com/hc/en-us/articles/360018050918"
+    # Deployment/RMMs
+    labtech_rmm: "https://support.rocketcyber.com/hc/en-us/articles/360017915497"
+    kaseya_rmm: "https://support.rocketcyber.com/hc/en-us/articles/360018051078"
+    barracuda_rmm: "https://support.rocketcyber.com/hc/en-us/articles/360018050878"
+    syncro_rmm: "https://support.rocketcyber.com/hc/en-us/articles/360018051318"
+    datto_rmm: "https://support.rocketcyber.com/hc/en-us/articles/360018051358"
+    solarwinds_rmm: "https://support.rocketcyber.com/hc/en-us/articles/360018051438"
+    ninja_rmm: "https://support.rocketcyber.com/hc/en-us/articles/360017915737"
+    # Network tools
+    dns_filter: ""
+    # 2FA
+    2fa_setup: "https://support.rocketcyber.com/hc/en-us/articles/360017914957"
+    # Custom whitelist instructions
+    custom_whitelisting: "https://support.rocketcyber.com/hc/en-us/articles/360018050298"
+    # RocketCyber API
+    api_swagger: "https://www.rocketcyber.com/api#overview"
+    api_postman: ""
+    # PSAs
+    connectwise_psa: "https://support.rocketcyber.com/hc/en-us/articles/360017916757"
+    datto_psa: "https://support.rocketcyber.com/hc/en-us/articles/360018053278"
+    kaseya_psa: "https://support.rocketcyber.com/hc/en-us/articles/360017916697"
+    syncro_psa: "https://support.rocketcyber.com/hc/en-us/articles/360018053118"

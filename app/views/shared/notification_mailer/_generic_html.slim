@@ -1,0 +1,8 @@
+div style="font-family:Helvetica, Arial, sans-serif; font-size:20px; line-height:28px;" face="Helvetica, Arial, sans-serif" color="#353c3b"
+  br
+  p
+    | Please review your alert for #{@account.name}.
+  img src="#{asset_url 'notification_mailer/icon-alert.gif'}" style="position: relative; top:46px;"
+  div style="border: 1px solid #AAAAAA; background: #EFEFEF; padding: 25px;"
+    br
+      = @body[:html].html_safe

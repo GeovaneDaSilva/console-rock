@@ -1,0 +1,35 @@
+- if feed_result.hunt && !feed_result.hunt.disabled?
+  .clearfix
+    .pull-left
+      h5 = feed_result.title
+      p = feed_result.description
+
+      - if feed_result.feed.virus_total? && feed_result.indicators.dig("permalink")
+        = link_to "Details", feed_result.indicators.dig("permalink"), target: "_blank", rel: "noopener noreferrer"
+
+    .pull-right.text-right
+      h5 = feed_result.author_name
+    table.table.margin-top-20
+      tr data-controller="hunt-status" data-hunt-status-id=(feed_result.hunt.id)
+        td.noborder.text-right title="Reported Devices"
+          .inline-guage.success.margin-right-3 hidden="true" data-target="hunt-status.hiddens"
+            .inline-guage-dial data-percentage="0" data-target="hunt-status.reportedDevices"
+        td.noborder.text-left title="Reported Devices"
+          = inline_loader(data: { target: "hunt-status.loaders"})
+          span data-target="hunt-status.hiddens hunt-status.reportedDevices"
+          span hidden="true" data-target="hunt-status.hiddens"
+            | /
+          span data-target="hunt-status.totalDevices"
+        td.noborder.text-right title="Devices with Positive Results"
+          .inline-guage.danger.margin-right-3 hidden="true" data-target="hunt-status.hiddens"
+            .inline-guage-dial data-percentage="0" data-target="hunt-status.positiveDevices"
+        td.noborder.text-left title="Devices with Positive Results"
+          = inline_loader(data: { target: "hunt-status.loaders"})
+          span data-target="hunt-status.positiveDevices"
+          span hidden="true" data-target="hunt-status.hiddens"
+            | /
+          span data-target="hunt-status.totalDevices"
+        td.text-right.noborder.nopadding
+          = link_to "View Hunt", hunt_path(feed_result.hunt)
+
+  hr

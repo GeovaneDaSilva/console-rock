@@ -1,0 +1,23 @@
+- content_for(:page_header) do
+  - if policy(:administration).manage_system_hunts?
+    .action-links.pull-right.margin-top-5
+      = link_to "Edit", edit_administration_system_hunts_category_path(@category), class: "btn btn-link"
+
+      = link_to administration_system_hunts_category_path(@category), method: :delete, class: "btn btn-danger", data: { confirm: "Are you sure?" } do
+        i.fa.fa-trash
+        | Delete
+
+  = page_header("System Hunts", [link_to("Categories", administration_system_hunts_categories_path)])
+
+.row
+  .col-xs-12
+    .panel.panel-default
+      .panel-heading
+        strong System Hunt Category: #{@category.name}
+      .panel-body.nopadding
+        p.padding-15 = @category.description
+
+        - if @category.hunts.enabled.any?
+          ul
+            - @category.hunts.enabled.pluck(:name).each do |hunt_name|
+              li = hunt_name

@@ -1,0 +1,143 @@
+meta name="breezy-pdf-filename" content="#{current_account.name.parameterize}-breaches-#{l(DateTime.current).parameterize}"
+meta name="breezy-pdf-timeout" content="250"
+
+- if params[:summary_only]
+  meta name="breezy-pdf-pageRanges" content="1-2"
+
+
+.reports
+  header#header
+    .container
+      .row
+        .col-xs-12
+          .header-container
+            .logo
+              - if current_provider.logo
+                = link_to root_path do
+                  = image_tag current_provider.logo.url, alt: current_provider.name
+              - else
+                = link_to root_path(data: { turbolinks: false }) do
+                  = image_tag I18n.t('application.report_logo'), alt: I18n.t('application.name')
+            .text-center.header
+              .heading-border-bottom
+                h2.margin-bottom-0.margin-top-10
+                  ' Cyber Monitoring
+                  span.green Report
+              p.margin-bottom-10
+                | Prepared for: #{account.name}
+                br
+                = l DateTime.current, format: :long
+
+            #export.breezy-pdf-remove.menu
+              ul.nav.navbar-right
+                li.dropdown
+                  a.dropdown-toggle data-toggle="dropdown" data-hover="dropdown" data-close-others="true"
+                    i.fa.fa-bars
+
+                  ul.dropdown-menu.hold-on-click
+                    li
+                      = link_to r_breaches_path(format: :pdf, pdf: true, summary_only: true), class: "btn-link pdf-link" do
+                        i.fa.fa-download
+                        |  Summary
+
+                    li
+                      = link_to r_breaches_path(format: :pdf, pdf: true), class: "pdf-link" do
+                        i.fa.fa-download
+                        |  Full Report
+  section.box-light
+    .container
+      .row
+        .col-xs-12
+          .box-inner
+            #account-stats-graph data-controller="summary-graph" data-summary-graph-seed-data=(graph_json) data-summary-graph-show-customers="false" style="height: 250px;"
+
+  section.box-light
+    .container
+      .row.d-flex.align-items-stretch.avoid-page-break-inside
+        .col-xs-6
+          .box-inner.h-100
+            #top-apps-graph(data-controller="horizontal-bar-chart" data-horizontal-bar-chart-data=(top_apps.to_json) data-title="Top Detections by App" data-series-name="App")
+
+        .col-xs-6
+          .box-inner.h-100
+            h2.margin-bototm-0 Top Cyber Terrorist Network Connections
+            table.table.fullwidth.table-bordered.table-striped.table-vertical-middle.margin-bottom-0.bg-white
+              thead
+                tr
+                  th Country
+                  th Detections
+              tbody
+                - top_ctnc_countries.each do |country|
+                  tr
+                    td
+                      - if country.first
+                        img src=asset_url("flags/#{country.first.downcase}.png")
+                        |  #{COUNTRIES[country.first.upcase]&.fetch("full_name", "Unknown")}
+                      - else
+                        | Unknown
+                    td
+                      = country.last.to_s(:delimited)
+                - if top_ctnc_countries.blank?
+                  tr
+                    td.text-center colspan="2" No Network Connections
+
+    .container.margin-top-20.page-break-after
+      .row.d-flex.align-items-stretch.avoid-page-break-inside
+        .col-xs-3
+          .box-inner.h-100
+            h2.text-center Devices Monitored
+            .size-30.padding-15.text-success.text-center = devices.size.to_s(:delimited)
+
+        .col-xs-3
+          .box-inner.h-100
+            h2.text-center Malicious Detections
+            .size-30.padding-15.text-danger.text-center = totals[:malicious].to_s(:delimited)
+
+        .col-xs-3
+          .box-inner.h-100
+            h2.text-center Suspicious Detections
+            .size-30.padding-15.text-warning.text-center = totals[:suspicious].to_s(:delimited)
+
+        .col-xs-3
+          .box-inner.h-100
+            h2.text-center Informational Detections
+            .size-30.padding-15.text-info.text-center = totals[:informational].to_s(:delimited)
+
+      = render partial: "app", collection: apps, cache: proc { |app| ["v1/r/breaches", app, app_results] }
+
+  - if hunt_results.any?
+    section.box-light.page-break-before
+      .container
+        .row
+          .col-xs-12
+            h2.margin-bottom-0.text-center
+              ' Threat
+              span Hunting
+        .row
+          .col-xs-12
+            .box-inner
+              = render partial: "hunts", locals: { hunt_results: hunt_results }
+
+  - if ttps.any?
+    section.box-light.page-break-before
+      .container
+        .row
+          .col-xs-12
+            h2.margin-bottom-0.text-center
+              ' Technical
+              span Details
+        .row
+          .col-xs-12
+            .box-inner
+              = render partial: "ttps", locals: { ttps: ttps }
+
+  section.box-light.page-break-before
+    .container
+      .row
+        .col-xs-12
+          .box-inner
+            h3.bold.size-18 Devices
+            = render partial: "device", collection: devices.includes(:customer), spacer_template: "shared/hr", cache: true
+
+  - unless rendered_for_pdf?
+    = render partial: "shared/pdf_download"

@@ -1,0 +1,11 @@
+- if test.script_override?
+  p.nomargin
+    ' Test for a
+    strong User Account
+    |  #{test.lua_script_description}
+- else
+  - test.conditions.each do |condition|
+    p.nomargin
+      ' Test for a
+      strong User Account
+      |  with a username that #{condition.operator.to_s.humanize.downcase} #{condition.condition_to_sentence}.

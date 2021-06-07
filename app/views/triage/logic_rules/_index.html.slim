@@ -1,0 +1,38 @@
+.panel-body
+  .row.mb-0
+    .col-xs-12
+      .pull-left
+        h3.nomargin
+          | EXISTING RULES
+          h4.text-muted.mb-10 On <b>#{app.title}</b>
+  .row.mb-0
+    hr
+  .row.mb-0
+    .col-xs-12
+      table.fullwidth.table.m-0
+        thead.bg-transparent
+          tr
+            th.hidden-sm.hidden-xs Description
+            th Account
+            th Last Updated
+            th &nbsp;
+        tbody
+          - if @logic_rules.present?
+            - @logic_rules.each do |logic_rule|
+              tr
+                td.hidden-sm.hidden-xs = logic_rule.description
+                td = logic_rule.account&.name || "All"
+                td = l logic_rule.updated_at, format: :full
+                td.text-right 
+                  = link_to "View", administration_logic_rule_path(logic_rule), class: "margin-right-10"
+                  = link_to "Edit", edit_administration_logic_rule_path(logic_rule), class: "margin-right-10"
+                  = link_to "Remove", administration_logic_rule_path(logic_rule), method: :delete, class: "margin-right-10"
+          - else
+            tr
+              td align="center" colspan="4"
+                i.fa.fa-exclamation-triangle.text-warning
+                |  No rules found
+
+      - if @pagination.pages > 1
+        .text-center
+          == pagy_bootstrap_nav @pagination

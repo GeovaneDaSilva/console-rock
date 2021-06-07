@@ -1,0 +1,28 @@
+#timeline style="height: 100vh;"
+
+javascript:
+  var opts = {
+    initial_zoom: 0,
+    hash_bookmark: true,
+    timenav_height_percentage: 40,
+    width: 'auto'
+  }
+
+  new TL.Timeline(
+    'timeline',
+    '#{device_r_timeline_url(device, format: :json)}',
+    opts
+  )
+
+- content_for :modals do
+  - cache ["v2/devices/r/timeline/details/modal", app_results, current_user&.timezone] do
+    - app_results.each do |app_result|
+      .modal.full-page tabindex="-1" role="dialog" aria-hidden="true" id="app-result-#{app_result.id}-detail" data-backdrop="static" data-keyboard="false"
+          .modal-dialog
+            .modal-content.padding-10
+              button type="button" class="close" data-dismiss="modal" aria-label="Close"
+                span aria-hidden="true" &times;
+              - cache ["v2/devices/r/breach/detail", app_result, current_user&.timezone] do
+                = render partial: "devices/r/breaches/details", locals: { details: app_result.details }
+            .modal-footer.text-right
+              button.btn.btn-default data-dismiss="modal" Close
